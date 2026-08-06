@@ -1,0 +1,3451 @@
+# API.md
+
+# Cofre de Senhas — Especificação da API
+
+> **Status:** Documento inicial para revisão  
+> **Versão:** 0.2.0  
+> **Última atualização:** 31 de julho de 2026
+
+---
+
+## 1. Objetivo
+
+Este documento define os contratos da API REST do cofre de senhas.
+
+A API será consumida por:
+
+- aplicação Web;
+- aplicativo Android;
+- extensão de navegador futura;
+- integração futura com preenchimento automático no Android.
+
+Este documento deverá permanecer alinhado com:
+
+- `PROJECT_SCOPE.md`;
+- `ARCHITECTURE.md`;
+- `DATABASE.md`;
+- `SECURITY.md`;
+- `TELAS.md`.
+
+---
+
+## 2. Princípios da API
+
+A API deverá:
+
+- ser REST;
+- utilizar JSON;
+- ser versionada;
+- validar autenticação e autorização em todas as rotas protegidas;
+- nunca confiar em permissões apenas do frontend;
+- armazenar somente conteúdo sensível criptografado;
+- não receber credenciais descriptografadas;
+- retornar erros padronizados;
+- suportar idempotência em operações críticas;
+- usar controle de concorrência;
+- registrar auditoria sem dados sensíveis;
+- possuir documentação Swagger/OpenAPI.
+
+---
+
+## 3. Base URL
+
+A API utiliza o mesmo contrato em todos os ambientes.
+
+### Development
+
+```text
+https://api-vault-dev.example.com/api/v1
+```
+
+Origem principal:
+
+```text
+develop
+```
+
+### Staging
+
+```text
+https://api-vault-staging.example.com/api/v1
+```
+
+Origem principal:
+
+```text
+staging
+```
+
+Versão esperada:
+
+```text
+vX.Y.Z-rc.N
+```
+
+### Production
+
+```text
+https://api-vault.example.com/api/v1
+```
+
+Origem principal:
+
+```text
+main
+```
+
+Versão esperada:
+
+```text
+vX.Y.Z
+```
+
+### Regras
+
+- os três ambientes utilizam contratos compatíveis;
+- cada ambiente possui banco, secrets e domínios próprios;
+- development e staging não utilizam dados reais;
+- URLs nunca devem ser hardcoded fora das variáveis de ambiente;
+- produção deverá executar os mesmos digests homologados em staging;
+- a versão implantada deverá ser verificável por `GET /version`.
+
+Os domínios finais serão definidos em `config_user.md` e no Coolify.
+
+## 4. Formato de conteúdo
+
+### Request
+
+```http
+Content-Type: application/json
+Accept: application/json
+```
+
+### Response
+
+```http
+Content-Type: application/json; charset=utf-8
+```
+
+### Codificação
+
+Todos os textos deverão utilizar UTF-8.
+
+---
+
+## 5. Autenticação
+
+### Access token
+
+Rotas protegidas exigem:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+O access token deverá possuir curta duração.
+
+### Refresh token Web
+
+O refresh token será enviado por cookie:
+
+```http
+Set-Cookie: refresh_token=...; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth
+```
+
+A política exata de `SameSite` poderá ser ajustada conforme os domínios finais.
+
+### Refresh token Android
+
+No Android, o refresh token será retornado no corpo somente para o cliente móvel identificado e deverá ser armazenado no Android Keystore.
+
+A implementação deverá diferenciar com segurança o fluxo Web do fluxo Mobile.
+
+---
+
+## 6. Headers comuns
+
+### Request ID
+
+O cliente poderá enviar:
+
+```http
+X-Request-Id: <uuid>
+```
+
+Se não enviar, a API deverá gerar.
+
+A resposta deverá retornar:
+
+```http
+X-Request-Id: <uuid>
+```
+
+### Idempotency Key
+
+Operações críticas poderão exigir:
+
+```http
+Idempotency-Key: <uuid>
+```
+
+### Client Type
+
+Sugestão:
+
+```http
+X-Client-Type: web
+```
+
+Valores aceitos:
+
+```text
+web
+android
+extension
+```
+
+### Client Version
+
+```http
+X-Client-Version: 0.1.0
+```
+
+O cliente deverá informar sua própria versão, não a versão da API.
+
+### Metadados do deployment
+
+A API poderá retornar:
+
+```http
+X-App-Version: 0.4.0-rc.2
+X-App-Commit: b85c091
+X-App-Environment: staging
+```
+
+Esses headers:
+
+- são informativos;
+- não substituem `GET /version`;
+- não devem conter hostname, secret, path interno ou detalhes da infraestrutura;
+- devem ser gerados a partir dos metadados imutáveis do build.
+
+## 7. Envelope de sucesso
+
+### Objeto simples
+
+```json
+{
+  "data": {
+    "id": "018f0000-0000-7000-8000-000000000001"
+  }
+}
+```
+
+### Lista
+
+```json
+{
+  "data": [],
+  "meta": {
+    "cursor": null,
+    "hasMore": false
+  }
+}
+```
+
+### Sem conteúdo
+
+Preferir:
+
+```http
+204 No Content
+```
+
+quando não houver corpo necessário.
+
+---
+
+## 8. Envelope de erro
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Verifique os campos informados.",
+    "requestId": "018f0000-0000-7000-8000-000000000999",
+    "details": [
+      {
+        "field": "email",
+        "code": "INVALID_EMAIL",
+        "message": "Informe um e-mail válido."
+      }
+    ]
+  }
+}
+```
+
+### Regras
+
+A resposta de erro não deverá incluir:
+
+- stack trace;
+- query SQL;
+- segredo;
+- token;
+- cookie;
+- senha;
+- conteúdo descriptografado;
+- chave;
+- detalhes internos desnecessários.
+
+---
+
+## 9. Status HTTP
+
+| Status | Uso                                       |
+| -----: | ----------------------------------------- |
+|  `200` | Consulta ou atualização concluída         |
+|  `201` | Recurso criado                            |
+|  `202` | Operação assíncrona ou pendente           |
+|  `204` | Concluído sem corpo                       |
+|  `400` | Request inválido                          |
+|  `401` | Não autenticado                           |
+|  `403` | Sem permissão                             |
+|  `404` | Recurso não encontrado                    |
+|  `409` | Conflito de versão, duplicidade ou estado |
+|  `410` | Convite expirado ou recurso indisponível  |
+|  `413` | Payload maior que o permitido             |
+|  `415` | Formato não suportado                     |
+|  `422` | Validação semântica                       |
+|  `429` | Rate limit                                |
+|  `500` | Erro inesperado                           |
+|  `503` | Serviço indisponível                      |
+
+---
+
+## 10. Códigos de erro globais
+
+```text
+VALIDATION_ERROR
+INVALID_REQUEST
+UNAUTHORIZED
+TOKEN_EXPIRED
+TOKEN_INVALID
+SESSION_REVOKED
+SESSION_EXPIRED
+ACCESS_DENIED
+RESOURCE_NOT_FOUND
+VERSION_CONFLICT
+IDEMPOTENCY_CONFLICT
+RATE_LIMIT_EXCEEDED
+PAYLOAD_TOO_LARGE
+SERVICE_UNAVAILABLE
+INTERNAL_ERROR
+```
+
+---
+
+## 11. Paginação
+
+### Estratégia
+
+Utilizar paginação por cursor.
+
+### Query
+
+```http
+GET /resource?cursor=<cursor>&limit=50
+```
+
+### Limites
+
+```text
+default: 50
+maximum: 100
+```
+
+### Response
+
+```json
+{
+  "data": [],
+  "meta": {
+    "cursor": "next-cursor",
+    "hasMore": true
+  }
+}
+```
+
+O cursor deverá ser opaco.
+
+---
+
+## 12. Ordenação
+
+Quando suportada:
+
+```http
+?sort=updatedAt&order=desc
+```
+
+Valores permitidos deverão ser restritos por endpoint.
+
+Nunca interpolar nomes de coluna recebidos diretamente.
+
+---
+
+## 13. Controle de concorrência
+
+Recursos mutáveis utilizam `version`.
+
+### Request
+
+```json
+{
+  "expectedVersion": 3,
+  "encryptedPayload": {
+    "cryptoVersion": 1,
+    "schemaVersion": 1,
+    "nonce": "base64url",
+    "ciphertext": "base64url"
+  }
+}
+```
+
+### Conflito
+
+```http
+409 Conflict
+```
+
+```json
+{
+  "error": {
+    "code": "VERSION_CONFLICT",
+    "message": "O registro foi alterado por outro usuário.",
+    "requestId": "uuid",
+    "details": [
+      {
+        "field": "expectedVersion",
+        "code": "OUTDATED_VERSION"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 14. Estrutura criptografada comum
+
+### EncryptedPayload
+
+```json
+{
+  "cryptoVersion": 1,
+  "schemaVersion": 1,
+  "algorithm": "XCHACHA20-POLY1305",
+  "nonce": "base64url",
+  "ciphertext": "base64url"
+}
+```
+
+### Regras
+
+- `nonce` obrigatório;
+- `ciphertext` obrigatório;
+- algoritmo permitido pela versão;
+- limites de tamanho;
+- base64url válido;
+- API valida estrutura, não conteúdo descriptografado.
+
+---
+
+## 15. Estrutura de envelope de chave
+
+```json
+{
+  "keyVersion": 1,
+  "cryptoVersion": 1,
+  "algorithm": "X25519-XCHACHA20-POLY1305",
+  "ephemeralPublicKey": "base64url",
+  "nonce": "base64url",
+  "encryptedVaultKey": "base64url"
+}
+```
+
+---
+
+# PARTE I — HEALTH, VERSÃO E SETUP
+
+---
+
+## 16. GET `/health/live`
+
+### Objetivo
+
+Verificar se o processo está ativo.
+
+### Autenticação
+
+Não.
+
+### Response `200`
+
+```json
+{
+  "data": {
+    "status": "ok",
+    "service": "vault-api",
+    "timestamp": "2026-07-31T18:00:00.000Z"
+  }
+}
+```
+
+O endpoint não deverá expor banco, hostname, secrets, stack ou versões detalhadas de dependências.
+
+---
+
+## 17. GET `/health/ready`
+
+### Objetivo
+
+Verificar se a API está pronta para receber tráfego.
+
+### Verificações
+
+- conexão com MySQL;
+- migrations;
+- dependências obrigatórias;
+- configuração mínima do ambiente.
+
+### Response `200`
+
+```json
+{
+  "data": {
+    "status": "ready",
+    "database": "ok"
+  }
+}
+```
+
+### Response `503`
+
+```json
+{
+  "error": {
+    "code": "SERVICE_UNAVAILABLE",
+    "message": "O serviço ainda não está disponível.",
+    "requestId": "uuid",
+    "details": []
+  }
+}
+```
+
+---
+
+## 18. GET `/version`
+
+### Objetivo
+
+Identificar com precisão o artefato implantado.
+
+### Autenticação
+
+Não.
+
+### Cache
+
+```http
+Cache-Control: no-store
+```
+
+### Response `200`
+
+Development:
+
+```json
+{
+  "data": {
+    "service": "vault-api",
+    "version": "0.4.0-dev",
+    "commit": "b85c091",
+    "environment": "development",
+    "builtAt": "2026-07-31T18:00:00.000Z"
+  }
+}
+```
+
+Staging:
+
+```json
+{
+  "data": {
+    "service": "vault-api",
+    "version": "0.4.0-rc.2",
+    "commit": "b85c091",
+    "environment": "staging",
+    "builtAt": "2026-07-31T18:00:00.000Z"
+  }
+}
+```
+
+Production:
+
+```json
+{
+  "data": {
+    "service": "vault-api",
+    "version": "0.4.0",
+    "commit": "b85c091",
+    "environment": "production",
+    "builtAt": "2026-07-31T18:00:00.000Z"
+  }
+}
+```
+
+### Fonte dos valores
+
+Os dados deverão ser injetados no build:
+
+```text
+APP_VERSION
+APP_COMMIT
+APP_ENVIRONMENT
+APP_BUILT_AT
+```
+
+### Regras
+
+- não consultar o GitHub durante a request;
+- não executar comandos Git em runtime;
+- não retornar branch, token ou identificador do Coolify;
+- `commit` deverá identificar o código utilizado no build;
+- `environment` aceitará somente `development`, `staging` ou `production`;
+- a response deverá ser validada após cada deployment;
+- staging e production deverão corresponder ao `release-manifest.json`.
+
+---
+
+## 19. GET `/setup/status`
+
+### Objetivo
+
+Informar se o primeiro usuário precisa ser criado.
+
+### Autenticação
+
+Não.
+
+### Response
+
+```json
+{
+  "data": {
+    "setupRequired": true
+  }
+}
+```
+
+### Segurança
+
+Não retornar quantidade de usuários ou detalhes internos.
+
+---
+
+## 20. POST `/setup`
+
+### Objetivo
+
+Criar o primeiro usuário.
+
+### Autenticação
+
+Não, somente enquanto `setupRequired = true`.
+
+### Headers
+
+```http
+Idempotency-Key: <uuid>
+```
+
+### Request
+
+```json
+{
+  "name": "Usuário inicial",
+  "email": "owner@example.test",
+  "authSecret": "base64url",
+  "keyBundle": {
+    "kdfAlgorithm": "ARGON2ID",
+    "kdfVersion": 1,
+    "kdfSalt": "base64url",
+    "kdfMemory": 65536,
+    "kdfIterations": 3,
+    "kdfParallelism": 1,
+    "publicKey": "base64url",
+    "encryptedPrivateKey": "base64url",
+    "privateKeyNonce": "base64url",
+    "cryptoVersion": 1,
+    "schemaVersion": 1
+  }
+}
+```
+
+### Response `201`
+
+```json
+{
+  "data": {
+    "user": {
+      "id": "uuid",
+      "name": "Usuário inicial",
+      "email": "owner@example.test"
+    },
+    "accessToken": "token",
+    "expiresIn": 900
+  }
+}
+```
+
+### Erros
+
+```text
+SETUP_ALREADY_COMPLETED
+INVALID_KDF_PARAMETERS
+INVALID_KEY_BUNDLE
+IDEMPOTENCY_CONFLICT
+```
+
+---
+
+# PARTE II — AUTENTICAÇÃO
+
+---
+
+## 21. GET `/auth/parameters`
+
+### Objetivo
+
+Retornar parâmetros necessários para derivação no cliente.
+
+### Query
+
+```http
+GET /auth/parameters?email=owner@example.test
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "kdfAlgorithm": "ARGON2ID",
+    "kdfVersion": 1,
+    "kdfSalt": "base64url",
+    "kdfMemory": 65536,
+    "kdfIterations": 3,
+    "kdfParallelism": 1
+  }
+}
+```
+
+### Segurança
+
+Para e-mail inexistente, retornar parâmetros sintéticos válidos.
+
+A resposta não deve revelar se a conta existe.
+
+### Rate limit
+
+Obrigatório.
+
+---
+
+## 22. POST `/auth/login`
+
+### Objetivo
+
+Autenticar usuário com `AuthSecret`.
+
+### Request Web
+
+```json
+{
+  "email": "owner@example.test",
+  "authSecret": "base64url",
+  "client": {
+    "type": "web",
+    "name": "Firefox no Windows"
+  }
+}
+```
+
+### Request Android
+
+```json
+{
+  "email": "owner@example.test",
+  "authSecret": "base64url",
+  "client": {
+    "type": "android",
+    "name": "Android"
+  }
+}
+```
+
+### Response Web `200`
+
+```json
+{
+  "data": {
+    "accessToken": "token",
+    "expiresIn": 900,
+    "user": {
+      "id": "uuid",
+      "name": "Usuário",
+      "email": "owner@example.test"
+    }
+  }
+}
+```
+
+O refresh token é enviado em cookie.
+
+### Response Android `200`
+
+```json
+{
+  "data": {
+    "accessToken": "token",
+    "refreshToken": "opaque-token",
+    "expiresIn": 900,
+    "user": {
+      "id": "uuid",
+      "name": "Usuário",
+      "email": "owner@example.test"
+    }
+  }
+}
+```
+
+### Erros
+
+```text
+INVALID_CREDENTIALS
+ACCOUNT_DISABLED
+ACCOUNT_LOCKED
+RATE_LIMIT_EXCEEDED
+```
+
+### Mensagem pública
+
+```text
+E-mail ou senha inválidos.
+```
+
+---
+
+## 23. POST `/auth/refresh`
+
+### Objetivo
+
+Rotacionar o refresh token e emitir novo access token.
+
+### Request Web
+
+Sem corpo obrigatório. Token recebido via cookie.
+
+### Request Android
+
+```json
+{
+  "refreshToken": "opaque-token"
+}
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "accessToken": "new-access-token",
+    "refreshToken": "new-refresh-token-only-mobile",
+    "expiresIn": 900
+  }
+}
+```
+
+### Erros
+
+```text
+REFRESH_TOKEN_INVALID
+REFRESH_TOKEN_EXPIRED
+REFRESH_TOKEN_REUSED
+SESSION_REVOKED
+```
+
+### Reutilização
+
+Em reutilização detectada:
+
+- revogar sessão ou família;
+- retornar `401`;
+- registrar auditoria.
+
+---
+
+## 24. POST `/auth/logout`
+
+### Objetivo
+
+Encerrar a sessão atual.
+
+### Autenticação
+
+Sim.
+
+### Request Android
+
+```json
+{
+  "refreshToken": "opaque-token"
+}
+```
+
+### Response
+
+```http
+204 No Content
+```
+
+---
+
+## 25. POST `/auth/logout-all`
+
+### Objetivo
+
+Revogar todas as sessões do usuário.
+
+### Autenticação
+
+Sim.
+
+### Request
+
+```json
+{
+  "currentSessionIncluded": true
+}
+```
+
+### Response
+
+```http
+204 No Content
+```
+
+---
+
+# PARTE III — USUÁRIO E CHAVES
+
+---
+
+## 26. GET `/users/me`
+
+### Objetivo
+
+Retornar perfil atual.
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "name": "Usuário",
+    "email": "owner@example.test",
+    "status": "ACTIVE",
+    "createdAt": "2026-07-30T22:00:00.000Z"
+  }
+}
+```
+
+---
+
+## 27. PATCH `/users/me`
+
+### Objetivo
+
+Atualizar dados permitidos do perfil.
+
+### Request
+
+```json
+{
+  "name": "Novo nome"
+}
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "name": "Novo nome",
+    "email": "owner@example.test",
+    "updatedAt": "2026-07-30T22:10:00.000Z"
+  }
+}
+```
+
+---
+
+## 28. GET `/users/me/key-bundle`
+
+### Objetivo
+
+Retornar o bundle criptográfico do usuário.
+
+### Response
+
+```json
+{
+  "data": {
+    "kdfAlgorithm": "ARGON2ID",
+    "kdfVersion": 1,
+    "kdfSalt": "base64url",
+    "kdfMemory": 65536,
+    "kdfIterations": 3,
+    "kdfParallelism": 1,
+    "publicKey": "base64url",
+    "encryptedPrivateKey": "base64url",
+    "privateKeyNonce": "base64url",
+    "cryptoVersion": 1,
+    "schemaVersion": 1,
+    "updatedAt": "2026-07-30T22:00:00.000Z"
+  }
+}
+```
+
+---
+
+## 29. POST `/users/me/change-password`
+
+### Objetivo
+
+Atualizar segredo autenticador e recriptografar a chave privada.
+
+### Request
+
+```json
+{
+  "currentAuthSecret": "base64url",
+  "newAuthSecret": "base64url",
+  "newKeyBundle": {
+    "kdfAlgorithm": "ARGON2ID",
+    "kdfVersion": 1,
+    "kdfSalt": "base64url",
+    "kdfMemory": 65536,
+    "kdfIterations": 3,
+    "kdfParallelism": 1,
+    "publicKey": "base64url",
+    "encryptedPrivateKey": "base64url",
+    "privateKeyNonce": "base64url",
+    "cryptoVersion": 1,
+    "schemaVersion": 1
+  },
+  "revokeOtherSessions": true
+}
+```
+
+### Response
+
+```http
+204 No Content
+```
+
+### Regras
+
+- chave pública deve permanecer igual, salvo fluxo específico;
+- novo salt obrigatório;
+- validar segredo atual;
+- usar transação;
+- revogar outras sessões quando solicitado.
+
+### Erros
+
+```text
+CURRENT_CREDENTIAL_INVALID
+PUBLIC_KEY_CHANGE_NOT_ALLOWED
+INVALID_KEY_BUNDLE
+```
+
+---
+
+# PARTE IV — SESSÕES
+
+---
+
+## 30. GET `/sessions`
+
+### Objetivo
+
+Listar sessões do usuário.
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "deviceName": "Firefox no Windows",
+      "platform": "web",
+      "ipAddress": "192.0.2.10",
+      "lastUsedAt": "2026-07-30T22:00:00.000Z",
+      "expiresAt": "2026-08-29T22:00:00.000Z",
+      "isCurrent": true,
+      "status": "ACTIVE"
+    }
+  ]
+}
+```
+
+### Segurança
+
+Não retornar refresh token ou hash.
+
+---
+
+## 31. DELETE `/sessions/:sessionId`
+
+### Objetivo
+
+Revogar uma sessão específica.
+
+### Response
+
+```http
+204 No Content
+```
+
+### Erros
+
+```text
+SESSION_NOT_FOUND
+SESSION_ALREADY_REVOKED
+```
+
+---
+
+## 32. DELETE `/sessions`
+
+### Objetivo
+
+Revogar todas as outras sessões.
+
+### Query
+
+```http
+DELETE /sessions?keepCurrent=true
+```
+
+### Response
+
+```http
+204 No Content
+```
+
+---
+
+# PARTE V — COFRES
+
+---
+
+## 33. GET `/vaults`
+
+### Objetivo
+
+Listar cofres acessíveis.
+
+### Query
+
+```text
+cursor
+limit
+type=all|private|shared
+sort=updatedAt
+order=asc|desc
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "encryptedMetadata": {
+        "cryptoVersion": 1,
+        "schemaVersion": 1,
+        "algorithm": "XCHACHA20-POLY1305",
+        "nonce": "base64url",
+        "ciphertext": "base64url"
+      },
+      "role": "OWNER",
+      "memberCount": 1,
+      "siteCount": 3,
+      "version": 1,
+      "keyVersion": 1,
+      "updatedAt": "2026-07-30T22:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "cursor": null,
+    "hasMore": false
+  }
+}
+```
+
+### Observação
+
+A API conhece contagens, mas não nomes.
+
+---
+
+## 34. POST `/vaults`
+
+### Objetivo
+
+Criar cofre privado.
+
+### Headers
+
+```http
+Idempotency-Key: <uuid>
+```
+
+### Request
+
+```json
+{
+  "encryptedMetadata": {
+    "cryptoVersion": 1,
+    "schemaVersion": 1,
+    "algorithm": "XCHACHA20-POLY1305",
+    "nonce": "base64url",
+    "ciphertext": "base64url"
+  },
+  "ownerEnvelope": {
+    "keyVersion": 1,
+    "cryptoVersion": 1,
+    "algorithm": "X25519-XCHACHA20-POLY1305",
+    "ephemeralPublicKey": "base64url",
+    "nonce": "base64url",
+    "encryptedVaultKey": "base64url"
+  }
+}
+```
+
+### Response `201`
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "role": "OWNER",
+    "version": 1,
+    "keyVersion": 1,
+    "createdAt": "2026-07-30T22:00:00.000Z"
+  }
+}
+```
+
+### Erros
+
+```text
+VAULT_LIMIT_REACHED
+INVALID_ENVELOPE
+IDEMPOTENCY_CONFLICT
+```
+
+---
+
+## 35. GET `/vaults/:vaultId`
+
+### Objetivo
+
+Retornar metadados estruturais do cofre.
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "encryptedMetadata": {
+      "cryptoVersion": 1,
+      "schemaVersion": 1,
+      "algorithm": "XCHACHA20-POLY1305",
+      "nonce": "base64url",
+      "ciphertext": "base64url"
+    },
+    "role": "EDITOR",
+    "memberCount": 2,
+    "siteCount": 3,
+    "version": 2,
+    "keyVersion": 1,
+    "isLockedForRekey": false,
+    "createdAt": "2026-07-30T22:00:00.000Z",
+    "updatedAt": "2026-07-30T22:20:00.000Z"
+  }
+}
+```
+
+---
+
+## 36. PATCH `/vaults/:vaultId`
+
+### Objetivo
+
+Atualizar metadados criptografados do cofre.
+
+### Permissão
+
+OWNER.
+
+### Request
+
+```json
+{
+  "expectedVersion": 2,
+  "encryptedMetadata": {
+    "cryptoVersion": 1,
+    "schemaVersion": 1,
+    "algorithm": "XCHACHA20-POLY1305",
+    "nonce": "base64url",
+    "ciphertext": "base64url"
+  }
+}
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "version": 3,
+    "updatedAt": "2026-07-30T22:30:00.000Z"
+  }
+}
+```
+
+---
+
+## 37. DELETE `/vaults/:vaultId`
+
+### Objetivo
+
+Excluir o cofre.
+
+### Permissão
+
+OWNER.
+
+### Request
+
+```json
+{
+  "expectedVersion": 3,
+  "confirmation": true
+}
+```
+
+### Response
+
+```http
+204 No Content
+```
+
+### Erros
+
+```text
+VAULT_ACCESS_DENIED
+VAULT_LOCKED_FOR_REKEY
+VERSION_CONFLICT
+```
+
+---
+
+## 38. GET `/vaults/:vaultId/snapshot`
+
+### Objetivo
+
+Retornar snapshot criptografado do cofre.
+
+### Response
+
+```json
+{
+  "data": {
+    "vault": {
+      "id": "uuid",
+      "encryptedMetadata": {
+        "cryptoVersion": 1,
+        "schemaVersion": 1,
+        "algorithm": "XCHACHA20-POLY1305",
+        "nonce": "base64url",
+        "ciphertext": "base64url"
+      },
+      "version": 1,
+      "keyVersion": 1
+    },
+    "currentUserEnvelope": {
+      "keyVersion": 1,
+      "cryptoVersion": 1,
+      "algorithm": "X25519-XCHACHA20-POLY1305",
+      "ephemeralPublicKey": "base64url",
+      "nonce": "base64url",
+      "encryptedVaultKey": "base64url"
+    },
+    "sites": [],
+    "credentials": [],
+    "members": [],
+    "syncCursor": "opaque-cursor"
+  }
+}
+```
+
+### Regras
+
+- apenas membro ativo;
+- retornar somente envelope do usuário atual;
+- não retornar envelopes de outros usuários;
+- cofre em rekey poderá restringir mutações.
+
+---
+
+## 39. GET `/vaults/:vaultId/changes`
+
+### Objetivo
+
+Sincronização incremental futura ou opcional.
+
+### Query
+
+```http
+GET /vaults/:vaultId/changes?cursor=<cursor>&limit=100
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "entityType": "CREDENTIAL",
+      "entityId": "uuid",
+      "operation": "UPDATE",
+      "version": 4,
+      "encryptedPayload": {
+        "cryptoVersion": 1,
+        "schemaVersion": 1,
+        "algorithm": "XCHACHA20-POLY1305",
+        "nonce": "base64url",
+        "ciphertext": "base64url"
+      },
+      "occurredAt": "2026-07-30T22:30:00.000Z"
+    }
+  ],
+  "meta": {
+    "cursor": "next-cursor",
+    "hasMore": false
+  }
+}
+```
+
+### Status
+
+Opcional na primeira versão.
+
+---
+
+# PARTE VI — MEMBROS
+
+---
+
+## 40. GET `/vaults/:vaultId/members`
+
+### Objetivo
+
+Listar membros e respectivos papéis.
+
+### Permissão
+
+OWNER para gerenciamento.
+
+Membros poderão receber lista limitada caso necessário para interface.
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "user": {
+        "id": "uuid",
+        "name": "Usuário",
+        "email": "user@example.test"
+      },
+      "role": "OWNER",
+      "status": "ACTIVE",
+      "joinedAt": "2026-07-30T22:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+## 41. PATCH `/vaults/:vaultId/members/:memberId`
+
+### Objetivo
+
+Alterar papel de membro.
+
+### Permissão
+
+OWNER.
+
+### V1
+
+Como existe apenas EDITOR além de OWNER, este endpoint poderá ser reservado para evolução futura.
+
+### Request
+
+```json
+{
+  "role": "EDITOR"
+}
+```
+
+---
+
+## 42. DELETE `/vaults/:vaultId/members/:memberId`
+
+### Objetivo
+
+Iniciar remoção de membro.
+
+### Permissão
+
+OWNER.
+
+### Request
+
+```json
+{
+  "reason": "ACCESS_REVOKED"
+}
+```
+
+### Response `202`
+
+```json
+{
+  "data": {
+    "rekeyRequired": true,
+    "rekeyId": "uuid",
+    "status": "PENDING"
+  }
+}
+```
+
+### Regra
+
+A remoção efetiva requer rekey.
+
+---
+
+## 43. POST `/vaults/:vaultId/leave`
+
+### Objetivo
+
+Permitir que EDITOR saia do cofre.
+
+### Request
+
+```json
+{
+  "confirmation": true
+}
+```
+
+### Response
+
+```http
+204 No Content
+```
+
+### Erros
+
+```text
+OWNER_CANNOT_LEAVE
+MEMBERSHIP_NOT_ACTIVE
+```
+
+---
+
+# PARTE VII — CONVITES
+
+---
+
+## 44. GET `/invitations`
+
+### Objetivo
+
+Listar convites recebidos pelo usuário autenticado.
+
+### Query
+
+```text
+status=PENDING|ACCEPTED|DECLINED|CANCELLED|EXPIRED
+cursor
+limit
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "vaultId": "uuid",
+      "encryptedVaultMetadata": {
+        "cryptoVersion": 1,
+        "schemaVersion": 1,
+        "algorithm": "XCHACHA20-POLY1305",
+        "nonce": "base64url",
+        "ciphertext": "base64url"
+      },
+      "invitedEmail": "user@example.test",
+      "role": "EDITOR",
+      "status": "PENDING",
+      "createdBy": {
+        "id": "uuid",
+        "name": "Owner"
+      },
+      "expiresAt": "2026-08-06T22:00:00.000Z",
+      "createdAt": "2026-07-30T22:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "cursor": null,
+    "hasMore": false
+  }
+}
+```
+
+---
+
+## 45. POST `/vaults/:vaultId/invitations`
+
+### Objetivo
+
+Criar convite.
+
+### Permissão
+
+OWNER.
+
+### Headers
+
+```http
+Idempotency-Key: <uuid>
+```
+
+### Request
+
+```json
+{
+  "email": "user@example.test",
+  "role": "EDITOR",
+  "tokenHash": "base64url",
+  "encryptedVaultKey": "base64url",
+  "nonce": "base64url",
+  "cryptoVersion": 1,
+  "expiresAt": "2026-08-06T22:00:00.000Z"
+}
+```
+
+### Response `201`
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "status": "PENDING",
+    "expiresAt": "2026-08-06T22:00:00.000Z"
+  }
+}
+```
+
+### Observação
+
+A API não recebe `inviteSecret`.
+
+### Erros
+
+```text
+INVITATION_ALREADY_PENDING
+USER_ALREADY_MEMBER
+INVALID_INVITATION_ROLE
+INVITATION_LIMIT_REACHED
+```
+
+---
+
+## 46. GET `/vaults/:vaultId/invitations`
+
+### Objetivo
+
+Listar convites emitidos para um cofre.
+
+### Permissão
+
+OWNER.
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "email": "user@example.test",
+      "role": "EDITOR",
+      "status": "PENDING",
+      "expiresAt": "2026-08-06T22:00:00.000Z",
+      "createdAt": "2026-07-30T22:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+## 47. GET `/invitations/by-token/:token`
+
+### Objetivo
+
+Consultar convite por token público.
+
+### Autenticação
+
+Opcional.
+
+### Segurança
+
+A API deverá hashear o token recebido antes da consulta.
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "vaultId": "uuid",
+    "invitedEmail": "user@example.test",
+    "role": "EDITOR",
+    "status": "PENDING",
+    "encryptedVaultKey": "base64url",
+    "nonce": "base64url",
+    "cryptoVersion": 1,
+    "expiresAt": "2026-08-06T22:00:00.000Z",
+    "requiresAccount": true
+  }
+}
+```
+
+### Erros
+
+```text
+INVITATION_NOT_FOUND
+INVITATION_EXPIRED
+INVITATION_CANCELLED
+INVITATION_ALREADY_USED
+```
+
+---
+
+## 48. POST `/invitations/:invitationId/accept`
+
+### Objetivo
+
+Aceitar convite e criar membership/envelope.
+
+### Autenticação
+
+Sim.
+
+### Headers
+
+```http
+Idempotency-Key: <uuid>
+```
+
+### Request
+
+```json
+{
+  "token": "opaque-token",
+  "memberEnvelope": {
+    "keyVersion": 1,
+    "cryptoVersion": 1,
+    "algorithm": "X25519-XCHACHA20-POLY1305",
+    "ephemeralPublicKey": "base64url",
+    "nonce": "base64url",
+    "encryptedVaultKey": "base64url"
+  }
+}
+```
+
+### Response `201`
+
+```json
+{
+  "data": {
+    "vaultId": "uuid",
+    "membershipId": "uuid",
+    "role": "EDITOR",
+    "status": "ACTIVE"
+  }
+}
+```
+
+### Erros
+
+```text
+INVITATION_EMAIL_MISMATCH
+INVITATION_EXPIRED
+INVITATION_ALREADY_USED
+INVALID_MEMBER_ENVELOPE
+```
+
+---
+
+## 49. POST `/invitations/:invitationId/decline`
+
+### Objetivo
+
+Recusar convite.
+
+### Request
+
+```json
+{
+  "token": "opaque-token"
+}
+```
+
+### Response
+
+```http
+204 No Content
+```
+
+---
+
+## 50. DELETE `/vaults/:vaultId/invitations/:invitationId`
+
+### Objetivo
+
+Cancelar convite.
+
+### Permissão
+
+OWNER.
+
+### Response
+
+```http
+204 No Content
+```
+
+---
+
+# PARTE VIII — SITES
+
+---
+
+## 51. GET `/vaults/:vaultId/sites`
+
+### Objetivo
+
+Listar sites criptografados do cofre.
+
+### Query
+
+```text
+cursor
+limit
+updatedAfter
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "vaultId": "uuid",
+      "encryptedPayload": {
+        "cryptoVersion": 1,
+        "schemaVersion": 1,
+        "algorithm": "XCHACHA20-POLY1305",
+        "nonce": "base64url",
+        "ciphertext": "base64url"
+      },
+      "credentialCount": 2,
+      "keyVersion": 1,
+      "version": 1,
+      "createdAt": "2026-07-30T22:00:00.000Z",
+      "updatedAt": "2026-07-30T22:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "cursor": null,
+    "hasMore": false
+  }
+}
+```
+
+---
+
+## 52. POST `/vaults/:vaultId/sites`
+
+### Objetivo
+
+Criar site.
+
+### Permissão
+
+OWNER ou EDITOR.
+
+### Headers
+
+```http
+Idempotency-Key: <uuid>
+```
+
+### Request
+
+```json
+{
+  "id": "client-generated-uuid",
+  "encryptedPayload": {
+    "cryptoVersion": 1,
+    "schemaVersion": 1,
+    "algorithm": "XCHACHA20-POLY1305",
+    "nonce": "base64url",
+    "ciphertext": "base64url"
+  },
+  "keyVersion": 1
+}
+```
+
+### Response `201`
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "vaultId": "uuid",
+    "version": 1,
+    "createdAt": "2026-07-30T22:00:00.000Z"
+  }
+}
+```
+
+### Erros
+
+```text
+VAULT_LOCKED_FOR_REKEY
+SITE_LIMIT_REACHED
+KEY_VERSION_MISMATCH
+```
+
+---
+
+## 53. GET `/vaults/:vaultId/sites/:siteId`
+
+### Objetivo
+
+Retornar site criptografado.
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "vaultId": "uuid",
+    "encryptedPayload": {
+      "cryptoVersion": 1,
+      "schemaVersion": 1,
+      "algorithm": "XCHACHA20-POLY1305",
+      "nonce": "base64url",
+      "ciphertext": "base64url"
+    },
+    "credentialCount": 2,
+    "keyVersion": 1,
+    "version": 1,
+    "createdAt": "2026-07-30T22:00:00.000Z",
+    "updatedAt": "2026-07-30T22:00:00.000Z"
+  }
+}
+```
+
+---
+
+## 54. PATCH `/vaults/:vaultId/sites/:siteId`
+
+### Objetivo
+
+Atualizar site.
+
+### Request
+
+```json
+{
+  "expectedVersion": 1,
+  "encryptedPayload": {
+    "cryptoVersion": 1,
+    "schemaVersion": 1,
+    "algorithm": "XCHACHA20-POLY1305",
+    "nonce": "base64url",
+    "ciphertext": "base64url"
+  },
+  "keyVersion": 1
+}
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "version": 2,
+    "updatedAt": "2026-07-30T22:10:00.000Z"
+  }
+}
+```
+
+---
+
+## 55. DELETE `/vaults/:vaultId/sites/:siteId`
+
+### Objetivo
+
+Excluir site e credenciais relacionadas.
+
+### Request
+
+```json
+{
+  "expectedVersion": 2,
+  "confirmation": true
+}
+```
+
+### Response
+
+```http
+204 No Content
+```
+
+---
+
+# PARTE IX — CREDENCIAIS
+
+---
+
+## 56. GET `/vaults/:vaultId/sites/:siteId/credentials`
+
+### Objetivo
+
+Listar credenciais criptografadas de um site.
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "vaultId": "uuid",
+      "siteId": "uuid",
+      "encryptedPayload": {
+        "cryptoVersion": 1,
+        "schemaVersion": 1,
+        "algorithm": "XCHACHA20-POLY1305",
+        "nonce": "base64url",
+        "ciphertext": "base64url"
+      },
+      "keyVersion": 1,
+      "version": 1,
+      "createdAt": "2026-07-30T22:00:00.000Z",
+      "updatedAt": "2026-07-30T22:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+## 57. POST `/vaults/:vaultId/sites/:siteId/credentials`
+
+### Objetivo
+
+Criar credencial.
+
+### Headers
+
+```http
+Idempotency-Key: <uuid>
+```
+
+### Request
+
+```json
+{
+  "id": "client-generated-uuid",
+  "encryptedPayload": {
+    "cryptoVersion": 1,
+    "schemaVersion": 1,
+    "algorithm": "XCHACHA20-POLY1305",
+    "nonce": "base64url",
+    "ciphertext": "base64url"
+  },
+  "keyVersion": 1
+}
+```
+
+### Response `201`
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "siteId": "uuid",
+    "vaultId": "uuid",
+    "version": 1,
+    "createdAt": "2026-07-30T22:00:00.000Z"
+  }
+}
+```
+
+---
+
+## 58. GET `/vaults/:vaultId/sites/:siteId/credentials/:credentialId`
+
+### Objetivo
+
+Retornar credencial criptografada.
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "vaultId": "uuid",
+    "siteId": "uuid",
+    "encryptedPayload": {
+      "cryptoVersion": 1,
+      "schemaVersion": 1,
+      "algorithm": "XCHACHA20-POLY1305",
+      "nonce": "base64url",
+      "ciphertext": "base64url"
+    },
+    "keyVersion": 1,
+    "version": 1,
+    "createdBy": {
+      "id": "uuid",
+      "name": "Usuário"
+    },
+    "updatedBy": {
+      "id": "uuid",
+      "name": "Usuário"
+    },
+    "createdAt": "2026-07-30T22:00:00.000Z",
+    "updatedAt": "2026-07-30T22:00:00.000Z"
+  }
+}
+```
+
+---
+
+## 59. PATCH `/vaults/:vaultId/sites/:siteId/credentials/:credentialId`
+
+### Objetivo
+
+Atualizar credencial.
+
+### Request
+
+```json
+{
+  "expectedVersion": 1,
+  "encryptedPayload": {
+    "cryptoVersion": 1,
+    "schemaVersion": 1,
+    "algorithm": "XCHACHA20-POLY1305",
+    "nonce": "base64url",
+    "ciphertext": "base64url"
+  },
+  "keyVersion": 1
+}
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "version": 2,
+    "updatedAt": "2026-07-30T22:10:00.000Z"
+  }
+}
+```
+
+---
+
+## 60. DELETE `/vaults/:vaultId/sites/:siteId/credentials/:credentialId`
+
+### Objetivo
+
+Excluir credencial.
+
+### Request
+
+```json
+{
+  "expectedVersion": 2,
+  "confirmation": true
+}
+```
+
+### Response
+
+```http
+204 No Content
+```
+
+---
+
+# PARTE X — IMPORTAÇÃO
+
+---
+
+## 61. POST `/imports`
+
+### Objetivo
+
+Criar job de importação.
+
+### Autenticação
+
+Sim.
+
+### Headers
+
+```http
+Idempotency-Key: <uuid>
+```
+
+### Importante
+
+O CSV não é enviado.
+
+### Request
+
+```json
+{
+  "fileName": "credenciais.csv",
+  "fileSize": 2048,
+  "summary": {
+    "totalRows": 20,
+    "validRows": 18,
+    "ignoredRows": 2,
+    "failedRows": 0
+  },
+  "vaults": [
+    {
+      "vaultId": "uuid",
+      "siteCount": 5,
+      "credentialCount": 18
+    }
+  ]
+}
+```
+
+### Response `201`
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "status": "PENDING",
+    "createdAt": "2026-07-30T22:00:00.000Z"
+  }
+}
+```
+
+---
+
+## 62. POST `/imports/:importId/vaults/:vaultId/commit`
+
+### Objetivo
+
+Gravar lote criptografado de um cofre.
+
+### Headers
+
+```http
+Idempotency-Key: <uuid>
+```
+
+### Request
+
+```json
+{
+  "sites": [
+    {
+      "id": "uuid",
+      "encryptedPayload": {
+        "cryptoVersion": 1,
+        "schemaVersion": 1,
+        "algorithm": "XCHACHA20-POLY1305",
+        "nonce": "base64url",
+        "ciphertext": "base64url"
+      },
+      "keyVersion": 1
+    }
+  ],
+  "credentials": [
+    {
+      "id": "uuid",
+      "siteId": "uuid",
+      "encryptedPayload": {
+        "cryptoVersion": 1,
+        "schemaVersion": 1,
+        "algorithm": "XCHACHA20-POLY1305",
+        "nonce": "base64url",
+        "ciphertext": "base64url"
+      },
+      "keyVersion": 1
+    }
+  ]
+}
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "importId": "uuid",
+    "vaultId": "uuid",
+    "status": "COMPLETED",
+    "sitesCreated": 5,
+    "credentialsCreated": 18
+  }
+}
+```
+
+### Regras
+
+- validar membership;
+- OWNER ou EDITOR;
+- validar limites;
+- transação por cofre;
+- não aceitar sobrescrita automática;
+- IDs devem ser únicos;
+- `siteId` deve pertencer ao mesmo lote ou já existir no cofre;
+- idempotência obrigatória.
+
+---
+
+## 63. POST `/imports/:importId/complete`
+
+### Objetivo
+
+Finalizar job.
+
+### Request
+
+```json
+{
+  "status": "COMPLETED"
+}
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "status": "COMPLETED",
+    "totalRows": 20,
+    "validRows": 18,
+    "ignoredRows": 2,
+    "failedRows": 0,
+    "vaultsCreated": 1,
+    "sitesCreated": 5,
+    "sitesReused": 2,
+    "completedAt": "2026-07-30T22:10:00.000Z"
+  }
+}
+```
+
+---
+
+## 64. GET `/imports/:importId`
+
+### Objetivo
+
+Consultar resultado.
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "status": "COMPLETED",
+    "fileName": "credenciais.csv",
+    "totalRows": 20,
+    "validRows": 18,
+    "ignoredRows": 2,
+    "failedRows": 0,
+    "vaultsCreated": 1,
+    "sitesCreated": 5,
+    "sitesReused": 2,
+    "createdAt": "2026-07-30T22:00:00.000Z",
+    "completedAt": "2026-07-30T22:10:00.000Z"
+  }
+}
+```
+
+---
+
+## 65. POST `/imports/:importId/cancel`
+
+### Objetivo
+
+Cancelar job ainda não finalizado.
+
+### Response
+
+```http
+204 No Content
+```
+
+---
+
+# PARTE XI — REKEY
+
+---
+
+## 66. POST `/vaults/:vaultId/rekey/start`
+
+### Objetivo
+
+Iniciar rotação de chave.
+
+### Permissão
+
+OWNER.
+
+### Headers
+
+```http
+Idempotency-Key: <uuid>
+```
+
+### Request
+
+```json
+{
+  "removedUserId": "uuid",
+  "expectedVaultVersion": 4,
+  "fromKeyVersion": 1,
+  "toKeyVersion": 2
+}
+```
+
+### Response `202`
+
+```json
+{
+  "data": {
+    "rekeyId": "uuid",
+    "vaultId": "uuid",
+    "status": "PROCESSING",
+    "fromKeyVersion": 1,
+    "toKeyVersion": 2,
+    "siteCount": 10,
+    "credentialCount": 25
+  }
+}
+```
+
+### Efeito
+
+- bloquear mutações;
+- impedir acesso do membro removido;
+- retornar snapshot ao OWNER em chamada separada.
+
+---
+
+## 67. GET `/vaults/:vaultId/rekey/:rekeyId/snapshot`
+
+### Objetivo
+
+Retornar dados necessários ao rekey.
+
+### Permissão
+
+OWNER que iniciou ou OWNER atual.
+
+### Response
+
+```json
+{
+  "data": {
+    "vault": {},
+    "sites": [],
+    "credentials": [],
+    "remainingMembers": [
+      {
+        "userId": "uuid",
+        "publicKey": "base64url"
+      }
+    ],
+    "fromKeyVersion": 1,
+    "toKeyVersion": 2
+  }
+}
+```
+
+---
+
+## 68. POST `/vaults/:vaultId/rekey/:rekeyId/commit`
+
+### Objetivo
+
+Confirmar recriptografia completa.
+
+### Headers
+
+```http
+Idempotency-Key: <uuid>
+```
+
+### Request
+
+```json
+{
+  "expectedVaultVersion": 4,
+  "encryptedVaultMetadata": {
+    "cryptoVersion": 1,
+    "schemaVersion": 1,
+    "algorithm": "XCHACHA20-POLY1305",
+    "nonce": "base64url",
+    "ciphertext": "base64url"
+  },
+  "sites": [],
+  "credentials": [],
+  "memberEnvelopes": [
+    {
+      "userId": "uuid",
+      "keyVersion": 2,
+      "cryptoVersion": 1,
+      "algorithm": "X25519-XCHACHA20-POLY1305",
+      "ephemeralPublicKey": "base64url",
+      "nonce": "base64url",
+      "encryptedVaultKey": "base64url"
+    }
+  ]
+}
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "rekeyId": "uuid",
+    "status": "COMPLETED",
+    "vaultVersion": 5,
+    "keyVersion": 2,
+    "completedAt": "2026-07-30T22:30:00.000Z"
+  }
+}
+```
+
+### Regras
+
+- contagens exatas;
+- IDs exatos;
+- membros restantes com envelope;
+- transação;
+- remover envelopes antigos;
+- concluir remoção;
+- liberar cofre.
+
+---
+
+## 69. POST `/vaults/:vaultId/rekey/:rekeyId/cancel`
+
+### Objetivo
+
+Cancelar rekey não confirmado.
+
+### Response
+
+```http
+204 No Content
+```
+
+### Regras
+
+- restaurar estado mutável;
+- manter membro removido bloqueado conforme política;
+- registrar auditoria.
+
+---
+
+# PARTE XII — AUDITORIA
+
+---
+
+## 70. GET `/audit`
+
+### Status
+
+Opcional na interface da V1.
+
+O registro interno é obrigatório desde a V1.
+
+### Objetivo
+
+Permitir consulta de eventos autorizados.
+
+### Query
+
+```text
+vaultId
+action
+result
+from
+to
+cursor
+limit
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "action": "CREDENTIAL_UPDATED",
+      "result": "SUCCESS",
+      "actor": {
+        "id": "uuid",
+        "name": "Usuário"
+      },
+      "vaultId": "uuid",
+      "entityType": "CREDENTIAL",
+      "entityId": "uuid",
+      "createdAt": "2026-07-30T22:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "cursor": null,
+    "hasMore": false
+  }
+}
+```
+
+### Segurança
+
+Nunca retornar metadata sensível.
+
+---
+
+# PARTE XIII — RATE LIMIT
+
+---
+
+## 71. Limites por grupo
+
+Valores finais serão configuráveis.
+
+### Auth parameters
+
+```text
+20 requisições / 5 minutos / IP
+```
+
+### Login
+
+```text
+10 tentativas / 15 minutos / IP
+5 tentativas consecutivas / conta
+```
+
+### Refresh
+
+```text
+30 requisições / 5 minutos / sessão
+```
+
+### Convites
+
+```text
+20 por hora / usuário
+```
+
+### Importação
+
+```text
+5 jobs simultâneos / usuário
+```
+
+### API autenticada geral
+
+Limite amplo por usuário e IP.
+
+---
+
+## 72. Response `429`
+
+```json
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Muitas tentativas. Aguarde antes de tentar novamente.",
+    "requestId": "uuid",
+    "details": [
+      {
+        "retryAfterSeconds": 60
+      }
+    ]
+  }
+}
+```
+
+Header:
+
+```http
+Retry-After: 60
+```
+
+---
+
+# PARTE XIV — VALIDAÇÃO
+
+---
+
+## 73. Validação estrutural
+
+A API valida:
+
+- tipos;
+- obrigatoriedade;
+- formato UUID;
+- base64url;
+- enum;
+- limites;
+- versões;
+- relação;
+- tamanho.
+
+A API não valida conteúdo cifrado.
+
+---
+
+## 74. Limites iniciais sugeridos
+
+```text
+MAX_REQUEST_BYTES=1048576
+MAX_ENCRYPTED_PAYLOAD_BYTES=65536
+MAX_VAULTS_PER_USER=100
+MAX_MEMBERS_PER_VAULT=20
+MAX_SITES_PER_VAULT=10000
+MAX_CREDENTIALS_PER_SITE=1000
+MAX_IMPORT_ROWS=10000
+MAX_IMPORT_BYTES=10485760
+MAX_ACTIVE_SESSIONS=20
+MAX_PENDING_INVITATIONS=50
+```
+
+Valores finais serão definidos em configuração e documentação.
+
+---
+
+# PARTE XV — CORS E CSRF
+
+---
+
+## 75. CORS
+
+Permitir apenas origens configuradas.
+
+Exemplo:
+
+```text
+https://vault-test.example.com
+https://vault.example.com
+```
+
+Não usar:
+
+```text
+Access-Control-Allow-Origin: *
+```
+
+em rotas autenticadas.
+
+---
+
+## 76. CSRF
+
+Como o refresh Web utiliza cookie:
+
+- validar Origin;
+- validar Referer quando aplicável;
+- usar SameSite;
+- considerar CSRF token em rotas sensíveis baseadas em cookie;
+- access token continua em Authorization.
+
+---
+
+# PARTE XVI — SWAGGER
+
+---
+
+## 77. Endpoint
+
+Sugestão:
+
+```text
+/api/docs
+```
+
+Em produção poderá ser:
+
+- protegido;
+- desativado;
+- limitado por rede;
+- publicado sem exemplos sensíveis.
+
+---
+
+## 78. Requisitos de documentação
+
+Cada endpoint deverá documentar:
+
+- resumo;
+- descrição;
+- autenticação;
+- permissão;
+- parâmetros;
+- request;
+- response;
+- erros;
+- idempotência;
+- rate limit;
+- exemplos fictícios;
+- versão.
+
+---
+
+# PARTE XVII — VERSIONAMENTO E COMPATIBILIDADE
+
+---
+
+## 79. Versão da API
+
+Prefixo:
+
+```text
+/api/v1
+```
+
+Mudanças incompatíveis exigem:
+
+```text
+/api/v2
+```
+
+Mudanças compatíveis podem ocorrer na mesma versão:
+
+- novo campo opcional;
+- novo endpoint;
+- novo código de erro;
+- novo enum quando clientes tolerarem;
+- novo header informativo.
+
+A versão do contrato não é a mesma coisa que a versão da aplicação.
+
+```text
+API contract: /api/v1
+Application release: 0.4.0-rc.2
+```
+
+---
+
+## 80. Versão da aplicação e releases
+
+A aplicação seguirá Semantic Versioning.
+
+Origem:
+
+```text
+VERSION
+```
+
+Formatos:
+
+```text
+Development: 0.4.0-dev
+Staging:     0.4.0-rc.2
+Production:  0.4.0
+```
+
+Tags:
+
+```text
+v0.4.0-rc.2
+v0.4.0
+```
+
+Regras:
+
+- uma tag publicada é imutável;
+- uma versão publicada não pode ser reutilizada;
+- staging é identificado por RC;
+- production é identificada por release estável;
+- `/version` deverá refletir o build;
+- uma release normal não será reconstruída para produção;
+- production receberá os mesmos digests registrados na RC aprovada.
+
+O fluxo completo está em `GITHUB_RELEASE_FLOW.md`.
+
+---
+
+## 81. Versionamento criptográfico
+
+Separado da API e da release:
+
+```text
+cryptoVersion
+schemaVersion
+keyVersion
+entity version
+```
+
+Significados:
+
+- `cryptoVersion`: algoritmo ou formato criptográfico;
+- `schemaVersion`: conteúdo interno cifrado;
+- `keyVersion`: versão da VaultKey;
+- `version`: concorrência da entidade.
+
+Uma release da aplicação não altera automaticamente essas versões.
+
+Mudanças criptográficas exigem ADR, migration e testes cross-platform.
+
+# PARTE XVIII — IDEMPOTÊNCIA
+
+---
+
+## 82. Operações idempotentes
+
+Exigir em:
+
+- setup;
+- criação de cofre;
+- criação de convite;
+- aceite de convite;
+- criação de site;
+- criação de credencial;
+- criação de import;
+- commit de import;
+- start de rekey;
+- commit de rekey.
+
+---
+
+## 83. Comportamento
+
+Mesma chave e mesmo payload:
+
+- retornar resposta anterior.
+
+Mesma chave e payload diferente:
+
+```http
+409 Conflict
+```
+
+Código:
+
+```text
+IDEMPOTENCY_CONFLICT
+```
+
+---
+
+# PARTE XIX — SEGURANÇA DE LOGS
+
+---
+
+## 84. Campos proibidos
+
+Não registrar:
+
+```text
+authSecret
+refreshToken
+accessToken
+encryptedPrivateKey
+privateKey
+VaultKey
+inviteSecret
+token de convite completo
+ciphertext completo
+senha
+usuário da credencial
+observação
+cookie
+Authorization
+CSV
+```
+
+---
+
+## 85. Sanitização
+
+Middleware/interceptor deverá:
+
+- remover headers sensíveis;
+- mascarar e-mail quando apropriado;
+- limitar tamanho;
+- evitar body completo;
+- registrar request ID.
+
+---
+
+# PARTE XX — CLIENTES
+
+---
+
+## 86. Web
+
+Fluxo:
+
+```text
+React
+→ Axios
+→ Access token em memória
+→ Refresh por cookie
+→ API
+```
+
+---
+
+## 87. Android
+
+Fluxo:
+
+```text
+React Native
+→ Axios/fetch
+→ Access token em memória
+→ Refresh token no Keystore
+→ API
+```
+
+---
+
+## 88. Extensão futura
+
+Usará a mesma API, mas deverá possuir:
+
+- client type próprio;
+- política de sessão específica;
+- limites específicos;
+- revisão de segurança.
+
+---
+
+# PARTE XXI — TESTES DA API
+
+---
+
+## 89. Testes unitários
+
+Obrigatórios para:
+
+- services;
+- policies;
+- guards;
+- validators;
+- mappers;
+- idempotência;
+- versionamento;
+- rate limit;
+- sanitização.
+
+---
+
+## 90. Testes de integração
+
+Obrigatórios para:
+
+- setup;
+- login;
+- refresh;
+- reuse detection;
+- sessões;
+- criação de cofre;
+- autorização;
+- CRUD de site;
+- CRUD de credencial;
+- convite;
+- aceite;
+- importação;
+- rekey;
+- concorrência;
+- exclusão.
+
+---
+
+## 91. Casos de segurança
+
+Testar:
+
+- IDOR;
+- token expirado;
+- sessão revogada;
+- membership removido;
+- editor excluindo cofre;
+- envelope de outro usuário;
+- site de outro cofre;
+- credential com site cruzado;
+- token de convite inválido;
+- convite expirado;
+- payload excessivo;
+- ciphertext malformado;
+- SQL injection;
+- CORS;
+- CSRF;
+- rate limit.
+
+---
+
+# PARTE XXII — ORDEM DE IMPLEMENTAÇÃO
+
+---
+
+## 92. Primeira API e deploy development
+
+Para validar GitHub Actions, GHCR e Coolify:
+
+```text
+GET /health/live
+GET /health/ready
+GET /version
+```
+
+Fluxo:
+
+```text
+develop
+→ build Web/API
+→ GHCR
+→ Coolify development
+→ mysql-development
+```
+
+Critérios:
+
+- `/version` retorna o commit implantado;
+- Web consulta health e version;
+- banco não está público.
+
+Depois:
+
+```text
+GET /setup/status
+POST /setup
+GET /auth/parameters
+POST /auth/login
+```
+
+---
+
+## 93. Segunda fase
+
+```text
+GET /users/me
+GET /users/me/key-bundle
+POST /auth/refresh
+POST /auth/logout
+GET /sessions
+```
+
+---
+
+## 94. Terceira fase
+
+```text
+POST /vaults
+GET /vaults
+GET /vaults/:id
+GET /vaults/:id/snapshot
+PATCH /vaults/:id
+DELETE /vaults/:id
+```
+
+---
+
+## 95. Quarta fase
+
+```text
+/sites
+/credentials
+```
+
+---
+
+## 96. Quinta fase
+
+```text
+/invitations
+/members
+/rekey
+```
+
+---
+
+## 97. Sexta fase
+
+```text
+/imports
+/audit
+/changes
+```
+
+### Validação de release
+
+Antes da R1.0:
+
+1. criar `release/x.y.z`;
+2. promover para `staging`;
+3. publicar RC;
+4. validar `/version`;
+5. validar migrations;
+6. validar o manifesto de digests;
+7. promover `staging → main`;
+8. validar a mesma versão e commit em production;
+9. confirmar que não houve novo build;
+10. sincronizar `main → develop`.
+
+# PARTE XXIII — CRITÉRIOS DE ACEITE
+
+---
+
+## 98. Critérios gerais
+
+A API será considerada pronta para a V1 quando:
+
+- estiver versionada;
+- possuir Swagger;
+- expuser health, readiness e version;
+- `/version` identificar versão, commit, ambiente e horário do build;
+- tiver autenticação funcional;
+- refresh token for rotacionado;
+- sessões forem revogáveis;
+- autorização ocorrer no backend;
+- IDOR estiver coberto por testes;
+- cofres privados e compartilhados funcionarem;
+- sites e credenciais forem armazenados cifrados;
+- importação não enviar CSV em texto aberto;
+- convite não enviar inviteSecret à API;
+- rekey funcionar;
+- concorrência usar `version`;
+- idempotência funcionar;
+- erros forem padronizados;
+- rate limit estiver ativo;
+- logs não possuírem dados sensíveis;
+- testes passarem;
+- development, staging e production estiverem isolados;
+- staging corresponder à RC publicada;
+- production utilizar os mesmos digests homologados;
+- rollback estiver validado;
+- documentação estiver atualizada.
+
+---
+
+## 99. Resumo dos endpoints da V1
+
+### Públicos
+
+```text
+GET    /health/live
+GET    /health/ready
+GET    /version
+GET    /setup/status
+POST   /setup
+GET    /auth/parameters
+POST   /auth/login
+POST   /auth/refresh
+GET    /invitations/by-token/:token
+```
+
+### Autenticação
+
+```text
+POST   /auth/logout
+POST   /auth/logout-all
+```
+
+### Usuário
+
+```text
+GET    /users/me
+PATCH  /users/me
+GET    /users/me/key-bundle
+POST   /users/me/change-password
+```
+
+### Sessões
+
+```text
+GET    /sessions
+DELETE /sessions/:sessionId
+DELETE /sessions
+```
+
+### Cofres
+
+```text
+GET    /vaults
+POST   /vaults
+GET    /vaults/:vaultId
+PATCH  /vaults/:vaultId
+DELETE /vaults/:vaultId
+GET    /vaults/:vaultId/snapshot
+```
+
+### Membros
+
+```text
+GET    /vaults/:vaultId/members
+DELETE /vaults/:vaultId/members/:memberId
+POST   /vaults/:vaultId/leave
+```
+
+### Convites
+
+```text
+GET    /invitations
+POST   /vaults/:vaultId/invitations
+GET    /vaults/:vaultId/invitations
+POST   /invitations/:invitationId/accept
+POST   /invitations/:invitationId/decline
+DELETE /vaults/:vaultId/invitations/:invitationId
+```
+
+### Sites
+
+```text
+GET    /vaults/:vaultId/sites
+POST   /vaults/:vaultId/sites
+GET    /vaults/:vaultId/sites/:siteId
+PATCH  /vaults/:vaultId/sites/:siteId
+DELETE /vaults/:vaultId/sites/:siteId
+```
+
+### Credenciais
+
+```text
+GET    /vaults/:vaultId/sites/:siteId/credentials
+POST   /vaults/:vaultId/sites/:siteId/credentials
+GET    /vaults/:vaultId/sites/:siteId/credentials/:credentialId
+PATCH  /vaults/:vaultId/sites/:siteId/credentials/:credentialId
+DELETE /vaults/:vaultId/sites/:siteId/credentials/:credentialId
+```
+
+### Importação
+
+```text
+POST   /imports
+POST   /imports/:importId/vaults/:vaultId/commit
+POST   /imports/:importId/complete
+GET    /imports/:importId
+POST   /imports/:importId/cancel
+```
+
+### Rekey
+
+```text
+POST   /vaults/:vaultId/rekey/start
+GET    /vaults/:vaultId/rekey/:rekeyId/snapshot
+POST   /vaults/:vaultId/rekey/:rekeyId/commit
+POST   /vaults/:vaultId/rekey/:rekeyId/cancel
+```
+
+### Opcionais ou posteriores
+
+```text
+GET    /vaults/:vaultId/changes
+GET    /audit
+PATCH  /vaults/:vaultId/members/:memberId
+```
+
+---
+
+## 100. Observações finais
+
+Este documento define o contrato inicial.
+
+Durante a implementação:
+
+- DTOs deverão refletir os exemplos;
+- Swagger deverá permanecer sincronizado;
+- breaking changes deverão ser evitadas;
+- exemplos deverão usar dados fictícios;
+- nenhum exemplo deverá conter segredo real;
+- qualquer mudança deverá atualizar contracts, testes e documentação;
+- mudanças em `/version` deverão preservar compatibilidade operacional;
+- metadados de build deverão ser injetados pelo pipeline;
+- URLs e ambientes deverão seguir `config_user.md`;
+- o fluxo de release deverá seguir `GITHUB_RELEASE_FLOW.md`.
