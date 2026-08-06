@@ -1,0 +1,2 @@
+# O contexto de build é a raiz do monorepo; ver .dockerignore da raiz.
+# Este arquivo existe apenas para documentar essa decisão.

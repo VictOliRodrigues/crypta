@@ -1,0 +1,51 @@
+# Contexto de build compartilhado por apps/api/Dockerfile e apps/web/Dockerfile.
+# Ambos usam a raiz do monorepo como contexto.
+
+# Dependências e artefatos: são reconstruídos dentro da imagem.
+node_modules
+**/node_modules
+dist
+**/dist
+build
+coverage
+**/coverage
+.turbo
+*.tsbuildinfo
+
+# Segredos: nunca podem entrar na imagem.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+secrets
+
+# Git e CI.
+.git
+.github
+.gitignore
+
+# Documentação e mockups: 12 MB de PNG que não afetam o build.
+docs
+*.md
+!apps/*/README.md
+
+# Ferramentas de desenvolvimento.
+.vscode
+.idea
+.editorconfig
+.prettierignore
+prettier.config.js
+**/eslint.config.mjs
+**/*.spec.ts
+**/*.test.ts
+**/*.test.tsx
+
+# Temporários.
+tmp
+temp
+scratch
+*.log
