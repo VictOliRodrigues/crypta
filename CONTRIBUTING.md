@@ -1,6 +1,6 @@
 # CONTRIBUTING.md
 
-# Cofre de Senhas — Guia de Contribuição
+# Crypta — Guia de Contribuição
 
 > **Status:** Documento inicial para revisão  
 > **Versão:** 0.2.0  
@@ -965,11 +965,11 @@ Matriz de impacto:
 
 Existem três ambientes isolados:
 
-| GitHub Environment | Branch/tag           | Coolify                      |
-| ------------------ | -------------------- | ---------------------------- |
-| `development`      | `develop`, `dev-*`   | `password-vault-development` |
-| `staging`          | `staging`, `v*-rc.*` | `password-vault-staging`     |
-| `production`       | `main`, `v*` estável | `password-vault-production`  |
+| GitHub Environment | Branch/tag           | Coolify              |
+| ------------------ | -------------------- | -------------------- |
+| `development`      | `develop`, `dev-*`   | `crypta-development` |
+| `staging`          | `staging`, `v*-rc.*` | `crypta-staging`     |
+| `production`       | `main`, `v*` estável | `crypta-production`  |
 
 Cada ambiente deve possuir:
 

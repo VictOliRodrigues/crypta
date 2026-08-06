@@ -6,7 +6,7 @@ Aplicativo Android (React Native + Expo), distribuído por APK assinado.
 
 **Não iniciado.** Entra na **R0.7** do roadmap, depois de a API, a criptografia e o compartilhamento estarem estáveis.
 
-O scaffold ainda não foi criado de propósito: adicionar a árvore de dependências do Expo agora aumentaria a superfície de auditoria e o tempo de CI sem entregar nada testável, e o app depende de `@vault/crypto-mobile`, que está bloqueado por PEND-003.
+O scaffold ainda não foi criado de propósito: adicionar a árvore de dependências do Expo agora aumentaria a superfície de auditoria e o tempo de CI sem entregar nada testável, e o app depende de `@crypta/crypto-mobile`, que está bloqueado por PEND-003.
 
 ## Escopo previsto para a R0.7
 
@@ -24,4 +24,4 @@ Fora do escopo da R0.7: importação CSV, Android Autofill, biometria, modo offl
 - fechar PEND-003 (biblioteca libsodium para React Native);
 - fechar PEND-004 (parâmetros Argon2id, medidos também no Android mais fraco suportado);
 - fechar PEND-013 (bloqueio de screenshot);
-- confirmar que `@vault/contracts` e `@vault/crypto-core` cobrem o que o app precisa.
+- confirmar que `@crypta/contracts` e `@crypta/crypto-core` cobrem o que o app precisa.

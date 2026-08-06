@@ -1,5 +1,5 @@
 {
-  "name": "@vault/tsconfig",
+  "name": "@crypta/tsconfig",
   "version": "0.1.0",
   "private": true,
   "description": "Configurações TypeScript compartilhadas do monorepo.",
@@ -9,11 +9,11 @@
     "react.json"
   ],
   "scripts": {
-    "lint": "echo \"@vault/tsconfig: sem código para lint\"",
-    "lint:fix": "echo \"@vault/tsconfig: sem código para lint\"",
-    "typecheck": "echo \"@vault/tsconfig: sem código para typecheck\"",
-    "test": "echo \"@vault/tsconfig: sem testes\"",
-    "build": "echo \"@vault/tsconfig: sem build\"",
-    "clean": "echo \"@vault/tsconfig: sem artefatos\""
+    "lint": "echo \"@crypta/tsconfig: sem código para lint\"",
+    "lint:fix": "echo \"@crypta/tsconfig: sem código para lint\"",
+    "typecheck": "echo \"@crypta/tsconfig: sem código para typecheck\"",
+    "test": "echo \"@crypta/tsconfig: sem testes\"",
+    "build": "echo \"@crypta/tsconfig: sem build\"",
+    "clean": "echo \"@crypta/tsconfig: sem artefatos\""
   }
 }

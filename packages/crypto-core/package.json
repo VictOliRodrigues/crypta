@@ -1,5 +1,5 @@
 {
-  "name": "@vault/crypto-core",
+  "name": "@crypta/crypto-core",
   "version": "0.1.0",
   "private": true,
   "description": "Formatos criptográficos, AAD determinística e interfaces de adapter. Independente de plataforma.",
@@ -27,8 +27,8 @@
   },
   "devDependencies": {
     "@types/node": "^24.7.0",
-    "@vault/eslint-config": "workspace:*",
-    "@vault/tsconfig": "workspace:*",
+    "@crypta/eslint-config": "workspace:*",
+    "@crypta/tsconfig": "workspace:*",
     "eslint": "^9.38.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"

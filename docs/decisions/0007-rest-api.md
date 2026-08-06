@@ -41,7 +41,7 @@ Envelope de erro:
 }
 ```
 
-Os códigos de erro são estáveis e vivem em `@vault/contracts`: um cliente pode ramificar comportamento a partir deles, então renomear ou remover um código é mudança incompatível.
+Os códigos de erro são estáveis e vivem em `@crypta/contracts`: um cliente pode ramificar comportamento a partir deles, então renomear ou remover um código é mudança incompatível.
 
 Regras fixas:
 
@@ -66,7 +66,7 @@ O Swagger fica desabilitado em produção: mesmo sem segredos, ele descreve toda
 
 ## Consequências positivas
 
-- Os três clientes usam o mesmo contrato, tipado em `@vault/contracts`.
+- Os três clientes usam o mesmo contrato, tipado em `@crypta/contracts`.
 - Uma versão antiga do Android continua funcionando enquanto `/api/v1` existir.
 - Códigos de erro estáveis permitem tratamento consistente na interface.
 - OpenAPI documenta a API sem esforço manual.
@@ -86,7 +86,7 @@ O Swagger fica desabilitado em produção: mesmo sem segredos, ele descreve toda
 
 - **Código:** `packages/contracts`, controllers e filtro de exceções.
 - **Documentação:** `API.md` é a fonte de verdade dos contratos.
-- **Mobile:** consome o mesmo `@vault/contracts`.
+- **Mobile:** consome o mesmo `@crypta/contracts`.
 
 ## Plano de migração
 

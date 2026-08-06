@@ -1,6 +1,6 @@
 # ROADMAP.md
 
-# Cofre de Senhas — Roadmap do Produto
+# Crypta — Roadmap do Produto
 
 > **Status:** Roadmap inicial para revisão  
 > **Versão:** 0.2.0  
@@ -259,7 +259,7 @@ Validar a arquitetura real na VPS e o caminho GitHub Actions → GHCR → Coolif
 
 ### Coolify
 
-- projeto `password-vault-development`;
+- projeto `crypta-development`;
 - app Web;
 - app API;
 - `mysql-development`;
@@ -717,8 +717,8 @@ Preparar o sistema, os ambientes e a cadeia de entrega para armazenar credenciai
 
 ## 43. Operação
 
-- projeto `password-vault-staging`;
-- projeto `password-vault-production`;
+- projeto `crypta-staging`;
+- projeto `crypta-production`;
 - bancos independentes;
 - domínios;
 - secrets;

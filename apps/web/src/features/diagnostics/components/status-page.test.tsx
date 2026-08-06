@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { type ReadinessData, type VersionData } from '@vault/contracts';
+import { type ReadinessData, type VersionData } from '@crypta/contracts';
 
 import { ApiRequestError } from '@/services/api-client';
 
@@ -18,7 +18,7 @@ const versionMock = vi.mocked(fetchApiVersion);
 const readinessMock = vi.mocked(fetchApiReadiness);
 
 const API_VERSION: VersionData = {
-  service: 'vault-api',
+  service: 'crypta-api',
   version: '0.1.0',
   commit: 'abc1234',
   environment: 'development',

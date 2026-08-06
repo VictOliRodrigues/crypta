@@ -1,6 +1,6 @@
 # CONFIG_USER.md
 
-# Cofre de Senhas — Configurações Manuais do GitHub e Coolify
+# Crypta — Configurações Manuais do GitHub e Coolify
 
 > **Responsável:** Proprietário do repositório e da infraestrutura  
 > **Status:** Checklist inicial para execução  
@@ -48,14 +48,14 @@ Domínio API production:
 Sugestão de domínios:
 
 ```text
-dev-vault.seudominio.com.br
-dev-api-vault.seudominio.com.br
+dev-crypta.seudominio.com.br
+dev-api-crypta.seudominio.com.br
 
-staging-vault.seudominio.com.br
-staging-api-vault.seudominio.com.br
+staging-crypta.seudominio.com.br
+staging-api-crypta.seudominio.com.br
 
-vault.seudominio.com.br
-api-vault.seudominio.com.br
+crypta.seudominio.com.br
+api-crypta.seudominio.com.br
 ```
 
 Não coloque tokens, senhas ou webhooks neste arquivo.
@@ -295,8 +295,8 @@ Use letras minúsculas.
 Exemplo:
 
 ```text
-ghcr.io/victor/password-vault-web
-ghcr.io/victor/password-vault-api
+ghcr.io/VictOliRodrigues/crypta-web
+ghcr.io/VictOliRodrigues/crypta-api
 ```
 
 Checklist:
@@ -547,7 +547,7 @@ Deploy
 Crie um token com nome identificável, por exemplo:
 
 ```text
-github-actions-password-vault
+github-actions-crypta
 ```
 
 Checklist:
@@ -566,9 +566,9 @@ Você pode usar um token por ambiente ou um token controlado para todos. A opç�
 Criar:
 
 ```text
-password-vault-development
-password-vault-staging
-password-vault-production
+crypta-development
+crypta-staging
+crypta-production
 ```
 
 Cada projeto deverá possuir:

@@ -1,7 +1,7 @@
 import { Controller, Get, Header } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { API_SERVICE_NAME, type VersionResponse } from '@vault/contracts';
+import { API_SERVICE_NAME, type VersionResponse } from '@crypta/contracts';
 
 import { AppConfigService } from '@/config/app-config.service';
 

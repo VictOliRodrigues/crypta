@@ -1,6 +1,6 @@
 # STYLE_GUIDE.md
 
-# Cofre de Senhas — Guia de Estilo e Padrões de Desenvolvimento
+# Crypta — Guia de Estilo e Padrões de Desenvolvimento
 
 > **Status:** Documento inicial para revisão  
 > **Versão:** 0.2.0  
@@ -313,7 +313,7 @@ import { randomUUID } from 'node:crypto';
 
 import { Injectable } from '@nestjs/common';
 
-import type { EncryptedPayload } from '@vault/contracts';
+import type { EncryptedPayload } from '@crypta/contracts';
 
 import { VaultRepository } from '@/modules/vaults/vault.repository';
 ```
@@ -1428,8 +1428,8 @@ Campos esperados:
 {
   "version": "0.4.0-rc.2",
   "commit": "b85c091",
-  "webImage": "ghcr.io/example/vault-web@sha256:...",
-  "apiImage": "ghcr.io/example/vault-api@sha256:..."
+  "webImage": "ghcr.io/example/crypta-web@sha256:...",
+  "apiImage": "ghcr.io/example/crypta-api@sha256:..."
 }
 ```
 

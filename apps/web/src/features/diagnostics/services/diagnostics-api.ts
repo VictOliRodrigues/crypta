@@ -3,7 +3,7 @@ import {
   type ReadinessResponse,
   type VersionData,
   type VersionResponse,
-} from '@vault/contracts';
+} from '@crypta/contracts';
 
 import { apiClient, normalizeApiError } from '@/services/api-client';
 

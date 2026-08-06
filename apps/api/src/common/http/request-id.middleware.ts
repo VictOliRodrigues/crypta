@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { Injectable, type NestMiddleware } from '@nestjs/common';
 import { type NextFunction, type Request, type Response } from 'express';
 
-import { REQUEST_HEADERS, RESPONSE_HEADERS } from '@vault/contracts';
+import { REQUEST_HEADERS, RESPONSE_HEADERS } from '@crypta/contracts';
 
 /** Chave usada para carregar o request ID pelo ciclo da requisição. */
 export const REQUEST_ID_KEY = 'vaultRequestId';

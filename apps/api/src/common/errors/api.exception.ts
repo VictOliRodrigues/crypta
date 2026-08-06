@@ -1,4 +1,4 @@
-import { type ApiErrorCode, type ApiErrorDetail } from '@vault/contracts';
+import { type ApiErrorCode, type ApiErrorDetail } from '@crypta/contracts';
 
 /**
  * Exceção de domínio da API.

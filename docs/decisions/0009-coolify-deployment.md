@@ -19,17 +19,17 @@ Isolamento aqui não é organizacional, é de segurança: um cofre de senhas de 
 Coolify na VPS, com três projetos separados:
 
 ```text
-password-vault-development
+crypta-development
 ├── web
 ├── api
 └── mysql-development
 
-password-vault-staging
+crypta-staging
 ├── web
 ├── api
 └── mysql-staging
 
-password-vault-production
+crypta-production
 ├── web
 ├── api
 └── mysql-production

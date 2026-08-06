@@ -33,7 +33,7 @@ COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
 
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
-    pnpm install --frozen-lockfile --filter "@vault/web..."
+    pnpm install --frozen-lockfile --filter "@crypta/web..."
 
 FROM deps AS build
 
@@ -52,8 +52,8 @@ COPY scripts ./scripts
 COPY packages ./packages
 COPY apps/web ./apps/web
 
-RUN pnpm --filter "@vault/web^..." run build \
- && pnpm --filter "@vault/web" run build
+RUN pnpm --filter "@crypta/web^..." run build \
+ && pnpm --filter "@crypta/web" run build
 
 # -----------------------------------------------------------------------------
 # Runtime: Nginx unprivileged, que roda como não-root na porta 8080.
@@ -64,7 +64,7 @@ ARG VITE_APP_VERSION=0.0.0-local
 ARG VITE_APP_COMMIT=local
 ARG APP_BUILT_AT=1970-01-01T00:00:00.000Z
 
-LABEL org.opencontainers.image.title="password-vault-web" \
+LABEL org.opencontainers.image.title="crypta-web" \
       org.opencontainers.image.version="${VITE_APP_VERSION}" \
       org.opencontainers.image.revision="${VITE_APP_COMMIT}" \
       org.opencontainers.image.created="${APP_BUILT_AT}"

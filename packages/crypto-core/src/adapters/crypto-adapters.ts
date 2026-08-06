@@ -1,8 +1,8 @@
 /**
  * Interfaces dos adapters criptográficos.
  *
- * crypto-core define O QUE precisa acontecer. `@vault/crypto-web` e
- * `@vault/crypto-mobile` implementam COMO, cada um com a biblioteca da sua
+ * crypto-core define O QUE precisa acontecer. `@crypta/crypto-web` e
+ * `@crypta/crypto-mobile` implementam COMO, cada um com a biblioteca da sua
  * plataforma (ARCHITECTURE.md secoes 8.2 a 8.4).
  *
  * A escolha das bibliotecas está em aberto: DECISIONS.md PEND-001, PEND-002 e

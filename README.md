@@ -1,4 +1,4 @@
-# Cofre de Senhas
+# Crypta
 
 Cofre de senhas multiusuário, self-hosted, com aplicação Web, aplicativo Android e backend centralizado.
 
@@ -444,7 +444,7 @@ APP_VERSION=0.0.0-local
 APP_COMMIT=local
 APP_BUILT_AT=1970-01-01T00:00:00.000Z
 API_PORT=3000
-DATABASE_URL="mysql://vault:CHANGE_ME@localhost:3306/password_vault_development"
+DATABASE_URL="mysql://crypta:CHANGE_ME@localhost:3306/crypta_development"
 CORS_ORIGINS=http://localhost:5173   # lista por vírgula; curinga é rejeitado
 LOG_LEVEL=debug
 
@@ -465,10 +465,10 @@ As variáveis de autenticação (`JWT_*`, TTLs, cookie) entram na R0.2, junto co
 
 ```bash
 # API em http://localhost:3000/api/v1
-pnpm --filter @vault/api dev
+pnpm --filter @crypta/api dev
 
 # Web em http://localhost:5173
-pnpm --filter @vault/web dev
+pnpm --filter @crypta/web dev
 ```
 
 A tela inicial da Web é o diagnóstico da integração: mostra versão, commit e ambiente da Web e da API, e o estado do banco. É a forma mais rápida de confirmar que o caminho Web → API → MySQL está de pé.
@@ -487,10 +487,10 @@ GET /api/v1/docs            Swagger (desabilitado em produção)
 ## Banco de dados
 
 ```bash
-pnpm --filter @vault/api run prisma:generate       # gerar client
-pnpm --filter @vault/api run prisma:validate       # validar schema
-pnpm --filter @vault/api run prisma:migrate:dev    # criar migration local
-pnpm --filter @vault/api run prisma:migrate:deploy # aplicar em ambiente implantado
+pnpm --filter @crypta/api run prisma:generate       # gerar client
+pnpm --filter @crypta/api run prisma:validate       # validar schema
+pnpm --filter @crypta/api run prisma:migrate:dev    # criar migration local
+pnpm --filter @crypta/api run prisma:migrate:deploy # aplicar em ambiente implantado
 ```
 
 O schema ainda não tem entidades — ver [`docs/DATABASE.md`](docs/DATABASE.md) para o motivo e para as decisões que precisam ser fechadas antes.
@@ -516,7 +516,7 @@ pnpm verify          # format:check + lint + typecheck + test + build
 
 `pnpm verify` roda a mesma sequência da CI. Use antes de abrir um pull request.
 
-Testes end-to-end da API (`pnpm --filter @vault/api run test:e2e`) exigem MySQL real e entram na R0.2.
+Testes end-to-end da API (`pnpm --filter @crypta/api run test:e2e`) exigem MySQL real e entram na R0.2.
 
 ---
 
@@ -525,8 +525,8 @@ Testes end-to-end da API (`pnpm --filter @vault/api run test:e2e`) exigem MySQL 
 O contexto de build é a **raiz** do monorepo:
 
 ```bash
-docker build -f apps/api/Dockerfile -t vault-api:local .
-docker build -f apps/web/Dockerfile -t vault-web:local \
+docker build -f apps/api/Dockerfile -t crypta-api:local .
+docker build -f apps/web/Dockerfile -t crypta-web:local \
   --build-arg VITE_API_BASE_URL=http://localhost:3000/api/v1 .
 ```
 
@@ -611,17 +611,17 @@ Nenhuma alteração deve reduzir testes ou segurança sem decisão formal.
 O projeto utilizará três ambientes completamente separados:
 
 ```text
-password-vault-development
+crypta-development
 ├── web
 ├── api
 └── mysql-development
 
-password-vault-staging
+crypta-staging
 ├── web
 ├── api
 └── mysql-staging
 
-password-vault-production
+crypta-production
 ├── web
 ├── api
 └── mysql-production
@@ -920,9 +920,9 @@ Consulte [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 - monorepo pnpm com os workspaces previstos;
 - TypeScript estrito, ESLint, Prettier e testes configurados em todos os workspaces;
-- `@vault/contracts` — envelopes, códigos de erro e contratos de health e version;
-- `@vault/validation` — schemas compartilhados;
-- `@vault/crypto-core` — formato de payload versionado, AAD determinística, base64url e UTF-8 portáveis, e as interfaces dos adapters;
+- `@crypta/contracts` — envelopes, códigos de erro e contratos de health e version;
+- `@crypta/validation` — schemas compartilhados;
+- `@crypta/crypto-core` — formato de payload versionado, AAD determinística, base64url e UTF-8 portáveis, e as interfaces dos adapters;
 - API NestJS com validação de ambiente no startup, logger estruturado, request ID, filtro global de erros e os endpoints de health e version;
 - Web React + Vite com a tela de diagnóstico da integração;
 - `Dockerfile` multi-stage para Web e API;
@@ -932,7 +932,7 @@ Consulte [`docs/ROADMAP.md`](docs/ROADMAP.md).
 ### O que ainda não existe
 
 - **nenhuma entidade no banco** — depende de `PEND-005`, `PEND-006` e `PEND-014` ([`docs/DATABASE.md`](docs/DATABASE.md));
-- **nenhuma implementação criptográfica** — `@vault/crypto-web` e `@vault/crypto-mobile` estão bloqueados por `PEND-001`, `PEND-002` e `PEND-003`;
+- **nenhuma implementação criptográfica** — `@crypta/crypto-web` e `@crypta/crypto-mobile` estão bloqueados por `PEND-001`, `PEND-002` e `PEND-003`;
 - autenticação, cofres, sites, credenciais, convites e importação;
 - `apps/mobile` — entra na R0.7;
 - `publish-prerelease.yml` e `publish-production.yml` — entram na R0.8, junto com os projetos Coolify de staging e production;

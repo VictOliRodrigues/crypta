@@ -1,3 +1,3 @@
-import baseConfig from '@vault/eslint-config';
+import baseConfig from '@crypta/eslint-config';
 
 export default baseConfig;

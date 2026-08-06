@@ -1,6 +1,6 @@
 # DATABASE.md
 
-# Cofre de Senhas — Banco de Dados
+# Crypta — Banco de Dados
 
 > **Status:** Estado da R0 — schema ainda sem entidades
 > **Versão:** 0.1.0

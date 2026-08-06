@@ -1,6 +1,6 @@
 # DECISIONS.md
 
-# Cofre de Senhas — Registro de Decisões
+# Crypta — Registro de Decisões
 
 > **Status:** Registro inicial para revisão  
 > **Versão:** 0.2.0  
@@ -557,9 +557,9 @@ Web, API e banco serão recursos distintos.
 Também existirão três projetos isolados:
 
 ```text
-password-vault-development
-password-vault-staging
-password-vault-production
+crypta-development
+crypta-staging
+crypta-production
 ```
 
 Cada projeto terá banco, secrets, domínios e histórico próprios.

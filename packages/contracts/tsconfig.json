@@ -1,5 +1,5 @@
 {
-  "extends": "@vault/tsconfig/node.json",
+  "extends": "@crypta/tsconfig/node.json",
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist"

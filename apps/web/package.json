@@ -1,5 +1,5 @@
 {
-  "name": "@vault/web",
+  "name": "@crypta/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.2",
-    "@vault/contracts": "workspace:*",
-    "@vault/validation": "workspace:*",
+    "@crypta/contracts": "workspace:*",
+    "@crypta/validation": "workspace:*",
     "axios": "^1.12.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -34,8 +34,8 @@
     "@types/node": "^24.7.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
-    "@vault/eslint-config": "workspace:*",
-    "@vault/tsconfig": "workspace:*",
+    "@crypta/eslint-config": "workspace:*",
+    "@crypta/tsconfig": "workspace:*",
     "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.38.0",
     "jsdom": "^27.0.0",

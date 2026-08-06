@@ -1,6 +1,6 @@
 # API.md
 
-# Cofre de Senhas — Especificação da API
+# Crypta — Especificação da API
 
 > **Status:** Documento inicial para revisão  
 > **Versão:** 0.2.0  
@@ -55,7 +55,7 @@ A API utiliza o mesmo contrato em todos os ambientes.
 ### Development
 
 ```text
-https://api-vault-dev.example.com/api/v1
+https://api-crypta-dev.example.com/api/v1
 ```
 
 Origem principal:
@@ -67,7 +67,7 @@ develop
 ### Staging
 
 ```text
-https://api-vault-staging.example.com/api/v1
+https://api-crypta-staging.example.com/api/v1
 ```
 
 Origem principal:
@@ -85,7 +85,7 @@ vX.Y.Z-rc.N
 ### Production
 
 ```text
-https://api-vault.example.com/api/v1
+https://api-crypta.example.com/api/v1
 ```
 
 Origem principal:
@@ -496,7 +496,7 @@ Não.
 {
   "data": {
     "status": "ok",
-    "service": "vault-api",
+    "service": "crypta-api",
     "timestamp": "2026-07-31T18:00:00.000Z"
   }
 }
@@ -568,7 +568,7 @@ Development:
 ```json
 {
   "data": {
-    "service": "vault-api",
+    "service": "crypta-api",
     "version": "0.4.0-dev",
     "commit": "b85c091",
     "environment": "development",
@@ -582,7 +582,7 @@ Staging:
 ```json
 {
   "data": {
-    "service": "vault-api",
+    "service": "crypta-api",
     "version": "0.4.0-rc.2",
     "commit": "b85c091",
     "environment": "staging",
@@ -596,7 +596,7 @@ Production:
 ```json
 {
   "data": {
-    "service": "vault-api",
+    "service": "crypta-api",
     "version": "0.4.0",
     "commit": "b85c091",
     "environment": "production",
@@ -2819,8 +2819,8 @@ Permitir apenas origens configuradas.
 Exemplo:
 
 ```text
-https://vault-test.example.com
-https://vault.example.com
+https://crypta-test.example.com
+https://crypta.example.com
 ```
 
 Não usar:

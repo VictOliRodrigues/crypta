@@ -1,6 +1,6 @@
 # SECURITY.md
 
-# Cofre de Senhas — Segurança
+# Crypta — Segurança
 
 > **Status:** Documento inicial para revisão  
 > **Versão:** 0.2.0  
@@ -1575,17 +1575,17 @@ Backups deverão:
 Existirão três ambientes isolados:
 
 ```text
-password-vault-development
+crypta-development
 ├── web
 ├── api
 └── mysql-development
 
-password-vault-staging
+crypta-staging
 ├── web
 ├── api
 └── mysql-staging
 
-password-vault-production
+crypta-production
 ├── web
 ├── api
 └── mysql-production

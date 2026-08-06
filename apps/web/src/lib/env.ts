@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { APP_ENVIRONMENTS } from '@vault/contracts';
+import { APP_ENVIRONMENTS } from '@crypta/contracts';
 
 /**
  * Configuração pública da Web.

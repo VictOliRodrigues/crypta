@@ -1,6 +1,6 @@
 # GITHUB_RELEASE_FLOW.md
 
-# Cofre de Senhas — Fluxo de Desenvolvimento, Homologação e Releases
+# Crypta — Fluxo de Desenvolvimento, Homologação e Releases
 
 > **Status:** Documento inicial para revisão  
 > **Versão:** 0.1.0  
@@ -11,7 +11,7 @@
 
 ## 1. Objetivo
 
-Este documento define o fluxo oficial de branches, homologação, versionamento, releases, artefatos e deploys do Cofre de Senhas.
+Este documento define o fluxo oficial de branches, homologação, versionamento, releases, artefatos e deploys do Crypta.
 
 O fluxo deve permitir que três estados existam simultaneamente:
 
@@ -376,7 +376,7 @@ O fluxo exige três ambientes separados.
 ```text
 Git branch: develop
 GitHub Environment: development
-Coolify project: password-vault-development
+Coolify project: crypta-development
 Image tags móveis: development
 ```
 
@@ -391,7 +391,7 @@ Objetivo:
 ```text
 Git branch: staging
 GitHub Environment: staging
-Coolify project: password-vault-staging
+Coolify project: crypta-staging
 Image tags imutáveis: vX.Y.Z-rc.N
 Image tags móveis: staging
 ```
@@ -407,7 +407,7 @@ Objetivo:
 ```text
 Git branch: main
 GitHub Environment: production
-Coolify project: password-vault-production
+Coolify project: crypta-production
 Image tags imutáveis: vX.Y.Z
 Image tags móveis: production
 ```
@@ -511,11 +511,11 @@ O manifesto deverá conter:
   "releaseCandidate": "v0.4.0-rc.2",
   "commit": "b85c091",
   "web": {
-    "image": "ghcr.io/example/password-vault-web",
+    "image": "ghcr.io/example/crypta-web",
     "digest": "sha256:abc123"
   },
   "api": {
-    "image": "ghcr.io/example/password-vault-api",
+    "image": "ghcr.io/example/crypta-api",
     "digest": "sha256:def456"
   },
   "builtAt": "2026-07-31T17:00:00Z"

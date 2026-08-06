@@ -1413,17 +1413,17 @@ Preservar no `VERSION` a versão futura da release ativa.
 Estrutura obrigatória:
 
 ```text
-password-vault-development
+crypta-development
 ├── web
 ├── api
 └── mysql-development
 
-password-vault-staging
+crypta-staging
 ├── web
 ├── api
 └── mysql-staging
 
-password-vault-production
+crypta-production
 ├── web
 ├── api
 └── mysql-production

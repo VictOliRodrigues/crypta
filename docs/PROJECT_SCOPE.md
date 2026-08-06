@@ -1,6 +1,6 @@
 # PROJECT_SCOPE.md
 
-# Cofre de Senhas — Escopo do Produto
+# Crypta — Escopo do Produto
 
 > **Status:** Documento inicial para revisão  
 > **Versão:** 0.2.0  
@@ -713,9 +713,9 @@ O sistema será implantado em uma VPS utilizando Coolify.
 Existirão três projetos separados:
 
 ```text
-password-vault-development
-password-vault-staging
-password-vault-production
+crypta-development
+crypta-staging
+crypta-production
 ```
 
 Cada projeto possuirá recursos próprios para:

@@ -1,6 +1,6 @@
 # ARCHITECTURE.md
 
-# Cofre de Senhas — Arquitetura do Sistema
+# Crypta — Arquitetura do Sistema
 
 > **Status:** Documento inicial para revisão  
 > **Versão:** 0.2.0  
@@ -1905,17 +1905,17 @@ O frontend não deverá usar scripts de terceiros sem revisão.
 ### 36.1 Ambientes
 
 ```text
-password-vault-development
+crypta-development
 ├── web
 ├── api
 └── mysql-development
 
-password-vault-staging
+crypta-staging
 ├── web
 ├── api
 └── mysql-staging
 
-password-vault-production
+crypta-production
 ├── web
 ├── api
 └── mysql-production
@@ -1933,11 +1933,11 @@ Os ambientes não compartilham:
 
 ### 36.2 Mapeamento GitHub
 
-| Estado          | Branch/tag           | GitHub Environment | Coolify                      |
-| --------------- | -------------------- | ------------------ | ---------------------------- |
-| Desenvolvimento | `develop`, `dev-*`   | `development`      | `password-vault-development` |
-| Homologação     | `staging`, `v*-rc.*` | `staging`          | `password-vault-staging`     |
-| Produção        | `main`, `v*` estável | `production`       | `password-vault-production`  |
+| Estado          | Branch/tag           | GitHub Environment | Coolify              |
+| --------------- | -------------------- | ------------------ | -------------------- |
+| Desenvolvimento | `develop`, `dev-*`   | `development`      | `crypta-development` |
+| Homologação     | `staging`, `v*-rc.*` | `staging`          | `crypta-staging`     |
+| Produção        | `main`, `v*` estável | `production`       | `crypta-production`  |
 
 ### 36.3 Web e API
 
@@ -1967,22 +1967,22 @@ Cada projeto possui um recurso MySQL:
 Development:
 
 ```text
-vault-dev.example.com
-api-vault-dev.example.com
+crypta-dev.example.com
+api-crypta-dev.example.com
 ```
 
 Staging:
 
 ```text
-vault-staging.example.com
-api-vault-staging.example.com
+crypta-staging.example.com
+api-crypta-staging.example.com
 ```
 
 Production:
 
 ```text
-vault.example.com
-api-vault.example.com
+crypta.example.com
+api-crypta.example.com
 ```
 
 ### 36.6 Variables e secrets

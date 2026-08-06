@@ -25,7 +25,7 @@ export function StatusPage() {
       >
         <header className="mb-6">
           <h1 id="status-title" className="text-xl font-semibold text-slate-900 dark:text-slate-50">
-            Cofre de Senhas
+            Crypta
           </h1>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Diagnóstico da integração entre a aplicação Web, a API e o banco de dados.

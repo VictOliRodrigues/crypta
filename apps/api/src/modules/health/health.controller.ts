@@ -6,7 +6,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { API_SERVICE_NAME, type LivenessResponse, type ReadinessResponse } from '@vault/contracts';
+import { API_SERVICE_NAME, type LivenessResponse, type ReadinessResponse } from '@crypta/contracts';
 
 import { ServiceUnavailableException } from '@/common/errors/api.exception';
 

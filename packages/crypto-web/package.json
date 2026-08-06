@@ -1,14 +1,14 @@
 {
-  "name": "@vault/crypto-web",
+  "name": "@crypta/crypto-web",
   "version": "0.1.0",
   "private": true,
   "description": "Adapters criptográficos da Web. Bloqueado por PEND-001 e PEND-002.",
   "scripts": {
-    "build": "echo \"@vault/crypto-web: bloqueado por PEND-001/PEND-002, sem build\"",
-    "clean": "echo \"@vault/crypto-web: sem artefatos\"",
-    "lint": "echo \"@vault/crypto-web: sem código para lint\"",
-    "lint:fix": "echo \"@vault/crypto-web: sem código para lint\"",
-    "test": "echo \"@vault/crypto-web: sem testes\"",
-    "typecheck": "echo \"@vault/crypto-web: sem código para typecheck\""
+    "build": "echo \"@crypta/crypto-web: bloqueado por PEND-001/PEND-002, sem build\"",
+    "clean": "echo \"@crypta/crypto-web: sem artefatos\"",
+    "lint": "echo \"@crypta/crypto-web: sem código para lint\"",
+    "lint:fix": "echo \"@crypta/crypto-web: sem código para lint\"",
+    "test": "echo \"@crypta/crypto-web: sem testes\"",
+    "typecheck": "echo \"@crypta/crypto-web: sem código para typecheck\""
   }
 }

@@ -11,7 +11,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { type NextFunction, type Request, type Response } from 'express';
 import helmet from 'helmet';
 
-import { API_PREFIX, RESPONSE_HEADERS } from '@vault/contracts';
+import { API_PREFIX, RESPONSE_HEADERS } from '@crypta/contracts';
 
 import { AllExceptionsFilter } from '@/common/filters/all-exceptions.filter';
 import { StructuredLogger } from '@/common/logging/structured-logger';
@@ -95,7 +95,7 @@ async function bootstrap(): Promise<void> {
     const document = SwaggerModule.createDocument(
       app,
       new DocumentBuilder()
-        .setTitle('Cofre de Senhas — API')
+        .setTitle('Crypta — API')
         .setDescription(
           'API do cofre de senhas. Conteúdo sensível trafega criptografado pelo cliente.',
         )

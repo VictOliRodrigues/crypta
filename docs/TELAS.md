@@ -1,6 +1,6 @@
 # TELAS.md
 
-# Cofre de Senhas — Especificação de Telas
+# Crypta — Especificação de Telas
 
 > **Status:** Documento inicial para revisão  
 > **Versão:** 0.1.0  

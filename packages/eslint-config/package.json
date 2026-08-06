@@ -1,5 +1,5 @@
 {
-  "name": "@vault/eslint-config",
+  "name": "@crypta/eslint-config",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -15,12 +15,12 @@
     "nest.js"
   ],
   "scripts": {
-    "lint": "echo \"@vault/eslint-config: configuração, sem lint próprio\"",
-    "lint:fix": "echo \"@vault/eslint-config: configuração, sem lint próprio\"",
-    "typecheck": "echo \"@vault/eslint-config: sem typecheck\"",
-    "test": "echo \"@vault/eslint-config: sem testes\"",
-    "build": "echo \"@vault/eslint-config: sem build\"",
-    "clean": "echo \"@vault/eslint-config: sem artefatos\""
+    "lint": "echo \"@crypta/eslint-config: configuração, sem lint próprio\"",
+    "lint:fix": "echo \"@crypta/eslint-config: configuração, sem lint próprio\"",
+    "typecheck": "echo \"@crypta/eslint-config: sem typecheck\"",
+    "test": "echo \"@crypta/eslint-config: sem testes\"",
+    "build": "echo \"@crypta/eslint-config: sem build\"",
+    "clean": "echo \"@crypta/eslint-config: sem artefatos\""
   },
   "dependencies": {
     "@eslint/js": "^9.38.0",

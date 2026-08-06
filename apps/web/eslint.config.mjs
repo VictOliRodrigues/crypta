@@ -1,3 +1,3 @@
-import reactConfig from '@vault/eslint-config/react';
+import reactConfig from '@crypta/eslint-config/react';
 
 export default reactConfig;

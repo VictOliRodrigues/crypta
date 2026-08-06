@@ -6,8 +6,8 @@ import { VersionController } from './version.controller';
 function buildController(overrides: Record<string, string> = {}): VersionController {
   const env = parseEnv({
     APP_ENVIRONMENT: 'staging',
-    DATABASE_URL: 'mysql://vault:s3cr3t@db:3306/password_vault_staging',
-    CORS_ORIGINS: 'https://vault-staging.example.com',
+    DATABASE_URL: 'mysql://crypta:s3cr3t@db:3306/crypta_staging',
+    CORS_ORIGINS: 'https://crypta-staging.example.com',
     APP_VERSION: '0.4.0-rc.2',
     APP_COMMIT: 'b85c091',
     APP_BUILT_AT: '2026-07-31T18:00:00.000Z',
@@ -21,7 +21,7 @@ describe('VersionController', () => {
   it('returns the deployed build metadata', () => {
     expect(buildController().getVersion()).toEqual({
       data: {
-        service: 'vault-api',
+        service: 'crypta-api',
         version: '0.4.0-rc.2',
         commit: 'b85c091',
         environment: 'staging',

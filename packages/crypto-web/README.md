@@ -1,4 +1,4 @@
-# @vault/crypto-web
+# @crypta/crypto-web
 
 Implementação dos adapters criptográficos para o navegador.
 
@@ -16,7 +16,7 @@ Nenhuma linha de criptografia será escrita aqui antes das decisões abaixo, por
 
 ## O que este package deverá implementar
 
-As interfaces já definidas em [`@vault/crypto-core`](../crypto-core/src/adapters/crypto-adapters.ts):
+As interfaces já definidas em [`@crypta/crypto-core`](../crypto-core/src/adapters/crypto-adapters.ts):
 
 - `RandomSource` — sobre `crypto.getRandomValues`, nunca `Math.random()`;
 - `KdfAdapter` — Argon2id e HKDF-SHA-256;
@@ -25,7 +25,7 @@ As interfaces já definidas em [`@vault/crypto-core`](../crypto-core/src/adapter
 
 ## Critérios de aceite quando for implementado
 
-- vetores determinísticos idênticos aos de `@vault/crypto-mobile`;
+- vetores determinísticos idênticos aos de `@crypta/crypto-mobile`;
 - decrypt falha com ciphertext adulterado;
 - decrypt falha com AAD incorreta;
 - nenhum nonce reutilizado;

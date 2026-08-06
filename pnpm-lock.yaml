@@ -32,10 +32,10 @@ importers:
       '@prisma/client':
         specifier: ^6.16.3
         version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
-      '@vault/contracts':
+      '@crypta/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
-      '@vault/validation':
+      '@crypta/validation':
         specifier: workspace:*
         version: link:../../packages/validation
       class-transformer:
@@ -81,10 +81,10 @@ importers:
       '@types/supertest':
         specifier: ^6.0.3
         version: 6.0.3
-      '@vault/eslint-config':
+      '@crypta/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@vault/tsconfig':
+      '@crypta/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       eslint:
@@ -108,10 +108,10 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.90.2
         version: 5.101.4(react@19.2.8)
-      '@vault/contracts':
+      '@crypta/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
-      '@vault/validation':
+      '@crypta/validation':
         specifier: workspace:*
         version: link:../../packages/validation
       axios:
@@ -154,10 +154,10 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.0
         version: 19.2.4(@types/react@19.2.18)
-      '@vault/eslint-config':
+      '@crypta/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@vault/tsconfig':
+      '@crypta/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@vitejs/plugin-react':
@@ -187,10 +187,10 @@ importers:
       '@types/node':
         specifier: ^24.7.0
         version: 24.13.3
-      '@vault/eslint-config':
+      '@crypta/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@vault/tsconfig':
+      '@crypta/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       eslint:
@@ -208,10 +208,10 @@ importers:
       '@types/node':
         specifier: ^24.7.0
         version: 24.13.3
-      '@vault/eslint-config':
+      '@crypta/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@vault/tsconfig':
+      '@crypta/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       eslint:
@@ -266,10 +266,10 @@ importers:
       '@types/node':
         specifier: ^24.7.0
         version: 24.13.3
-      '@vault/eslint-config':
+      '@crypta/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@vault/tsconfig':
+      '@crypta/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       eslint:

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { type Response } from 'express';
 
-import { type ApiErrorCode, type ApiErrorDetail, type ApiErrorResponse } from '@vault/contracts';
+import { type ApiErrorCode, type ApiErrorDetail, type ApiErrorResponse } from '@crypta/contracts';
 
 import { ApiException } from '@/common/errors/api.exception';
 import { getRequestId, type RequestWithId } from '@/common/http/request-id.middleware';

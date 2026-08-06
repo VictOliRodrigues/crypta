@@ -2,7 +2,7 @@ import { EnvValidationError, parseEnv } from './env.schema';
 
 const VALID_ENV = {
   APP_ENVIRONMENT: 'development',
-  DATABASE_URL: 'mysql://vault:s3cr3t@db:3306/password_vault_development',
+  DATABASE_URL: 'mysql://crypta:s3cr3t@db:3306/crypta_development',
   CORS_ORIGINS: 'http://localhost:5173',
 };
 
@@ -19,12 +19,12 @@ describe('parseEnv', () => {
   it('splits and trims the CORS origin list', () => {
     const env = parseEnv({
       ...VALID_ENV,
-      CORS_ORIGINS: ' https://vault.example.com , https://vault-dev.example.com ',
+      CORS_ORIGINS: ' https://crypta.example.com , https://crypta-dev.example.com ',
     });
 
     expect(env.CORS_ORIGINS).toEqual([
-      'https://vault.example.com',
-      'https://vault-dev.example.com',
+      'https://crypta.example.com',
+      'https://crypta-dev.example.com',
     ]);
   });
 

@@ -1,6 +1,6 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
-import { type ReadinessData, type VersionData } from '@vault/contracts';
+import { type ReadinessData, type VersionData } from '@crypta/contracts';
 
 import { fetchApiReadiness, fetchApiVersion } from '../services/diagnostics-api';
 

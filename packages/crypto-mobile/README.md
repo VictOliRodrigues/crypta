@@ -1,4 +1,4 @@
-# @vault/crypto-mobile
+# @crypta/crypto-mobile
 
 Implementação dos adapters criptográficos para Android (React Native + Expo).
 
@@ -16,14 +16,14 @@ O Android entra na R0.7 do roadmap, mas a compatibilidade criptográfica com a W
 
 ## O que este package deverá implementar
 
-As mesmas interfaces de [`@vault/crypto-core`](../crypto-core/src/adapters/crypto-adapters.ts) implementadas por `@vault/crypto-web`, mais:
+As mesmas interfaces de [`@crypta/crypto-core`](../crypto-core/src/adapters/crypto-adapters.ts) implementadas por `@crypta/crypto-web`, mais:
 
 - proteção do refresh token pelo Android Keystore;
 - limpeza de material de chave ao sair do aplicativo.
 
 ## Critérios de aceite quando for implementado
 
-- os mesmos vetores determinísticos de `@vault/crypto-web` passam aqui;
+- os mesmos vetores determinísticos de `@crypta/crypto-web` passam aqui;
 - refresh token no Keystore, nunca em `AsyncStorage`;
 - nenhum segredo em log nativo;
 - testado em pelo menos dois dispositivos;

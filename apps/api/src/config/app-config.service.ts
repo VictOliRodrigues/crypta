@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { type AppEnvironment } from '@vault/contracts';
+import { type AppEnvironment } from '@crypta/contracts';
 
 import { type AppEnv, type LogLevel } from './env.schema';
 

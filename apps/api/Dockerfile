@@ -45,7 +45,7 @@ COPY apps/web/package.json ./apps/web/
 
 # `--frozen-lockfile` garante que a imagem usa exatamente as versões revisadas.
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
-    pnpm install --frozen-lockfile --filter "@vault/api..."
+    pnpm install --frozen-lockfile --filter "@crypta/api..."
 
 # -----------------------------------------------------------------------------
 # Build: compila os packages compartilhados e depois a API.
@@ -56,12 +56,12 @@ COPY scripts ./scripts
 COPY packages ./packages
 COPY apps/api ./apps/api
 
-RUN pnpm --filter "@vault/api^..." run build \
- && pnpm --filter "@vault/api" run build
+RUN pnpm --filter "@crypta/api^..." run build \
+ && pnpm --filter "@crypta/api" run build
 
 # `pnpm deploy` monta uma árvore autocontida com apenas as dependências de
 # produção, resolvendo os workspace: links para o conteúdo real.
-RUN pnpm --filter "@vault/api" --prod --legacy deploy /prod/api
+RUN pnpm --filter "@crypta/api" --prod --legacy deploy /prod/api
 
 # O client do Prisma vive dentro de node_modules e é recriado do zero pelo
 # deploy. Sem este generate, o artefato final sobe sem client.
@@ -86,7 +86,7 @@ ENV NODE_ENV=production \
 
 # Rótulos OCI: ligam a imagem ao commit que a originou, o que sustenta a
 # promoção por digest e o rollback.
-LABEL org.opencontainers.image.title="password-vault-api" \
+LABEL org.opencontainers.image.title="crypta-api" \
       org.opencontainers.image.version="${APP_VERSION}" \
       org.opencontainers.image.revision="${APP_COMMIT}" \
       org.opencontainers.image.created="${APP_BUILT_AT}"

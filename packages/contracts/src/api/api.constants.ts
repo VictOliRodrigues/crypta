@@ -8,7 +8,7 @@
 export const API_PREFIX = 'api/v1' as const;
 
 /** Nome lógico do serviço, retornado em `/health/live` e `/version`. */
-export const API_SERVICE_NAME = 'vault-api' as const;
+export const API_SERVICE_NAME = 'crypta-api' as const;
 
 /**
  * Headers de request reconhecidos pela API.

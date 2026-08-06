@@ -63,7 +63,7 @@ jobs:
       # O schema é a fonte das migrations; um schema inválido só apareceria no
       # deploy, quando `prisma migrate deploy` roda.
       - name: Validar schema do Prisma
-        run: pnpm --filter @vault/api run prisma:validate
+        run: pnpm --filter @crypta/api run prisma:validate
 
   audit:
     name: Auditoria de dependências

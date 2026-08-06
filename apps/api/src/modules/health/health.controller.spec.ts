@@ -17,7 +17,7 @@ describe('HealthController', () => {
       const response = buildController(false).getLiveness();
 
       expect(response.data.status).toBe('ok');
-      expect(response.data.service).toBe('vault-api');
+      expect(response.data.service).toBe('crypta-api');
     });
 
     it('returns an ISO 8601 timestamp', () => {

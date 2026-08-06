@@ -7,7 +7,7 @@ import tseslint from 'typescript-eslint';
 /**
  * Ordem de imports exigida por STYLE_GUIDE.md secao 7.
  *
- * Os grupos usam lookahead negativo para que `@vault/*` nunca seja capturado
+ * Os grupos usam lookahead negativo para que `@crypta/*` nunca seja capturado
  * pelo grupo genérico de dependências externas, independentemente da regra de
  * desempate da versão do plugin.
  */
@@ -15,9 +15,9 @@ const importGroups = [
   // 1. Builtins do Node.
   ['^node:'],
   // 2. Dependências externas.
-  ['^(?!@vault/)@?\\w'],
+  ['^(?!@crypta/)@?\\w'],
   // 3. Packages internos do monorepo.
-  ['^@vault/'],
+  ['^@crypta/'],
   // 4. Aliases da aplicação.
   ['^@/'],
   // 5. Imports relativos.

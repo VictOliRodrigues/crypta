@@ -5,7 +5,7 @@ import {
   isApiErrorResponse,
   REQUEST_HEADERS,
   RESPONSE_HEADERS,
-} from '@vault/contracts';
+} from '@crypta/contracts';
 
 import { buildInfo, env } from '@/lib/env';
 
