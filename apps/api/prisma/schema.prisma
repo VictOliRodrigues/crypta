@@ -1,0 +1,28 @@
+// Schema Prisma do cofre de senhas.
+//
+// ESTADO ATUAL (R0): apenas datasource e generator.
+//
+// Nenhum model foi criado ainda porque o modelo de dados depende de decisões
+// abertas que mudam o tipo das colunas de chave primária e o comportamento de
+// exclusão. Criar as tabelas agora significaria uma migration destrutiva logo
+// em seguida:
+//
+//   PEND-005 — UUIDv4 ou UUIDv7
+//   PEND-006 — CHAR(36) ou BINARY(16)
+//   PEND-014 — hard delete ou soft delete por entidade
+//
+// As entidades entram na R0.2 (identidade) e R0.3 (cofres), documentadas em
+// docs/DATABASE.md antes da primeira migration.
+//
+// Regra permanente: nenhuma coluna em texto aberto para nome de cofre,
+// descrição, nome de site, link, usuário da credencial, senha, observação,
+// VaultKey ou chave privada (CLAUDE.md secao 44).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
