@@ -1,0 +1,14 @@
+{
+  "name": "@vault/crypto-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Adapters criptográficos do Android. Bloqueado por PEND-003.",
+  "scripts": {
+    "build": "echo \"@vault/crypto-mobile: bloqueado por PEND-003, sem build\"",
+    "clean": "echo \"@vault/crypto-mobile: sem artefatos\"",
+    "lint": "echo \"@vault/crypto-mobile: sem código para lint\"",
+    "lint:fix": "echo \"@vault/crypto-mobile: sem código para lint\"",
+    "test": "echo \"@vault/crypto-mobile: sem testes\"",
+    "typecheck": "echo \"@vault/crypto-mobile: sem código para typecheck\""
+  }
+}
