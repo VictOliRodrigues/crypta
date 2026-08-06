@@ -1,0 +1,69 @@
+name: Propor uma funcionalidade
+description: Sugerir algo novo ou uma mudança de comportamento no Crypta.
+labels: ['feature']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        O escopo do produto é deliberadamente pequeno e está em
+        [`docs/PROJECT_SCOPE.md`](../../docs/PROJECT_SCOPE.md). A secao 20 lista o que ficou
+        **fora** da primeira versão e por quê — vale ler antes de abrir.
+
+        Uma proposta aceita entra no backlog; ela não é implementada só por ser útil.
+
+  - type: checkboxes
+    id: leitura
+    attributes:
+      label: Confirmação obrigatória
+      options:
+        - label: Li a secao 20 de `PROJECT_SCOPE.md` e esta proposta não está entre os itens já
+            descartados para a primeira versão, ou eu explico abaixo o que mudou desde então.
+          required: true
+        - label: Esta proposta não contém senha, token, chave nem dado pessoal de terceiros.
+          required: true
+
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qual problema isto resolve
+      description: >-
+        Descreva a situação real, não a solução. Uma proposta sem problema concreto por trás
+        tende a virar funcionalidade que ninguém usa.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposta
+    attributes:
+      label: O que você propõe
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Alternativas consideradas
+      description: Inclusive "não fazer nada" — e por que ela não basta.
+
+  - type: dropdown
+    id: impacto-seguranca
+    attributes:
+      label: Impacto em segurança
+      description: >-
+        Toda proposta que toque criptografia, autenticação, sessão, autorização ou armazenamento
+        exige ADR antes da implementação.
+      options:
+        - Nenhum aparente
+        - Toca criptografia ou material de chave
+        - Toca autenticação ou sessão
+        - Toca autorização ou isolamento entre usuários
+        - Toca armazenamento local ou cache
+        - Não sei avaliar
+    validations:
+      required: true
+
+  - type: textarea
+    id: clientes
+    attributes:
+      label: Clientes afetados
+      description: Web, Android, ambos? A importação CSV existe apenas na Web.

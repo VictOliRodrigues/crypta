@@ -1,0 +1,95 @@
+name: Relatar um bug
+description: Comportamento incorreto no Crypta que não seja uma vulnerabilidade de segurança.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Vulnerabilidade de segurança não vai aqui.** Use o
+        [reporte privado](https://github.com/VictOliRodrigues/crypta/security/advisories/new).
+        Uma issue é pública desde o instante em que você a cria.
+
+  - type: checkboxes
+    id: dados-sensiveis
+    attributes:
+      label: Confirmação obrigatória
+      options:
+        - label:
+            Este relato não contém senha, token, cookie, cabeçalho de autorização, chave privada,
+            ciphertext de um cofre real, nem dado pessoal de terceiros — inclusive em capturas de
+            tela e anexos.
+          required: true
+
+  - type: textarea
+    id: descricao
+    attributes:
+      label: O que aconteceu
+      description: Descreva o comportamento observado.
+    validations:
+      required: true
+
+  - type: textarea
+    id: esperado
+    attributes:
+      label: O que deveria acontecer
+    validations:
+      required: true
+
+  - type: textarea
+    id: passos
+    attributes:
+      label: Como reproduzir
+      description: Numere os passos. Use dados fictícios.
+      placeholder: |
+        1. Entrar como alice@example.test
+        2. Abrir o cofre "Pessoal"
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: versao
+    attributes:
+      label: Versão
+      description: O valor de `version` retornado por `GET /api/v1/version`, ou o commit.
+      placeholder: 0.1.0 — a1b2c3d
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ambiente
+    attributes:
+      label: Ambiente
+      options:
+        - development
+        - staging
+        - production
+        - local
+    validations:
+      required: true
+
+  - type: dropdown
+    id: cliente
+    attributes:
+      label: Cliente
+      options:
+        - Web
+        - Android
+        - API (chamada direta)
+    validations:
+      required: true
+
+  - type: input
+    id: request-id
+    attributes:
+      label: Request ID
+      description: >-
+        O `requestId` mostrado na mensagem de erro, se houver. É o que liga a falha ao log do
+        servidor sem expor nada sensível.
+      placeholder: 018f0000-0000-7000-8000-000000000999
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto adicional
+      description: Navegador, versão do Android, o que mais ajudar.
