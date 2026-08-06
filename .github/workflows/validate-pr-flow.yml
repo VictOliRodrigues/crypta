@@ -1,0 +1,65 @@
+name: Validar fluxo de branches
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validar origem e destino
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verificar combinação de branches
+        shell: bash
+        env:
+          HEAD_BRANCH: ${{ github.head_ref }}
+          BASE_BRANCH: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+
+          FLOW="${HEAD_BRANCH}:${BASE_BRANCH}"
+
+          case "$FLOW" in
+            feature/*:develop|\
+            bugfix/*:develop|\
+            chore/*:develop|\
+            refactor/*:develop|\
+            docs/*:develop|\
+            security/*:develop)
+              echo "Fluxo de desenvolvimento válido: $FLOW"
+              ;;
+
+            fix/*:release/*)
+              echo "Correção válida para release: $FLOW"
+              ;;
+
+            release/*:staging)
+              echo "Promoção válida para homologação: $FLOW"
+              ;;
+
+            staging:main)
+              echo "Promoção válida para produção: $FLOW"
+              ;;
+
+            main:develop)
+              echo "Sincronização válida: $FLOW"
+              ;;
+
+            hotfix/*:main)
+              echo "Hotfix válido: $FLOW"
+              ;;
+
+            main:release/*)
+              echo "Sincronização de hotfix com release válida: $FLOW"
+              ;;
+
+            *)
+              echo "::error::Fluxo inválido: $FLOW"
+              echo "::error::Consulte GITHUB_RELEASE_FLOW.md"
+              exit 1
+              ;;
+          esac

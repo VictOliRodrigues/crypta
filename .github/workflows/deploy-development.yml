@@ -1,0 +1,153 @@
+name: Deploy de desenvolvimento
+
+on:
+  push:
+    branches: [develop]
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: deploy-development
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  WEB_IMAGE: ${{ vars.WEB_IMAGE }}
+  API_IMAGE: ${{ vars.API_IMAGE }}
+
+jobs:
+  build-and-deploy:
+    name: Construir e implantar development
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+      url: ${{ vars.APP_URL }}
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v6
+        with:
+          # Este job tem `packages: write` e roda `pnpm install` com scripts de
+          # instalação de terceiros antes do login no GHCR. Não faz nenhuma
+          # operação git, então não precisa das credenciais persistidas.
+          persist-credentials: false
+
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Validar projeto
+        run: |
+          pnpm format:check
+          pnpm lint
+          pnpm typecheck
+          pnpm test
+          pnpm build
+
+      - name: Calcular metadados do build
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          {
+            echo "version=$(cat VERSION)-dev"
+            echo "commit=${GITHUB_SHA::7}"
+            echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Login no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configurar Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # A Web recebe os metadados como VITE_*: são embutidos no bundle e
+      # exibidos na tela de diagnóstico. Nenhum deles é segredo.
+      - name: Construir Web
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          tags: |
+            ${{ env.WEB_IMAGE }}:development
+            ${{ env.WEB_IMAGE }}:dev-${{ github.sha }}
+          build-args: |
+            VITE_API_BASE_URL=${{ vars.API_BASE_URL }}
+            VITE_APP_ENVIRONMENT=development
+            VITE_APP_VERSION=${{ steps.meta.outputs.version }}
+            VITE_APP_COMMIT=${{ steps.meta.outputs.commit }}
+            APP_BUILT_AT=${{ steps.meta.outputs.built_at }}
+
+      - name: Construir API
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: |
+            ${{ env.API_IMAGE }}:development
+            ${{ env.API_IMAGE }}:dev-${{ github.sha }}
+          build-args: |
+            APP_VERSION=${{ steps.meta.outputs.version }}
+            APP_COMMIT=${{ steps.meta.outputs.commit }}
+            APP_ENVIRONMENT=development
+            APP_BUILT_AT=${{ steps.meta.outputs.built_at }}
+
+      - name: Implantar Web no Coolify
+        run: |
+          curl --fail-with-body --request GET "${{ secrets.COOLIFY_WEBHOOK_WEB }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+
+      - name: Implantar API no Coolify
+        run: |
+          curl --fail-with-body --request GET "${{ secrets.COOLIFY_WEBHOOK_API }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+
+      # Confirma que o ambiente está executando exatamente este commit
+      # (ROADMAP.md secao 12).
+      - name: Confirmar versão implantada
+        shell: bash
+        env:
+          API_URL: ${{ vars.API_BASE_URL }}
+          EXPECTED_COMMIT: ${{ steps.meta.outputs.commit }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${API_URL}" ]]; then
+            echo "::warning::vars.API_BASE_URL não configurada; verificação de versão ignorada."
+            exit 0
+          fi
+
+          for attempt in $(seq 1 20); do
+            DEPLOYED_COMMIT="$(curl --silent --show-error --max-time 10 "${API_URL}/version" \
+              | sed -n 's/.*"commit":"\([^"]*\)".*/\1/p' || true)"
+
+            if [[ "${DEPLOYED_COMMIT}" == "${EXPECTED_COMMIT}" ]]; then
+              echo "Ambiente executando o commit ${EXPECTED_COMMIT}."
+              exit 0
+            fi
+
+            echo "Tentativa ${attempt}: implantado='${DEPLOYED_COMMIT}' esperado='${EXPECTED_COMMIT}'."
+            sleep 15
+          done
+
+          echo "::error::O ambiente não reportou o commit ${EXPECTED_COMMIT} em /api/v1/version."
+          exit 1

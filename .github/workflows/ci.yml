@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - staging
+      - main
+      - 'release/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, tipos, testes e builds
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v6
+        with:
+          # Este job não executa nenhuma operação git depois do checkout, mas
+          # roda `pnpm install`, que executa scripts de instalação de terceiros
+          # (ver `allowBuilds` em pnpm-workspace.yaml). Sem isto, o token do job
+          # fica legível no filesystem do runner durante essa janela.
+          persist-credentials: false
+
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Validar formatação
+        run: pnpm format:check
+
+      - name: Executar lint
+        run: pnpm lint
+
+      - name: Validar tipos
+        run: pnpm typecheck
+
+      - name: Executar testes
+        run: pnpm test
+
+      - name: Construir aplicações
+        run: pnpm build
+
+      # O schema é a fonte das migrations; um schema inválido só apareceria no
+      # deploy, quando `prisma migrate deploy` roda.
+      - name: Validar schema do Prisma
+        run: pnpm --filter @vault/api run prisma:validate
+
+  audit:
+    name: Auditoria de dependências
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v6
+        with:
+          # Este job não executa nenhuma operação git depois do checkout, mas
+          # roda `pnpm install`, que executa scripts de instalação de terceiros
+          # (ver `allowBuilds` em pnpm-workspace.yaml). Sem isto, o token do job
+          # fica legível no filesystem do runner durante essa janela.
+          persist-credentials: false
+
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      # Este projeto armazena credenciais: uma vulnerabilidade alta em
+      # dependência bloqueia o merge (ROADMAP.md secao 42).
+      - name: Auditar vulnerabilidades
+        run: pnpm audit --audit-level high
+# Os testes de integração com MySQL entram como job separado quando o primeiro
+# schema existir (R0.2).

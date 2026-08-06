@@ -1,0 +1,94 @@
+name: Iniciar release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Versão sem prefixo v, por exemplo 0.4.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-release:
+    name: Criar branch e PR de release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar develop
+        uses: actions/checkout@v6
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Validar versão
+        shell: bash
+        env:
+          VERSION_INPUT: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$VERSION_INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Use MAJOR.MINOR.PATCH, por exemplo 0.4.0"
+            exit 1
+          fi
+
+          # Uma versão publicada jamais é reutilizada (DEC-036).
+          if git rev-parse "refs/tags/v${VERSION_INPUT}" >/dev/null 2>&1; then
+            echo "::error::A tag v${VERSION_INPUT} já existe"
+            exit 1
+          fi
+
+      - name: Criar branch e atualizar VERSION
+        shell: bash
+        env:
+          VERSION_INPUT: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          BRANCH="release/${VERSION_INPUT}"
+
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            echo "::error::A branch $BRANCH já existe"
+            exit 1
+          fi
+
+          git switch -c "$BRANCH"
+          printf '%s\n' "$VERSION_INPUT" > VERSION
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add VERSION
+          git commit -m "chore(release): iniciar v${VERSION_INPUT}"
+          git push origin "$BRANCH"
+
+      - name: Abrir PR para staging
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION_INPUT: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          # O milestone é opcional: se ainda não existir, abrir o PR sem ele é
+          # melhor do que falhar o início da release por um detalhe de
+          # organização (GITHUB_RELEASE_FLOW.md secao 19).
+          MILESTONE_ARGS=()
+          if gh api "repos/${GITHUB_REPOSITORY}/milestones?state=all" \
+               --jq '.[].title' | grep -Fxq "$VERSION_INPUT"; then
+            MILESTONE_ARGS=(--milestone "$VERSION_INPUT")
+          else
+            echo "::warning::Milestone $VERSION_INPUT não existe; o PR será aberto sem milestone."
+          fi
+
+          gh pr create \
+            --base staging \
+            --head "release/${VERSION_INPUT}" \
+            --title "release: v${VERSION_INPUT}" \
+            --label "release" \
+            "${MILESTONE_ARGS[@]}" \
+            --body "Promove a release v${VERSION_INPUT} para homologação. Não apague a branch release/${VERSION_INPUT} durante os testes."
