@@ -1,0 +1,20 @@
+{
+  "extends": "@vault/tsconfig/node.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "types": ["node", "jest"],
+
+    // Exigidos pelo NestJS para injeção de dependência e metadata dos decorators.
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    // Decorators de propriedade do Nest atribuem valores fora do construtor.
+    "strictPropertyInitialization": false
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}
