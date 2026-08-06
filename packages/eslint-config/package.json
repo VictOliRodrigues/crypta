@@ -1,0 +1,37 @@
+{
+  "name": "@vault/eslint-config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Configurações ESLint compartilhadas do monorepo (flat config).",
+  "exports": {
+    ".": "./index.js",
+    "./react": "./react.js",
+    "./nest": "./nest.js"
+  },
+  "files": [
+    "index.js",
+    "react.js",
+    "nest.js"
+  ],
+  "scripts": {
+    "lint": "echo \"@vault/eslint-config: configuração, sem lint próprio\"",
+    "lint:fix": "echo \"@vault/eslint-config: configuração, sem lint próprio\"",
+    "typecheck": "echo \"@vault/eslint-config: sem typecheck\"",
+    "test": "echo \"@vault/eslint-config: sem testes\"",
+    "build": "echo \"@vault/eslint-config: sem build\"",
+    "clean": "echo \"@vault/eslint-config: sem artefatos\""
+  },
+  "dependencies": {
+    "@eslint/js": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^16.4.0",
+    "typescript-eslint": "^8.46.0"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  }
+}

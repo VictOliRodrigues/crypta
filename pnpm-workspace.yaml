@@ -1,0 +1,20 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# Dependências autorizadas a executar scripts de instalação.
+#
+# Cada entrada é código de terceiro executado na máquina de quem instala e na
+# CI. A lista é uma decisão de supply chain, não uma formalidade: manter mínima
+# e justificar cada `true`.
+allowBuilds:
+  # Necessários para funcionar:
+  '@nestjs/core': true # postinstall informativo do Nest
+  '@prisma/client': true # gera o client a partir do schema
+  '@prisma/engines': true # baixa os engines binários do Prisma
+  esbuild: true # instala o binário da plataforma
+  prisma: true # CLI de migrations
+  unrs-resolver: true # resolver nativo usado por jest-resolve (Jest 30)
+
+  # Negados:
+  '@scarf/scarf': false # telemetria de instalação (via swagger-ui-dist); envia dados para terceiro

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node",
+  "extends": "./base.json",
+  "compilerOptions": {
+    // CommonJS é intencional: a API NestJS e os packages compartilhados
+    // precisam ser consumíveis por `require` sem etapa de interop.
+    // Ver docs/decisions/0001-monorepo.md.
+    "module": "CommonJS",
+    "moduleResolution": "node10",
+    "types": ["node"]
+  }
+}

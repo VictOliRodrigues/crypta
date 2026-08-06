@@ -1,0 +1,19 @@
+{
+  "name": "@vault/tsconfig",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Configurações TypeScript compartilhadas do monorepo.",
+  "files": [
+    "base.json",
+    "node.json",
+    "react.json"
+  ],
+  "scripts": {
+    "lint": "echo \"@vault/tsconfig: sem código para lint\"",
+    "lint:fix": "echo \"@vault/tsconfig: sem código para lint\"",
+    "typecheck": "echo \"@vault/tsconfig: sem código para typecheck\"",
+    "test": "echo \"@vault/tsconfig: sem testes\"",
+    "build": "echo \"@vault/tsconfig: sem build\"",
+    "clean": "echo \"@vault/tsconfig: sem artefatos\""
+  }
+}

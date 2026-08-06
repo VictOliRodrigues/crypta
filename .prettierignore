@@ -1,0 +1,9 @@
+node_modules/
+dist/
+build/
+coverage/
+pnpm-lock.yaml
+*.tsbuildinfo
+
+# Mockups gerados por ferramenta de design. Não são código do produto.
+docs/telas/
