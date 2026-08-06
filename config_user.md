@@ -94,35 +94,46 @@ Depois do primeiro push:
 
 ## 4. Criar as branches permanentes
 
-A branch `main` normalmente já existe.
+O repositório local já possui o histórico completo em `develop`, e o repositório do GitHub foi
+criado vazio conforme a secao 3. Portanto **`main` não existe em lugar nenhum** — nem local, nem
+remoto. As três branches nascem aqui, todas apontando para o mesmo commit.
 
-Depois do primeiro push:
+Conecte o remoto e envie:
 
 ```bash
-git switch main
-git pull --ff-only
+git remote add origin https://github.com/<owner>/crypta.git
 
-git switch -c develop
 git push -u origin develop
 
-git switch -c staging
-git push -u origin staging
+git branch main develop
+git branch staging develop
+git push origin main staging
 ```
+
+`git branch main develop` cria a branch sem trocar de contexto: não há motivo para sair de
+`develop`, e `git switch -c` deixaria você em outra branch ao final.
 
 Resultado esperado:
 
 ```text
-main
 develop
+main
 staging
+```
+
+Confirme que as três apontam para o mesmo commit:
+
+```bash
+git rev-parse develop main staging
 ```
 
 Checklist:
 
-- [ ] `main` criada.
-- [ ] `develop` criada.
-- [ ] `staging` criada.
-- [ ] As três apontam inicialmente para um commit válido.
+- [ ] Remoto `origin` configurado.
+- [ ] `develop` enviada.
+- [ ] `main` criada e enviada.
+- [ ] `staging` criada e enviada.
+- [ ] As três apontam para o mesmo commit.
 
 ---
 
@@ -241,10 +252,12 @@ Os seguintes arquivos precisam existir na branch padrão:
 .github/workflows/cleanup-temporary-branches.yml
 .github/workflows/start-release.yml
 .github/workflows/deploy-development.yml
-.github/workflows/publish-prerelease.yml
-.github/workflows/publish-production.yml
 .github/release.yml
 ```
+
+`publish-prerelease.yml` e `publish-production.yml` entram na **R0.8**, junto com os projetos
+Coolify de staging e production. Não são pré-requisito para fechar a R0 e não devem ser
+esperados aqui.
 
 Checklist:
 
@@ -866,12 +879,23 @@ Se houver somente o proprietário:
 
 ### Checks sugeridos
 
-Os nomes exatos dependem dos workflows. Exemplos:
+Marque os **três** checks abaixo. São os nomes exatos dos jobs, como aparecem na lista depois de
+cada workflow rodar pelo menos uma vez:
 
 ```text
 Validar origem e destino
 Lint, tipos, testes e builds
+Auditoria de dependências
 ```
+
+No GitHub, um check obrigatório é registrado por _check run_, não por workflow. `ci.yml` produz
+dois jobs distintos: marcar apenas `Lint, tipos, testes e builds` deixaria `Auditoria de
+dependências` rodando sem poder de bloqueio — uma vulnerabilidade conhecida em dependência
+apareceria vermelha e o merge seguiria assim mesmo.
+
+O check `Validar origem e destino` só aparece nesta lista **depois** que existir um pull request
+que o tenha executado, porque `validate-pr-flow.yml` dispara apenas em `pull_request`. Faça o PR
+de teste da secao 31 antes de criar este ruleset.
 
 Checklist:
 

@@ -582,10 +582,16 @@ performance
 documentation
 breaking-change
 dependencies
+release
 skip-changelog
 ```
 
 PRs devem receber labels consistentes para geração automática das notas.
+
+A label `release` é obrigatória, não apenas convencional: `start-release.yml` a aplica ao pull
+request que abre com `gh pr create --label "release"`. Se ela não existir no repositório, o passo
+falha **depois** de a branch `release/x.y.z` já ter sido criada e enviada, deixando uma branch
+órfã que precisa ser removida à mão.
 
 ---
 
@@ -648,9 +654,13 @@ jobs:
       - name: Baixar código
         uses: actions/checkout@v6
         with:
+          # Este job não executa nenhuma operação git depois do checkout, mas
+          # roda `pnpm install`, que executa scripts de instalação de terceiros
+          # (ver `allowBuilds` em pnpm-workspace.yaml). Sem isto, o token do job
+          # fica legível no filesystem do runner durante essa janela.
           persist-credentials: false
 
-      - name: Configurar Node e pnpm
+      - name: Configurar pnpm
         uses: pnpm/action-setup@v4
         with:
           run_install: false
@@ -663,6 +673,13 @@ jobs:
 
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
+
+      # Precisa vir antes de typecheck e testes: as aplicações consomem os
+      # packages compartilhados pelo `dist` publicado no workspace, não pelo
+      # código-fonte. Em um clone limpo esse `dist` não existe, e tanto o
+      # typecheck quanto os testes da API falhariam por módulo não encontrado.
+      - name: Construir packages compartilhados
+        run: pnpm build:packages
 
       - name: Validar formatação
         run: pnpm format:check
@@ -678,6 +695,46 @@ jobs:
 
       - name: Construir aplicações
         run: pnpm build
+
+      # O schema é a fonte das migrations; um schema inválido só apareceria no
+      # deploy, quando `prisma migrate deploy` roda.
+      - name: Validar schema do Prisma
+        run: pnpm --filter @crypta/api run prisma:validate
+
+  audit:
+    name: Auditoria de dependências
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v6
+        with:
+          # Este job não executa nenhuma operação git depois do checkout, mas
+          # roda `pnpm install`, que executa scripts de instalação de terceiros
+          # (ver `allowBuilds` em pnpm-workspace.yaml). Sem isto, o token do job
+          # fica legível no filesystem do runner durante essa janela.
+          persist-credentials: false
+
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      # Este projeto armazena credenciais: uma vulnerabilidade alta em
+      # dependência bloqueia o merge (ROADMAP.md secao 42).
+      - name: Auditar vulnerabilidades
+        run: pnpm audit --audit-level high
+# Os testes de integração com MySQL entram como job separado quando o primeiro
+# schema existir (R0.2).
 ```
 
 Os testes de integração com MySQL poderão ser adicionados como job separado quando a infraestrutura estiver pronta.
