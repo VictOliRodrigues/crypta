@@ -8,6 +8,64 @@
 
 ---
 
+## Como reportar uma vulnerabilidade
+
+**Não abra uma issue pública.** Uma issue é indexada por buscadores no instante em que é criada.
+
+Use o reporte privado do GitHub:
+
+**[Abrir um advisory privado](https://github.com/VictOliRodrigues/crypta/security/advisories/new)**
+— ou, no repositório: aba `Security` → `Report a vulnerability`.
+
+O canal é apenas esse. Não existe endereço de e-mail de segurança para este projeto: um e-mail
+publicado em repositório público vira alvo de spam e não oferece o sigilo nem o histórico que o
+advisory oferece.
+
+### O que incluir
+
+- descrição do problema;
+- impacto: o que um atacante consegue obter ou fazer;
+- passos para reproduzir;
+- versão ou commit afetado;
+- evidência **sanitizada**;
+- sugestão de correção, se tiver.
+
+### O que nunca incluir
+
+Nem no reporte, nem em anexo, nem em captura de tela:
+
+- senha, token, cookie ou cabeçalho de autorização reais;
+- ciphertext completo de um cofre real;
+- chave privada;
+- dump ou trecho de banco de produção;
+- dados pessoais de terceiros.
+
+Se a evidência exigir algum desses, descreva o formato em vez de colar o valor.
+
+### Prazos
+
+O projeto é mantido por uma pessoa, em tempo parcial. Não há SLA contratual. O compromisso é:
+
+| Etapa                          | Prazo alvo            |
+| ------------------------------ | --------------------- |
+| Confirmação de recebimento     | 5 dias úteis          |
+| Avaliação inicial e severidade | 15 dias úteis         |
+| Correção ou plano público      | negociado caso a caso |
+
+Divulgação coordenada: a correção é publicada antes dos detalhes técnicos, e o crédito é dado a
+quem reportou, salvo pedido em contrário.
+
+### Escopo
+
+Vale reportar qualquer coisa que quebre o modelo de `ARCHITECTURE.md` secao 14 — em especial
+qualquer caminho pelo qual o servidor consiga ler conteúdo de cofre em texto aberto.
+
+Fora de escopo: as limitações já assumidas e documentadas na secao 48 de `ARCHITECTURE.md`
+(frontend comprometido, dispositivo comprometido, membro autorizado copiando o que já pode ver,
+metadados visíveis ao servidor). Relatar uma delas não é achado; propor mitigação, sim.
+
+---
+
 ## 1. Objetivo
 
 Este documento define os requisitos, premissas, controles e limitações de segurança do cofre de senhas.
