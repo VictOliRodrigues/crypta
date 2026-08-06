@@ -2719,22 +2719,24 @@ docs/decisions/
 
 ---
 
-## 51. ADRs iniciais recomendados
+## 51. ADRs registrados
 
-```text
-0001-monorepo.md
-0002-modular-monolith.md
-0003-client-side-encryption.md
-0004-auth-secret-domain-separation.md
-0005-shared-vault-key-envelopes.md
-0006-client-side-csv-import.md
-0007-rest-api.md
-0008-mysql-prisma.md
-0009-coolify-deployment.md
-0010-session-strategy.md
-0011-github-release-flow.md
-0012-immutable-artifact-promotion.md
-```
+Os doze ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
+arquitetura depende. As decisões ainda em aberto estão listadas como pendências em
+[`DECISIONS.md`](DECISIONS.md).
+
+- [`0001-monorepo.md`](decisions/0001-monorepo.md)
+- [`0002-modular-monolith.md`](decisions/0002-modular-monolith.md)
+- [`0003-client-side-encryption.md`](decisions/0003-client-side-encryption.md)
+- [`0004-auth-secret-domain-separation.md`](decisions/0004-auth-secret-domain-separation.md)
+- [`0005-shared-vault-key-envelopes.md`](decisions/0005-shared-vault-key-envelopes.md)
+- [`0006-client-side-csv-import.md`](decisions/0006-client-side-csv-import.md)
+- [`0007-rest-api.md`](decisions/0007-rest-api.md)
+- [`0008-mysql-prisma.md`](decisions/0008-mysql-prisma.md)
+- [`0009-coolify-deployment.md`](decisions/0009-coolify-deployment.md)
+- [`0010-session-strategy.md`](decisions/0010-session-strategy.md)
+- [`0011-github-release-flow.md`](decisions/0011-github-release-flow.md)
+- [`0012-immutable-artifact-promotion.md`](decisions/0012-immutable-artifact-promotion.md)
 
 ---
 

@@ -35,7 +35,7 @@ Antes de contribuir, leia:
 - `ROADMAP.md`;
 - `GITHUB_RELEASE_FLOW.md`;
 - `config_user.md`, quando a contribuição envolver configuração;
-- `DECISIONS.md`;
+- `docs/DECISIONS.md`;
 - `CLAUDE.md`.
 
 ---
@@ -107,7 +107,7 @@ DONE
 Consulte:
 
 ```text
-DECISIONS.md
+docs/DECISIONS.md
 docs/decisions/
 ```
 
@@ -306,34 +306,21 @@ pnpm --filter mobile start
 
 ## 8. Estrutura do repositório
 
-```text
-/
-├── apps/
-│   ├── web/
-│   ├── api/
-│   └── mobile/
-├── packages/
-│   ├── contracts/
-│   ├── crypto-core/
-│   ├── crypto-web/
-│   ├── crypto-mobile/
-│   ├── validation/
-│   ├── eslint-config/
-│   └── tsconfig/
-├── docs/
-│   └── decisions/
-├── .github/
-│   ├── release.yml
-│   └── workflows/
-├── VERSION
-├── README.md
-├── CLAUDE.md
-├── CONTRIBUTING.md
-├── DECISIONS.md
-├── GITHUB_RELEASE_FLOW.md
-├── config_user.md
-└── pnpm-workspace.yaml
-```
+A árvore completa e comentada está em [`README.md`](README.md#estrutura-do-repositório).
+
+Ela não é duplicada aqui de propósito: duas cópias da mesma estrutura divergem na primeira pasta
+nova que alguém cria, e a cópia desatualizada acaba sendo a que o contribuidor externo lê.
+
+Os pontos que importam para contribuir:
+
+| Onde                | O que vive ali                                                                                       |
+| ------------------- | ---------------------------------------------------------------------------------------------------- |
+| `apps/api`          | API NestJS. Um módulo por domínio, com controllers, services, repositories, policies, dto e mappers. |
+| `apps/web`          | Aplicação React. Organizada por feature, não por tipo de arquivo.                                    |
+| `apps/mobile`       | Reservado para a R0.7. Hoje contém apenas documentação.                                              |
+| `packages/`         | Código compartilhado entre os clientes e a API. Nada de framework aqui.                              |
+| `docs/`             | Documentação do produto. `docs/decisions/` guarda os ADRs.                                           |
+| `.github/workflows` | CI, validação do fluxo de PR e deploys.                                                              |
 
 ## 9. Branches
 

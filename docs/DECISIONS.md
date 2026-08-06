@@ -232,9 +232,7 @@ Negativas:
 
 ### ADR
 
-```text
-docs/decisions/0001-monorepo.md
-```
+[`docs/decisions/0001-monorepo.md`](decisions/0001-monorepo.md)
 
 ---
 
@@ -270,9 +268,7 @@ O código deverá preservar módulos internos claros para evitar monólito desor
 
 ### ADR
 
-```text
-docs/decisions/0002-modular-monolith.md
-```
+[`docs/decisions/0002-modular-monolith.md`](decisions/0002-modular-monolith.md)
 
 ---
 
@@ -312,9 +308,7 @@ Conteúdo sensível será criptografado antes de ser enviado à API.
 
 ### ADR
 
-```text
-docs/decisions/0003-client-side-encryption.md
-```
+[`docs/decisions/0003-client-side-encryption.md`](decisions/0003-client-side-encryption.md)
 
 ---
 
@@ -353,9 +347,7 @@ UserPassword
 
 ### ADR
 
-```text
-docs/decisions/0004-auth-secret-domain-separation.md
-```
+[`docs/decisions/0004-auth-secret-domain-separation.md`](decisions/0004-auth-secret-domain-separation.md)
 
 ---
 
@@ -384,9 +376,7 @@ Cada cofre possuirá uma chave simétrica independente.
 
 ### ADR
 
-```text
-docs/decisions/0005-shared-vault-key-envelopes.md
-```
+[`docs/decisions/0005-shared-vault-key-envelopes.md`](decisions/0005-shared-vault-key-envelopes.md)
 
 ---
 
@@ -452,9 +442,7 @@ A API utilizará REST JSON com prefixo:
 
 ### ADR
 
-```text
-docs/decisions/0007-rest-api.md
-```
+[`docs/decisions/0007-rest-api.md`](decisions/0007-rest-api.md)
 
 ---
 
@@ -484,9 +472,7 @@ O banco será MySQL com Prisma ORM.
 
 ### ADR
 
-```text
-docs/decisions/0008-mysql-prisma.md
-```
+[`docs/decisions/0008-mysql-prisma.md`](decisions/0008-mysql-prisma.md)
 
 ---
 
@@ -540,9 +526,7 @@ production
 
 ### ADR
 
-```text
-docs/decisions/0009-coolify-deployment.md
-```
+[`docs/decisions/0009-coolify-deployment.md`](decisions/0009-coolify-deployment.md)
 
 ## DEC-010 — Serviços e ambientes separados no Coolify
 
@@ -688,9 +672,7 @@ Android Keystore.
 
 ### ADR
 
-```text
-docs/decisions/0010-session-strategy.md
-```
+[`docs/decisions/0010-session-strategy.md`](decisions/0010-session-strategy.md)
 
 ---
 
@@ -721,9 +703,7 @@ A API receberá apenas lotes criptografados.
 
 ### ADR
 
-```text
-docs/decisions/0006-client-side-csv-import.md
-```
+[`docs/decisions/0006-client-side-csv-import.md`](decisions/0006-client-side-csv-import.md)
 
 ---
 
@@ -1203,9 +1183,7 @@ main → develop
 
 ### ADR
 
-```text
-docs/decisions/0011-github-release-flow.md
-```
+[`docs/decisions/0011-github-release-flow.md`](decisions/0011-github-release-flow.md)
 
 ---
 
@@ -1245,9 +1223,7 @@ Cada um será associado a um projeto Coolify separado.
 
 ### ADR
 
-```text
-docs/decisions/0011-github-release-flow.md
-```
+[`docs/decisions/0011-github-release-flow.md`](decisions/0011-github-release-flow.md)
 
 ---
 
@@ -1294,9 +1270,7 @@ production
 
 ### ADR
 
-```text
-docs/decisions/0012-immutable-artifact-promotion.md
-```
+[`docs/decisions/0012-immutable-artifact-promotion.md`](decisions/0012-immutable-artifact-promotion.md)
 
 ---
 
@@ -1350,9 +1324,7 @@ Deverá registrar:
 
 ### ADR
 
-```text
-docs/decisions/0012-immutable-artifact-promotion.md
-```
+[`docs/decisions/0012-immutable-artifact-promotion.md`](decisions/0012-immutable-artifact-promotion.md)
 
 ---
 
@@ -1395,9 +1367,7 @@ v0.4.0
 
 ### ADR
 
-```text
-docs/decisions/0011-github-release-flow.md
-```
+[`docs/decisions/0011-github-release-flow.md`](decisions/0011-github-release-flow.md)
 
 ---
 
@@ -1440,9 +1410,7 @@ Tags já publicadas não podem ser movidas, apagadas para reutilização ou sobr
 
 ### ADR
 
-```text
-docs/decisions/0011-github-release-flow.md
-```
+[`docs/decisions/0011-github-release-flow.md`](decisions/0011-github-release-flow.md)
 
 ---
 
@@ -1482,9 +1450,7 @@ Ao sincronizar com uma release futura, o código do hotfix entra na release, mas
 
 ### ADR
 
-```text
-docs/decisions/0011-github-release-flow.md
-```
+[`docs/decisions/0011-github-release-flow.md`](decisions/0011-github-release-flow.md)
 
 ---
 
@@ -1519,9 +1485,7 @@ Ela permanece até:
 
 ### ADR
 
-```text
-docs/decisions/0011-github-release-flow.md
-```
+[`docs/decisions/0011-github-release-flow.md`](decisions/0011-github-release-flow.md)
 
 ---
 
@@ -1561,9 +1525,7 @@ durante a correção da versão homologada.
 
 ### ADR
 
-```text
-docs/decisions/0011-github-release-flow.md
-```
+[`docs/decisions/0011-github-release-flow.md`](decisions/0011-github-release-flow.md)
 
 ---
 

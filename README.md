@@ -348,6 +348,10 @@ Não serão utilizados inicialmente:
 │   ├── release.yml
 │   ├── dependabot.yml
 │   ├── pull_request_template.md
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── config.yml
+│   │   ├── bug_report.yml
+│   │   └── feature_request.yml
 │   └── workflows/
 │       ├── ci.yml
 │       ├── validate-pr-flow.yml
@@ -1022,10 +1026,8 @@ Os destinos de pull request são validados por GitHub Actions. Não promova feat
 
 Consulte:
 
-```text
-DECISIONS.md
-docs/decisions/
-```
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — índice das decisões, status e pendências abertas
+- [`docs/decisions/`](docs/decisions/) — os 12 ADRs registrados, do 0001 ao 0012
 
 Mudanças relevantes exigem ADR.
 
