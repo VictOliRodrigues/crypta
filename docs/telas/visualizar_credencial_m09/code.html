@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Detalhes da Conta</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Manrope:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "surface-container-high": "#222a3d",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#002113",
+                        "on-primary-container": "#eeefff",
+                        "warning-amber": "#F59E0B",
+                        "tertiary-container": "#bc4800",
+                        "inverse-on-surface": "#283044",
+                        "on-surface": "#dae2fd",
+                        "slate-surface": "#1E293B",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-surface-variant": "#c3c6d7",
+                        "surface-container-lowest": "#060e20",
+                        "error-container": "#93000a",
+                        "surface-dim": "#0b1326",
+                        "tertiary": "#ffb596",
+                        "surface-container": "#171f33",
+                        "surface-variant": "#2d3449",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "background": "#0b1326",
+                        "on-tertiary": "#581e00",
+                        "on-background": "#dae2fd",
+                        "tertiary-fixed": "#ffdbcd",
+                        "primary-container": "#2563eb",
+                        "surface-tint": "#b4c5ff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface": "#0b1326",
+                        "inverse-surface": "#dae2fd",
+                        "surface-container-highest": "#2d3449",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-secondary": "#003824",
+                        "on-secondary-container": "#00311f",
+                        "surface-bright": "#31394d",
+                        "on-tertiary-container": "#ffede6",
+                        "secondary-fixed-dim": "#4edea3",
+                        "info-cyan": "#06B6D4",
+                        "graphite-deep": "#020617",
+                        "outline": "#8d90a0",
+                        "secondary": "#4edea3",
+                        "primary": "#b4c5ff",
+                        "on-primary": "#002a78",
+                        "error": "#ffb4ab",
+                        "outline-variant": "#434655",
+                        "inverse-primary": "#0053db",
+                        "surface-container-low": "#131b2e",
+                        "danger-red": "#EF4444",
+                        "secondary-container": "#00a572",
+                        "on-error": "#690005"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "gutter": "16px",
+                        "max-width": "1280px",
+                        "margin-mobile": "16px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "mono-data": ["JetBrains Mono"],
+                        "headline-lg": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .reveal-active .password-mask { display: none; }
+        .reveal-active .password-plain { display: inline; }
+        .password-plain { display: none; }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #131b2e;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 10px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-lg text-body-lg-mobile md:text-body-lg overflow-x-hidden">
+<!-- Top App Bar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-background border-b border-outline-variant h-16 flex items-center justify-between px-margin-mobile">
+<div class="flex items-center gap-4">
+<button aria-label="Voltar" class="p-2 hover:bg-surface-variant rounded-full transition-colors active:scale-95 duration-100 text-on-surface">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md-mobile font-bold text-primary">Detalhes da Conta</h1>
+</div>
+<div class="flex items-center gap-1">
+<button aria-label="Notificações" class="p-2 hover:bg-surface-variant rounded-full transition-colors active:scale-95 duration-100 text-on-surface">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button aria-label="Mais opções" class="p-2 hover:bg-surface-variant rounded-full transition-colors active:scale-95 duration-100 text-on-surface">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<main class="pt-20 pb-24 px-margin-mobile max-w-md mx-auto space-y-6">
+<!-- Site Info Header Card -->
+<section class="bg-surface-container rounded-xl p-6 border border-outline-variant flex items-center gap-5 shadow-sm">
+<div class="w-16 h-16 bg-surface-container-high rounded-full flex items-center justify-center overflow-hidden border border-outline-variant">
+<img class="w-10 h-10 object-contain" data-alt="Official Google brand logo with vibrant primary colors on a clean white circular background, styled as a modern app icon for a professional tech interface. The lighting is even and soft, maintaining a minimalist corporate aesthetic consistent with secure banking and tech applications." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAv9vb5ddED4EmOFN2b6nZztAOMxZfoziuxsf4oDDVG7c5yN2k1ZrMIyTbOJbi6-ecEPc3uDG_ZHUWCkHR49woNDYviDLj1fwgKaBGVrKPw72co_pNQg1xw1XEQMMzJR5r-cIr4Ko0nTKPiOzGRqsgLZJfT41dm7LLFvwWz43_CSJMgq9ybxMJHqPh7t3hFWORurl6Xf8HpP8crl2iF3aTrAyY1gYrl510wYcMbx0YWW2FtVtNdEyv0Gg"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<h2 class="font-headline-md text-headline-md-mobile text-on-surface truncate">Google</h2>
+<p class="font-body-sm text-on-surface-variant truncate">accounts.google.com</p>
+</div>
+<button class="text-primary p-2 hover:bg-primary-container/10 rounded-full transition-all">
+<span class="material-symbols-outlined">open_in_new</span>
+</button>
+</section>
+<!-- Credential Details Section -->
+<section class="space-y-4">
+<!-- User/Email Field -->
+<div class="group">
+<label class="font-label-caps text-label-caps text-primary mb-2 block px-1">E-mail / Usuário</label>
+<div class="bg-surface-container rounded-lg border border-outline-variant p-4 flex items-center justify-between hover:border-primary transition-colors focus-within:ring-2 focus-within:ring-primary">
+<span class="font-body-lg text-on-surface select-all">usuario.pessoal@gmail.com</span>
+<button class="text-primary p-2 hover:bg-primary-container/10 rounded-full transition-all active:scale-90" onclick="copyToClipboard('usuario.pessoal@gmail.com')" title="Copiar usuário">
+<span class="material-symbols-outlined">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Password Field -->
+<div class="group" id="password-container">
+<label class="font-label-caps text-label-caps text-primary mb-2 block px-1">Senha</label>
+<div class="bg-surface-container rounded-lg border border-outline-variant p-4 flex items-center justify-between hover:border-primary transition-colors focus-within:ring-2 focus-within:ring-primary">
+<div class="font-mono-data text-mono-data text-on-surface tracking-widest overflow-hidden">
+<span class="password-mask">••••••••••••••••</span>
+<span class="password-plain">G0ogl3_P@ss_2026!</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="text-on-surface-variant p-2 hover:bg-surface-variant rounded-full transition-all active:scale-90" onclick="togglePassword()" title="Revelar senha">
+<span class="material-symbols-outlined" id="visibility-icon">visibility</span>
+</button>
+<button class="text-primary p-2 hover:bg-primary-container/10 rounded-full transition-all active:scale-90" onclick="copyToClipboard('G0ogl3_P@ss_2026!')" title="Copiar senha">
+<span class="material-symbols-outlined">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Observation Field -->
+<div class="group">
+<label class="font-label-caps text-label-caps text-primary mb-2 block px-1">Observações</label>
+<div class="bg-surface-container rounded-lg border border-outline-variant p-4 min-h-[100px] hover:border-primary transition-colors">
+<p class="font-body-sm text-on-surface leading-relaxed">
+                        Conta principal para serviços pessoais e recuperação. Utilizada para acesso ao Drive, Fotos e YouTube Premium. Mantenha o 2FA via chave física ativado.
+                    </p>
+</div>
+</div>
+<!-- Meta Info -->
+<div class="flex items-center justify-between px-1 pt-2">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span class="font-body-sm">Atualizado em 15/07/2026</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span class="font-body-sm">Seguro</span>
+</div>
+</div>
+</section>
+<!-- Security Warning (Contextual micro-interaction) -->
+<div class="bg-warning-amber/10 border border-warning-amber/20 rounded-xl p-4 flex items-start gap-4">
+<span class="material-symbols-outlined text-warning-amber">warning</span>
+<div>
+<h4 class="font-label-caps text-label-caps text-warning-amber mb-1">Dica de Segurança</h4>
+<p class="font-body-sm text-on-surface-variant">Esta senha não é alterada há mais de 12 meses. Considere atualizá-la para manter sua conta protegida.</p>
+</div>
+</div>
+</main>
+<!-- Fixed Footer Action -->
+<footer class="fixed bottom-0 left-0 right-0 p-margin-mobile bg-background/80 backdrop-blur-md flex gap-4 max-w-md mx-auto">
+<button class="flex-1 h-14 bg-primary text-on-primary rounded-full font-headline-md text-headline-md-mobile flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform">
+<span class="material-symbols-outlined">edit</span>
+            Editar
+        </button>
+</footer>
+<!-- Toast Notification (Hidden by default) -->
+<div class="fixed bottom-24 left-1/2 -translate-x-1/2 px-6 py-3 bg-secondary-container text-on-secondary-container rounded-full shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-[100] flex items-center gap-3" id="toast">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+<span class="font-label-caps text-label-caps" id="toast-message">Copiado para a área de transferência</span>
+</div>
+<!-- Script for Interactions -->
+<script>
+        function togglePassword() {
+            const container = document.getElementById('password-container');
+            const icon = document.getElementById('visibility-icon');
+            
+            container.classList.toggle('reveal-active');
+            
+            if (container.classList.contains('reveal-active')) {
+                icon.innerText = 'visibility_off';
+            } else {
+                icon.innerText = 'visibility';
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Copiado com sucesso!");
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msgSpan = document.getElementById('toast-message');
+            msgSpan.innerText = message;
+            
+            toast.style.opacity = '1';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 3000);
+        }
+
+        // Simple haptic-like feedback on touch
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(50);
+                }
+            });
+        });
+    </script>
+</body></html>

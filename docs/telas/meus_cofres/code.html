@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela — Dashboard de Cofres</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Manrope:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            -webkit-font-smoothing: antialiased;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2d3449;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#0b1326",
+                        "secondary-fixed-dim": "#4edea3",
+                        "surface-container-highest": "#2d3449",
+                        "on-secondary-container": "#00311f",
+                        "on-tertiary": "#581e00",
+                        "on-surface": "#dae2fd",
+                        "outline-variant": "#434655",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "surface-container": "#171f33",
+                        "graphite-deep": "#020617",
+                        "primary-fixed": "#dbe1ff",
+                        "primary-container": "#2563eb",
+                        "surface-tint": "#b4c5ff",
+                        "on-surface-variant": "#c3c6d7",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "surface-container-low": "#131b2e",
+                        "slate-surface": "#1E293B",
+                        "primary": "#b4c5ff",
+                        "inverse-primary": "#0053db",
+                        "background": "#0b1326",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-lowest": "#060e20",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-container": "#ffede6",
+                        "error-container": "#93000a",
+                        "on-primary": "#002a78",
+                        "on-primary-container": "#eeefff",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-background": "#dae2fd",
+                        "secondary-container": "#00a572",
+                        "tertiary-fixed": "#ffdbcd",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed": "#360f00",
+                        "inverse-surface": "#dae2fd",
+                        "on-error": "#690005",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-dim": "#0b1326",
+                        "secondary": "#4edea3",
+                        "danger-red": "#EF4444",
+                        "surface-bright": "#31394d",
+                        "on-secondary-fixed": "#002113",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary": "#ffb596",
+                        "warning-amber": "#F59E0B",
+                        "outline": "#8d90a0",
+                        "info-cyan": "#06B6D4",
+                        "error": "#ffb4ab",
+                        "surface-container-high": "#222a3d",
+                        "on-secondary": "#003824",
+                        "surface-variant": "#2d3449",
+                        "on-secondary-fixed-variant": "#005236",
+                        "inverse-on-surface": "#283044"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "max-width": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "mono-data": ["JetBrains Mono"],
+                        "label-caps": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-lg overflow-hidden">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container dark:bg-surface-container flex flex-col h-full py-8 z-50">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-2xl">lock</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">Sentinela</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Secure Vault</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<!-- Vaults Active -->
+<a class="flex items-center gap-4 text-primary font-bold border-l-4 border-primary bg-surface-container-high px-4 py-3 transition-all" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all" href="#">
+<span class="material-symbols-outlined">upload_file</span>
+<span class="font-label-caps text-label-caps">Import CSV</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="px-4 mt-auto space-y-4">
+<button class="w-full bg-danger-red/10 text-danger-red border border-danger-red/20 py-3 rounded-lg font-label-caps text-label-caps font-bold hover:bg-danger-red hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95">
+<span class="material-symbols-outlined text-sm">lock_person</span>
+                Lock All Vaults
+            </button>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-caps text-label-caps">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Content Shell -->
+<div class="ml-[280px] h-screen flex flex-col relative">
+<!-- TopAppBar Anchor -->
+<header class="w-full h-16 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant flex justify-between items-center px-margin-desktop">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary text-body-sm transition-all" placeholder="Buscar credenciais..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-colors active:scale-95">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-colors active:scale-95">help</button>
+</div>
+<div class="h-8 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="text-body-sm font-bold text-on-surface">Alex Sentinel</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Security Expert</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a person with a neutral expression, clean lighting, and a dark slate background, conveying corporate security expertise and reliability. The visual style is high-end digital photography with a subtle matte finish and deep contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4LS6T583hNvtyNipW0QK35OS-LMlvwNlbbaVHPAPXnoMww7L6gTTfIq5YxD1ZQsDtsP6upRKk8AoBXTWQGGrmeQd6bRLQeUdAxDhKnTY6CgsulIzo0NSwpeClwr6aBOovOtZGdE8OoTtaK1eLZuMBidJdmILSX8z-ZhK-7UpXAOUXZ9F2pODqkq_Z-VtLRU-n4qE03lYpp45J5L_Dxn8bmEO2D66CbHmK4k0zBaGlAK29ZNcD6g3oJQ"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto p-margin-desktop custom-scrollbar">
+<!-- Page Header Area -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Meus cofres</h2>
+<p class="text-on-surface-variant mt-1">Gerencie seus segredos e acessos com segurança de nível militar.</p>
+</div>
+<button class="bg-primary text-on-primary font-bold px-6 py-3 rounded-xl flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined">add_circle</span>
+                    Novo cofre
+                </button>
+</div>
+<!-- Filters & Search Bar Section -->
+<div class="flex flex-wrap items-center justify-between gap-4 mb-8 bg-surface-container-low p-4 rounded-2xl border border-outline-variant/30">
+<div class="flex items-center p-1 bg-surface-container rounded-lg border border-outline-variant/20">
+<button class="px-6 py-2 rounded-md bg-primary-container text-on-primary-container font-bold text-body-sm transition-all">Todos</button>
+<button class="px-6 py-2 rounded-md text-on-surface-variant hover:text-on-surface transition-all text-body-sm">Privados</button>
+<button class="px-6 py-2 rounded-md text-on-surface-variant hover:text-on-surface transition-all text-body-sm">Compartilhados</button>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant text-body-sm">
+<span class="material-symbols-outlined">sort</span>
+<span>Ordenar por:</span>
+<select class="bg-transparent border-none focus:ring-0 text-on-surface font-bold cursor-pointer">
+<option>Mais recentes</option>
+<option>Nome (A-Z)</option>
+<option>Popularidade</option>
+</select>
+</div>
+</div>
+<!-- Dashboard Content Grid -->
+<div class="bento-grid">
+<!-- Card 1: Private -->
+<div class="bg-surface-container border border-outline-variant/50 rounded-2xl p-6 hover:border-primary/50 transition-all group flex flex-col h-full relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary">more_vert</button>
+</div>
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">key</span>
+</div>
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] font-bold px-3 py-1 rounded-full border border-outline-variant uppercase tracking-widest">Privado</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Cofre Pessoal</h3>
+<p class="text-body-sm text-on-surface-variant mt-2 flex-grow">Senhas de redes sociais, bancos e acessos pessoais criptografados.</p>
+<div class="mt-6 pt-6 border-t border-outline-variant/30 grid grid-cols-2 gap-4">
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant">Sites</p>
+<p class="text-headline-md font-mono-data text-on-surface">24</p>
+</div>
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant">Papel</p>
+<p class="text-headline-md font-headline-md text-secondary">Proprietário</p>
+</div>
+</div>
+</div>
+<!-- Card 2: Shared -->
+<div class="bg-surface-container border border-outline-variant/50 rounded-2xl p-6 hover:border-primary/50 transition-all group flex flex-col h-full relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary">more_vert</button>
+</div>
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-xl flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-3xl">group</span>
+</div>
+<span class="bg-secondary/10 text-secondary text-[10px] font-bold px-3 py-1 rounded-full border border-secondary/20 uppercase tracking-widest">Compartilhado</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Marketing Dev</h3>
+<p class="text-body-sm text-on-surface-variant mt-2 flex-grow">Acessos para ferramentas de deploy, AWS e Google Cloud Console.</p>
+<div class="mt-6 pt-6 border-t border-outline-variant/30 grid grid-cols-2 gap-4">
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant">Sites</p>
+<p class="text-headline-md font-mono-data text-on-surface">12</p>
+</div>
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant">Papel</p>
+<p class="text-headline-md font-headline-md text-primary">Editor</p>
+</div>
+</div>
+</div>
+<!-- Card 3: Shared -->
+<div class="bg-surface-container border border-outline-variant/50 rounded-2xl p-6 hover:border-primary/50 transition-all group flex flex-col h-full relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary">more_vert</button>
+</div>
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-xl flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-3xl">dns</span>
+</div>
+<span class="bg-secondary/10 text-secondary text-[10px] font-bold px-3 py-1 rounded-full border border-secondary/20 uppercase tracking-widest">Compartilhado</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Infraestrutura Core</h3>
+<p class="text-body-sm text-on-surface-variant mt-2 flex-grow">Credenciais root para bancos de dados críticos e servidores on-premise.</p>
+<div class="mt-6 pt-6 border-t border-outline-variant/30 grid grid-cols-2 gap-4">
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant">Sites</p>
+<p class="text-headline-md font-mono-data text-on-surface">08</p>
+</div>
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant">Papel</p>
+<p class="text-headline-md font-headline-md text-secondary">Proprietário</p>
+</div>
+</div>
+</div>
+<!-- Card 4: New / Ghost Style -->
+<button class="border-2 border-dashed border-outline-variant rounded-2xl p-6 flex flex-col items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary transition-all group">
+<span class="material-symbols-outlined text-5xl mb-4 group-hover:scale-110 transition-transform">add_box</span>
+<p class="font-bold">Adicionar novo cofre</p>
+<p class="text-xs mt-1 text-center">Inicie um novo ambiente de segredos compartilhado ou privado.</p>
+</button>
+</div>
+<!-- Secondary Content Section: Recent Activity / High-end Visual -->
+<div class="mt-12">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-6">Atividade de Segurança</h3>
+<div class="bg-graphite-deep rounded-3xl p-8 border border-outline-variant/20 relative overflow-hidden">
+<!-- Background aesthetic element -->
+<div class="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 blur-[100px] rounded-full"></div>
+<div class="relative z-10 flex flex-col lg:flex-row items-center gap-10">
+<div class="flex-1 space-y-6">
+<div class="flex items-start gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(78,222,163,0.8)]"></div>
+<div>
+<p class="text-body-sm font-bold text-on-surface">Cofre Pessoal acessado de um novo dispositivo</p>
+<p class="text-[12px] text-on-surface-variant">Há 12 minutos • São Paulo, BR • Chrome no macOS</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-warning-amber shadow-[0_0_8px_rgba(245,158,11,0.8)]"></div>
+<div>
+<p class="text-body-sm font-bold text-on-surface">3 senhas expirando no cofre "Marketing Dev"</p>
+<p class="text-[12px] text-on-surface-variant">Recomendamos a rotação de chaves imediatamente.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-info-cyan shadow-[0_0_8px_rgba(6,182,212,0.8)]"></div>
+<div>
+<p class="text-body-sm font-bold text-on-surface">Backup automático concluído com sucesso</p>
+<p class="text-[12px] text-on-surface-variant">Hoje, 04:00 AM • Armazenamento Geodistribuído</p>
+</div>
+</div>
+</div>
+<div class="w-full lg:w-72 bg-surface-container rounded-2xl p-6 border border-outline-variant/30">
+<p class="text-label-caps font-bold text-on-surface-variant mb-4">PONTUAÇÃO DE SEGURANÇA</p>
+<div class="flex items-center justify-center mb-4">
+<div class="relative flex items-center justify-center">
+<svg class="w-32 h-32 transform -rotate-90">
+<circle class="text-surface-container-highest" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-secondary transition-all duration-1000" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-dasharray="351.85" stroke-dashoffset="35.185" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-3xl font-mono-data text-secondary">90%</span>
+<span class="text-[10px] font-bold text-on-surface-variant">EXCELENTE</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2 bg-surface-container-highest hover:bg-surface-variant rounded-lg text-body-sm font-bold transition-all">Ver relatório completo</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Micro-interaction Scripts -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hover effect for cards to follow mouse or glow subtly
+            const cards = document.querySelectorAll('.bento-grid > div');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-4px)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body></html>

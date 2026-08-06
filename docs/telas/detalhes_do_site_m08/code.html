@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Detalhes do Site</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "graphite-deep": "#020617",
+                        "background": "#0b1326",
+                        "secondary-fixed-dim": "#4edea3",
+                        "error-container": "#93000a",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface-variant": "#2d3449",
+                        "on-secondary": "#003824",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#2d3449",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "inverse-surface": "#dae2fd",
+                        "secondary-fixed": "#6ffbbe",
+                        "surface": "#0b1326",
+                        "secondary-container": "#00a572",
+                        "on-primary-fixed": "#00174b",
+                        "on-surface": "#dae2fd",
+                        "error": "#ffb4ab",
+                        "on-secondary-container": "#00311f",
+                        "outline": "#8d90a0",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary-container": "#bc4800",
+                        "primary": "#b4c5ff",
+                        "on-tertiary": "#581e00",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-container": "#ffede6",
+                        "inverse-on-surface": "#283044",
+                        "surface-container-lowest": "#060e20",
+                        "primary-container": "#2563eb",
+                        "on-surface-variant": "#c3c6d7",
+                        "danger-red": "#EF4444",
+                        "warning-amber": "#F59E0B",
+                        "slate-surface": "#1E293B",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container": "#171f33",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-tint": "#b4c5ff",
+                        "tertiary": "#ffb596",
+                        "info-cyan": "#06B6D4",
+                        "on-primary-container": "#eeefff",
+                        "surface-bright": "#31394d",
+                        "secondary": "#4edea3",
+                        "surface-dim": "#0b1326",
+                        "surface-container-low": "#131b2e",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-background": "#dae2fd",
+                        "on-primary": "#002a78",
+                        "surface-container-high": "#222a3d",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "outline-variant": "#434655",
+                        "inverse-primary": "#0053db"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "max-width": "1280px"
+                    },
+                    "fontFamily": {
+                        "mono-data": ["JetBrains Mono"],
+                        "headline-lg": ["Manrope"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "mono-data": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["26px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .credential-card {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+        }
+        .credential-card:active {
+            transform: scale(0.98);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0b1326;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 10px;
+        }
+        .fab-container {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-background border-b border-outline-variant full-width top-0 sticky z-40 flex justify-between items-center px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface hover:bg-surface-variant transition-colors rounded-full p-2 active:scale-95 duration-100">
+                arrow_back
+            </button>
+<h1 class="font-headline-md text-headline-md-mobile font-bold text-primary">Google</h1>
+</div>
+<div class="flex items-center gap-1">
+<button class="material-symbols-outlined text-on-surface hover:bg-surface-variant transition-colors rounded-full p-2 active:scale-95 duration-100">
+                edit
+            </button>
+<button class="material-symbols-outlined text-on-surface hover:bg-surface-variant transition-colors rounded-full p-2 active:scale-95 duration-100">
+                more_vert
+            </button>
+</div>
+</header>
+<main class="flex-1 px-margin-mobile pt-6 pb-32 max-w-2xl mx-auto w-full overflow-y-auto custom-scrollbar">
+<!-- Site Info Header -->
+<section class="mb-8 flex items-start justify-between">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-xl bg-surface-container-high flex items-center justify-center border border-outline-variant">
+<img class="w-10 h-10 object-contain" data-alt="A clean, minimalist vector logo of Google, styled with professional corporate branding colors against a deep charcoal background. The lighting is soft and ambient, creating a high-end technological feel consistent with a security-first mobile application interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_qiXZDAZTrTAnO8AS9ceh1RAWou7ZKB0Gr31PT675Vg1wBzp0YqIrmLxVtiviHcghCLxxPM_Sq387jp9lY6MRqqxtKndGJww_1LCeho0qcn0xtCVctWBdEebwKgSFouMEWVSTlPt94ciHEDzcxZu6ncQh3dtd1qJvoluMdfh8Xc_6OcrRsEnQtYm0VxDLcmBPD0z_PS0RaffI7j_q_TkYj-XIfz3D7K4hmCeNNa-0Xx5iFCWD2Xfumg"/>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline-md text-on-surface">Google</h2>
+<p class="font-body-sm text-on-surface-variant">accounts.google.com</p>
+</div>
+</div>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-full font-label-caps text-label-caps flex items-center gap-2 hover:bg-opacity-90 active:scale-95 duration-100 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+                ABRIR SITE
+            </button>
+</section>
+<!-- Credentials List Label -->
+<div class="flex items-center justify-between mb-4 px-1">
+<h3 class="font-label-caps text-label-caps text-primary uppercase tracking-widest">Credenciais (2)</h3>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">filter_list</span>
+</div>
+<!-- Credential Cards -->
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="credential-card bg-surface-container-low border border-outline-variant rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+<div class="flex justify-between items-start">
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase mb-0.5">Usuário</span>
+<p class="font-body-lg text-on-surface font-medium">usuario.pessoal@gmail.com</p>
+</div>
+<button class="material-symbols-outlined text-primary hover:bg-surface-variant rounded-full p-2 transition-all">
+                        chevron_right
+                    </button>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase mb-0.5">Senha</span>
+<div class="flex items-center gap-2">
+<p class="font-mono-data text-mono-data text-on-surface-variant tracking-[0.3em]">••••••••••••</p>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant cursor-pointer">visibility</span>
+</div>
+</div>
+<div class="mt-2 pt-3 border-t border-outline-variant flex justify-between items-center">
+<div class="flex flex-col">
+<span class="font-body-sm text-on-surface-variant italic">Conta Principal</span>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-high rounded-lg text-secondary font-label-caps text-[11px] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+                            COPIAR
+                        </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-high rounded-lg text-secondary font-label-caps text-[11px] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px]">key</span>
+                            SENHA
+                        </button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="credential-card bg-surface-container-low border border-outline-variant rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+<div class="flex justify-between items-start">
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase mb-0.5">Usuário</span>
+<p class="font-body-lg text-on-surface font-medium">dev.sentinela@google.com</p>
+</div>
+<button class="material-symbols-outlined text-primary hover:bg-surface-variant rounded-full p-2 transition-all">
+                        chevron_right
+                    </button>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase mb-0.5">Senha</span>
+<div class="flex items-center gap-2">
+<p class="font-mono-data text-mono-data text-on-surface-variant tracking-[0.3em]">••••••••</p>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant cursor-pointer">visibility</span>
+</div>
+</div>
+<div class="mt-2 pt-3 border-t border-outline-variant flex justify-between items-center">
+<div class="flex flex-col">
+<span class="font-body-sm text-on-surface-variant italic">Conta de Trabalho</span>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-high rounded-lg text-secondary font-label-caps text-[11px] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+                            COPIAR
+                        </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-high rounded-lg text-secondary font-label-caps text-[11px] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px]">key</span>
+                            SENHA
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Security Warning (Subtle UI pattern) -->
+<div class="mt-8 p-4 bg-error-container/10 border border-error-container/20 rounded-xl flex gap-4 items-center">
+<span class="material-symbols-outlined text-error">warning</span>
+<div>
+<p class="font-label-caps text-on-surface font-bold text-[13px]">VERIFICAÇÃO DE SEGURANÇA</p>
+<p class="font-body-sm text-on-surface-variant">Uma das senhas associadas a este domínio foi detectada em um vazamento de dados recente.</p>
+</div>
+</div>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center fab-container active:scale-90 transition-transform z-50">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 h-20 bg-surface-container border-t border-outline-variant shadow-sm flex justify-around items-center px-4">
+<!-- Vaults (Active) -->
+<div class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1 active:scale-90 duration-150 transition-all cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</div>
+<!-- Invitations -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-all active:scale-90 duration-150 cursor-pointer">
+<span class="material-symbols-outlined">group_add</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</div>
+<!-- Account -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-all active:scale-90 duration-150 cursor-pointer">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps">Account</span>
+</div>
+</nav>
+<script>
+        // Simple micro-interaction for password masking toggle
+        document.querySelectorAll('.visibility').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const passwordText = this.previousElementSibling;
+                if (this.innerText === 'visibility') {
+                    this.innerText = 'visibility_off';
+                    passwordText.innerText = 'SuperSecret123!';
+                    passwordText.style.letterSpacing = 'normal';
+                    passwordText.classList.remove('text-on-surface-variant');
+                    passwordText.classList.add('text-secondary');
+                } else {
+                    this.innerText = 'visibility';
+                    passwordText.innerText = '••••••••••••';
+                    passwordText.style.letterSpacing = '0.3em';
+                    passwordText.classList.remove('text-secondary');
+                    passwordText.classList.add('text-on-surface-variant');
+                }
+            });
+        });
+
+        // Copy feedback simulation
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.innerText.includes('COPIAR') || btn.innerText.includes('SENHA')) {
+                btn.addEventListener('click', function() {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = `<span class="material-symbols-outlined text-[16px]">check</span> COPIADO`;
+                    this.classList.add('bg-secondary-container', 'text-on-secondary-container');
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.classList.remove('bg-secondary-container', 'text-on-secondary-container');
+                    }, 2000);
+                });
+            }
+        });
+    </script>
+</body></html>

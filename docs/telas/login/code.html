@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | Sentinela</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface": "#0b1326",
+                    "secondary-fixed-dim": "#4edea3",
+                    "surface-container-highest": "#2d3449",
+                    "on-secondary-container": "#00311f",
+                    "on-tertiary": "#581e00",
+                    "on-surface": "#dae2fd",
+                    "outline-variant": "#434655",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-container": "#171f33",
+                    "graphite-deep": "#020617",
+                    "primary-fixed": "#dbe1ff",
+                    "primary-container": "#2563eb",
+                    "surface-tint": "#b4c5ff",
+                    "on-surface-variant": "#c3c6d7",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "surface-container-low": "#131b2e",
+                    "slate-surface": "#1E293B",
+                    "primary": "#b4c5ff",
+                    "inverse-primary": "#0053db",
+                    "background": "#0b1326",
+                    "tertiary-container": "#bc4800",
+                    "surface-container-lowest": "#060e20",
+                    "on-error-container": "#ffdad6",
+                    "on-tertiary-container": "#ffede6",
+                    "error-container": "#93000a",
+                    "on-primary": "#002a78",
+                    "on-primary-container": "#eeefff",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-background": "#dae2fd",
+                    "secondary-container": "#00a572",
+                    "tertiary-fixed": "#ffdbcd",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary-fixed": "#360f00",
+                    "inverse-surface": "#dae2fd",
+                    "on-error": "#690005",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-dim": "#0b1326",
+                    "secondary": "#4edea3",
+                    "danger-red": "#EF4444",
+                    "surface-bright": "#31394d",
+                    "on-secondary-fixed": "#002113",
+                    "on-primary-fixed": "#00174b",
+                    "tertiary": "#ffb596",
+                    "warning-amber": "#F59E0B",
+                    "outline": "#8d90a0",
+                    "info-cyan": "#06B6D4",
+                    "error": "#ffb4ab",
+                    "surface-container-high": "#222a3d",
+                    "on-secondary": "#003824",
+                    "surface-variant": "#2d3449",
+                    "on-secondary-fixed-variant": "#005236",
+                    "inverse-on-surface": "#283044"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "margin-desktop": "32px",
+                    "gutter": "16px",
+                    "base": "4px",
+                    "max-width": "1280px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Manrope"],
+                    "headline-md": ["Manrope"],
+                    "body-lg": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "label-caps": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.5);
+        }
+
+        .input-focus-ring:focus-within {
+            box-shadow: 0 0 0 2px #2563eb;
+        }
+
+        /* Ambient subtle animation for background depth */
+        @keyframes subtle-drift {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(20px, -20px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, rgba(11, 19, 38, 0) 70%);
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: -1;
+            animation: subtle-drift 15s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-center items-center p-margin-mobile md:p-margin-desktop">
+<div class="bg-glow top-[-200px] left-[-200px]"></div>
+<div class="bg-glow bottom-[-200px] right-[-200px]" style="animation-delay: -7s;"></div>
+<main class="w-full max-w-[400px] flex flex-col items-center">
+<!-- Logo Section -->
+<div class="mb-10 flex flex-col items-center space-y-4">
+<div class="w-16 h-16 bg-primary-container rounded-xl flex items-center justify-center shadow-lg shadow-primary-container/20">
+<span class="material-symbols-outlined text-on-primary-container !text-4xl" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">Sentinela</h1>
+</div>
+<!-- Login Card -->
+<div class="glass-panel w-full p-8 rounded-xl shadow-2xl flex flex-col space-y-6">
+<div class="text-center">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Entrar</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Gerencie suas chaves com segurança total.</p>
+</div>
+<form class="space-y-5" id="loginForm" onsubmit="return false;">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-widest" for="email">E-mail</label>
+<div class="relative group input-focus-ring rounded-lg transition-all">
+<input class="w-full bg-surface-container border-outline-variant text-on-surface rounded-lg px-4 py-3 focus:border-primary-container focus:ring-0 transition-colors placeholder:text-outline" id="email" placeholder="nome@empresa.com" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<label class="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-widest" for="password">Senha</label>
+<a class="text-[11px] font-semibold text-primary hover:underline transition-all" href="#">Esqueceu a senha?</a>
+</div>
+<div class="relative group input-focus-ring rounded-lg transition-all">
+<input class="w-full bg-surface-container border-outline-variant text-on-surface rounded-lg px-4 py-3 focus:border-primary-container focus:ring-0 transition-colors placeholder:text-outline font-mono-data text-mono-data" id="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors focus:outline-none p-1" id="togglePassword" type="button">
+<span class="material-symbols-outlined !text-xl" id="eyeIcon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-primary-container hover:bg-inverse-primary text-on-primary-container font-bold py-3 px-6 rounded-lg transition-all transform active:scale-[0.98] flex items-center justify-center space-x-2 shadow-md" type="submit">
+<span class="material-symbols-outlined !text-lg" style="font-variation-settings: 'FILL' 1;">login</span>
+<span>Entrar</span>
+</button>
+</form>
+<!-- Access Notice -->
+<div class="pt-4 border-t border-outline-variant/30 text-center">
+<div class="flex items-center justify-center space-x-2 text-warning-amber/80 px-2">
+<span class="material-symbols-outlined !text-[16px]">info</span>
+<p class="text-[12px] font-medium leading-tight">O acesso ao Sentinela é restrito a usuários convidados.</p>
+</div>
+</div>
+</div>
+<!-- Additional Links -->
+<div class="mt-8 flex flex-col items-center space-y-4">
+<div class="flex space-x-6">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#">Suporte</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#">Termos</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#">Privacidade</a>
+</div>
+</div>
+</main>
+<!-- App Version Footer -->
+<footer class="mt-auto py-8">
+<div class="flex items-center space-x-2 text-outline/60 font-mono-data text-[10px] tracking-widest uppercase">
+<span class="material-symbols-outlined !text-[12px]">security</span>
+<span>Sentinela Secure Engine v2.4.0-stable</span>
+</div>
+</footer>
+<script>
+        // Password Visibility Toggle
+        const passwordInput = document.getElementById('password');
+        const toggleButton = document.getElementById('togglePassword');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        toggleButton.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            eyeIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
+            
+            // Subtle feedback
+            toggleButton.classList.add('scale-90');
+            setTimeout(() => toggleButton.classList.remove('scale-90'), 100);
+        });
+
+        // Form Submission Micro-interaction
+        const form = document.getElementById('loginForm');
+        form.addEventListener('submit', (e) => {
+            const btn = form.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-symbols-outlined animate-spin !text-lg">progress_activity</span><span>Verificando...</span>`;
+            
+            // Simulation of a check
+            setTimeout(() => {
+                btn.innerHTML = `<span class="material-symbols-outlined !text-lg">error</span><span>Credenciais Inválidas</span>`;
+                btn.classList.replace('bg-primary-container', 'bg-error-container');
+                
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                    btn.classList.replace('bg-error-container', 'bg-primary-container');
+                }, 2000);
+            }, 1200);
+        });
+
+        // Background atmosphere micro-interaction
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            const glows = document.querySelectorAll('.bg-glow');
+            glows.forEach((glow, index) => {
+                const speed = (index + 1) * 20;
+                const x = (mouseX * speed);
+                const y = (mouseY * speed);
+                glow.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+    </script>
+</body></html>

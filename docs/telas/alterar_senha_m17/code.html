@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#360f00",
+                    "inverse-surface": "#dae2fd",
+                    "inverse-on-surface": "#283044",
+                    "on-secondary-fixed-variant": "#005236",
+                    "primary-fixed": "#dbe1ff",
+                    "on-tertiary": "#581e00",
+                    "on-secondary-container": "#00311f",
+                    "surface-container-high": "#222a3d",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "surface-tint": "#b4c5ff",
+                    "on-error-container": "#ffdad6",
+                    "surface-variant": "#2d3449",
+                    "background": "#0b1326",
+                    "on-tertiary-container": "#ffede6",
+                    "surface-container-lowest": "#060e20",
+                    "tertiary": "#ffb596",
+                    "surface-container-highest": "#2d3449",
+                    "error": "#ffb4ab",
+                    "tertiary-fixed": "#ffdbcd",
+                    "secondary-fixed": "#6ffbbe",
+                    "secondary-container": "#00a572",
+                    "inverse-primary": "#0053db",
+                    "on-surface": "#dae2fd",
+                    "info-cyan": "#06B6D4",
+                    "on-surface-variant": "#c3c6d7",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "primary": "#b4c5ff",
+                    "warning-amber": "#F59E0B",
+                    "error-container": "#93000a",
+                    "outline-variant": "#434655",
+                    "tertiary-container": "#bc4800",
+                    "surface-dim": "#0b1326",
+                    "on-primary": "#002a78",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface": "#0b1326",
+                    "on-primary-container": "#eeefff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "graphite-deep": "#020617",
+                    "danger-red": "#EF4444",
+                    "surface-container-low": "#131b2e",
+                    "secondary": "#4edea3",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-error": "#690005",
+                    "surface-bright": "#31394d",
+                    "on-secondary-fixed": "#002113",
+                    "slate-surface": "#1E293B",
+                    "primary-container": "#2563eb",
+                    "on-secondary": "#003824",
+                    "on-primary-fixed": "#00174b",
+                    "on-background": "#dae2fd",
+                    "surface-container": "#171f33",
+                    "outline": "#8d90a0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "max-width": "1280px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "headline-md": ["Manrope"],
+                    "headline-lg-mobile": ["Manrope"],
+                    "headline-lg": ["Manrope"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .security-mesh {
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-lg text-body-lg">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 flex justify-between items-center px-margin-mobile h-16 bg-background dark:bg-background">
+<div class="flex items-center gap-3">
+<button class="material-symbols-outlined text-primary hover:bg-surface-container rounded-full p-2 transition-colors active:scale-95">arrow_back</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Segurança</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">shield</span>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center p-margin-mobile relative overflow-hidden security-mesh">
+<!-- Background Ambient Shader -->
+
+<div class="w-full max-w-md z-10">
+<!-- Form Card -->
+<div class="bg-surface-container-low border border-outline-variant p-6 md:p-8 rounded-xl shadow-2xl backdrop-blur-sm">
+<div class="mb-8 text-center">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-container/20 text-primary mb-4">
+<span class="material-symbols-outlined text-[32px]">lock_reset</span>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">Alterar Senha</h2>
+<p class="text-on-surface-variant font-body-sm text-body-sm mt-2">Garanta a segurança da sua conta com uma senha forte.</p>
+</div>
+<form class="space-y-6" onsubmit="event.preventDefault();">
+<!-- Senha Atual -->
+<div class="space-y-2">
+<label class="block font-label-caps text-label-caps text-on-surface-variant ml-1" for="current-password">Senha Atual</label>
+<div class="relative group">
+<input class="w-full bg-surface-container border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg px-4 py-3 outline-none transition-all font-mono-data text-mono-data text-on-surface placeholder-on-surface-variant/30" id="current-password" placeholder="••••••••••••" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors p-1" onclick="togglePassword('current-password', this)" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Nova Senha -->
+<div class="space-y-2">
+<label class="block font-label-caps text-label-caps text-on-surface-variant ml-1" for="new-password">Nova Senha</label>
+<div class="relative group">
+<input class="w-full bg-surface-container border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg px-4 py-3 outline-none transition-all font-mono-data text-mono-data text-on-surface placeholder-on-surface-variant/30" id="new-password" placeholder="Crie uma nova senha" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors p-1" onclick="togglePassword('new-password', this)" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Confirmar Nova Senha -->
+<div class="space-y-2">
+<label class="block font-label-caps text-label-caps text-on-surface-variant ml-1" for="confirm-password">Confirmar Nova Senha</label>
+<div class="relative group">
+<input class="w-full bg-surface-container border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg px-4 py-3 outline-none transition-all font-mono-data text-mono-data text-on-surface placeholder-on-surface-variant/30" id="confirm-password" placeholder="Repita a nova senha" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors p-1" onclick="togglePassword('confirm-password', this)" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Requisitos de Senha -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-4 space-y-2">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">Requisitos de Segurança:</p>
+<ul class="space-y-1.5">
+<li class="flex items-center gap-2 font-body-sm text-body-sm text-secondary">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+                                Mínimo de 12 caracteres
+                            </li>
+<li class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">circle</span>
+                                Letras maiúsculas e minúsculas
+                            </li>
+<li class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">circle</span>
+                                Ao menos um número
+                            </li>
+<li class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">circle</span>
+                                Símbolo especial (!@#$%)
+                            </li>
+</ul>
+</div>
+<!-- Botões de Ação -->
+<div class="flex flex-col gap-3 pt-2">
+<button class="w-full bg-primary-container hover:bg-primary-container/90 text-on-primary-container py-4 rounded-lg font-label-caps text-label-caps flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg shadow-primary-container/20">
+                            ALTERAR SENHA
+                            <span class="material-symbols-outlined text-[20px]">encrypted</span>
+</button>
+<button class="w-full bg-transparent hover:bg-surface-variant text-on-surface-variant py-3 rounded-lg font-label-caps text-label-caps transition-colors border border-outline-variant">
+                            CANCELAR
+                        </button>
+</div>
+</form>
+</div>
+<!-- Ajuda Contextual -->
+<div class="mt-8 flex justify-center gap-8 px-4 opacity-60">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">verified_user</span>
+<span class="font-label-caps text-[10px]">CRIPTOGRAFIA AES-256</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">history</span>
+<span class="font-label-caps text-[10px]">HISTÓRICO PROTEGIDO</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Hidden on desktop as per rules, using BottomNavBar JSON structure) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center pb-safe bg-surface-container dark:bg-surface-container h-20 z-50 border-t border-outline-variant">
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-caps text-label-caps">Cofres</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-caps text-label-caps">Convites</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container rounded-full px-5 py-1">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps">Conta</span>
+</div>
+</nav>
+<script>
+        function togglePassword(id, button) {
+            const input = document.getElementById(id);
+            const icon = button.querySelector('.material-symbols-outlined');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+
+        // Micro-interaction for requirement highlighting
+        const newPasswordInput = document.getElementById('new-password');
+        newPasswordInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            const requirements = document.querySelectorAll('li');
+            
+            // Example logic for length requirement (first item)
+            if (val.length >= 12) {
+                requirements[0].classList.replace('text-on-surface-variant', 'text-secondary');
+                requirements[0].querySelector('span').textContent = 'check_circle';
+            } else {
+                requirements[0].classList.replace('text-secondary', 'text-on-surface-variant');
+                requirements[0].querySelector('span').textContent = 'circle';
+            }
+        });
+    </script>
+</body></html>

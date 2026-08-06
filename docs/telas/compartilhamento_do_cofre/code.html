@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Gestão de Membros</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "surface-container": "#171f33",
+                "outline": "#8d90a0",
+                "on-secondary": "#003824",
+                "on-secondary-container": "#00311f",
+                "surface-variant": "#2d3449",
+                "surface": "#0b1326",
+                "on-tertiary-container": "#ffede6",
+                "primary": "#b4c5ff",
+                "error-container": "#93000a",
+                "surface-container-high": "#222a3d",
+                "on-error-container": "#ffdad6",
+                "secondary-fixed": "#6ffbbe",
+                "background": "#0b1326",
+                "tertiary-fixed-dim": "#ffb596",
+                "on-tertiary": "#581e00",
+                "primary-fixed-dim": "#b4c5ff",
+                "on-error": "#690005",
+                "on-secondary-fixed": "#002113",
+                "outline-variant": "#434655",
+                "surface-container-low": "#131b2e",
+                "tertiary-fixed": "#ffdbcd",
+                "on-primary": "#002a78",
+                "secondary-container": "#00a572",
+                "graphite-deep": "#020617",
+                "on-tertiary-fixed-variant": "#7d2d00",
+                "inverse-on-surface": "#283044",
+                "secondary-fixed-dim": "#4edea3",
+                "on-primary-container": "#eeefff",
+                "surface-container-highest": "#2d3449",
+                "tertiary-container": "#bc4800",
+                "warning-amber": "#F59E0B",
+                "surface-dim": "#0b1326",
+                "on-primary-fixed": "#00174b",
+                "danger-red": "#EF4444",
+                "tertiary": "#ffb596",
+                "on-tertiary-fixed": "#360f00",
+                "error": "#ffb4ab",
+                "info-cyan": "#06B6D4",
+                "surface-container-lowest": "#060e20",
+                "surface-bright": "#31394d",
+                "on-surface-variant": "#c3c6d7",
+                "primary-container": "#2563eb",
+                "inverse-primary": "#0053db",
+                "surface-tint": "#b4c5ff",
+                "on-background": "#dae2fd",
+                "inverse-surface": "#dae2fd",
+                "on-primary-fixed-variant": "#003ea8",
+                "primary-fixed": "#dbe1ff",
+                "on-secondary-fixed-variant": "#005236",
+                "slate-surface": "#1E293B",
+                "secondary": "#4edea3",
+                "on-surface": "#dae2fd"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "spacing": {
+                "margin-desktop": "32px",
+                "max-width": "1280px",
+                "gutter": "16px",
+                "base": "4px",
+                "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                "body-sm": ["Inter"],
+                "headline-lg": ["Manrope"],
+                "headline-lg-mobile": ["Manrope"],
+                "mono-data": ["JetBrains Mono"],
+                "label-caps": ["Inter"],
+                "headline-md": ["Manrope"],
+                "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #171f33;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 10px;
+        }
+        .glass-effect {
+            backdrop-filter: blur(8px);
+            background: rgba(30, 41, 59, 0.7);
+        }
+    </style>
+</head>
+<body class="font-body-lg">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container flex flex-col h-full py-8 z-50">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">shield_lock</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">Sentinela</h1>
+<p class="text-[10px] uppercase tracking-widest text-outline">Secure Vault</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant px-margin-desktop py-3 hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<a class="flex items-center gap-3 text-primary font-bold border-l-4 border-primary bg-surface-container-high px-margin-desktop py-3 transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-margin-desktop py-3 hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined" data-icon="upload_file">upload_file</span>
+<span class="font-label-caps text-label-caps">Import CSV</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-margin-desktop py-3 hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full bg-danger-red hover:bg-red-600 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="font-label-caps text-label-caps">Lock All Vaults</span>
+</button>
+<div class="mt-6 border-t border-outline-variant pt-4">
+<a class="flex items-center gap-3 text-on-surface-variant px-2 py-3 hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-caps text-label-caps uppercase">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[280px] min-h-screen">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-margin-desktop w-full h-16 bg-surface border-b border-outline-variant sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Membros do Cofre</h2>
+<div class="h-6 w-[1px] bg-outline-variant"></div>
+<span class="text-on-surface-variant text-body-sm font-medium">Cofre Financeiro Corporativo</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant">
+<div class="text-right">
+<p class="text-body-sm font-bold text-on-surface">Alex Thompson</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Administrador</p>
+</div>
+<img class="w-10 h-10 rounded-full object-cover border-2 border-primary" data-alt="A professional studio portrait of a technology executive in a dark slate-colored turtleneck, looking confident and approachable. The lighting is sophisticated, with soft blue rim light that matches the Sentinela brand palette. The background is a clean, out-of-focus modern office environment with subtle deep blue tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqKljwxxiUYWIxmaffK9CsGS6MYdPYym2hzSkSvwh14N9TQGNBzCKosQTmWmpOKUDqJ2UBZj2KlkaWTYQ6W3HimEEpNZLYHVMlwM0ddLrswD8dbX_jtnennJU9P14boF6Sooj-xKqMgBddLqlDzOZR51jnJf4LtsSUl5afYI0J08JK6e7P06hBZB2Swcza_aI2Xy-8Wu4THozVvg1DuHYCNFvpJs4y4w-8mKodV8ynPS2ieAUznFV3cQ"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="p-margin-desktop max-w-max-width mx-auto">
+<!-- Hero Action Section -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">Gerenciar Acessos</h3>
+<p class="text-on-surface-variant max-w-xl">Controle quem pode visualizar, editar ou gerenciar as credenciais deste cofre. Garanta o princípio do privilégio mínimo.</p>
+</div>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-bold px-6 py-3 rounded-xl flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary/10" onclick="document.getElementById('invite-modal').classList.remove('hidden')">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 700;">person_add</span>
+<span class="font-label-caps text-label-caps">Convidar usuário</span>
+</button>
+</div>
+<!-- Bento Grid Layout for Management -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Active Members List (Large Card) -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container rounded-xl border border-outline-variant overflow-hidden">
+<div class="px-6 py-4 border-b border-outline-variant bg-surface-container-high flex justify-between items-center">
+<h4 class="font-headline-md text-body-lg font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="group">group</span>
+                            Membros Ativos
+                        </h4>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase">4 Membros</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="px-6 py-4 font-label-caps text-label-caps text-outline uppercase">Nome</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-outline uppercase">Papel</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-outline uppercase">Acesso</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-outline uppercase text-right">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">AT</div>
+<div>
+<p class="text-on-surface font-bold text-body-lg">Alex Thompson</p>
+<p class="text-on-surface-variant text-body-sm">alex.t@sentinela.io</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-container/20 text-primary border border-primary/30 text-xs font-bold uppercase tracking-wider">
+                                            Administrador
+                                        </span>
+</td>
+<td class="px-6 py-5">
+<p class="text-on-surface-variant text-body-sm">Acesso Total</p>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors p-2 rounded-lg hover:bg-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="px-6 py-5 border-l-4 border-transparent hover:border-primary">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold">SM</div>
+<div>
+<p class="text-on-surface font-bold text-body-lg">Sarah Miller</p>
+<p class="text-on-surface-variant text-body-sm">s.miller@corp.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/20 text-secondary border border-secondary/30 text-xs font-bold uppercase tracking-wider">
+                                            Editor
+                                        </span>
+</td>
+<td class="px-6 py-5">
+<p class="text-on-surface-variant text-body-sm">Leitura/Escrita</p>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors p-2 rounded-lg hover:bg-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary/20 flex items-center justify-center text-tertiary font-bold">JL</div>
+<div>
+<p class="text-on-surface font-bold text-body-lg">John Lowery</p>
+<p class="text-on-surface-variant text-body-sm">j.lowery@partner.io</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-variant text-on-surface-variant border border-outline-variant text-xs font-bold uppercase tracking-wider">
+                                            Leitor
+                                        </span>
+</td>
+<td class="px-6 py-5">
+<p class="text-on-surface-variant text-body-sm">Somente Visualização</p>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors p-2 rounded-lg hover:bg-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right Side: Pending Invites & Stats -->
+<div class="col-span-12 lg:col-span-4 space-y-gutter">
+<!-- Pending Invitations Card -->
+<div class="bg-surface-container rounded-xl border border-outline-variant overflow-hidden">
+<div class="px-6 py-4 border-b border-outline-variant bg-surface-container-high">
+<h4 class="font-headline-md text-body-lg font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-warning-amber" data-icon="mail">mail</span>
+                                Convites Pendentes
+                            </h4>
+</div>
+<div class="p-4 space-y-3">
+<!-- Invite Item 1 -->
+<div class="p-4 rounded-lg bg-surface-container-low border border-outline-variant/30 flex justify-between items-center group">
+<div>
+<p class="text-on-surface font-bold text-body-sm">marcos.rocha@tech.com</p>
+<p class="text-on-surface-variant text-[10px] uppercase mt-1">Convidado como <span class="text-secondary">Editor</span></p>
+</div>
+<div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-danger-red hover:bg-danger-red/10 rounded-md transition-colors" title="Revogar">
+<span class="material-symbols-outlined">cancel</span>
+</button>
+<button class="p-1.5 text-info-cyan hover:bg-info-cyan/10 rounded-md transition-colors" title="Reenviar">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+</div>
+</div>
+<!-- Empty State Logic could go here -->
+<div class="p-4 rounded-lg bg-surface-container-low border border-outline-variant/30 flex justify-between items-center group">
+<div>
+<p class="text-on-surface font-bold text-body-sm">suporte@ext.dev</p>
+<p class="text-on-surface-variant text-[10px] uppercase mt-1">Convidado como <span class="text-on-surface-variant">Leitor</span></p>
+</div>
+<div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-danger-red hover:bg-danger-red/10 rounded-md transition-colors" title="Revogar">
+<span class="material-symbols-outlined">cancel</span>
+</button>
+<button class="p-1.5 text-info-cyan hover:bg-info-cyan/10 rounded-md transition-colors" title="Reenviar">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Security Insights Card -->
+<div class="bg-gradient-to-br from-surface-container to-surface-container-high rounded-xl border border-primary/20 p-6 relative overflow-hidden">
+<div class="absolute -right-10 -bottom-10 opacity-5">
+<span class="material-symbols-outlined text-[160px]">verified_user</span>
+</div>
+<h5 class="text-primary font-bold text-body-lg mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">security</span>
+                            Security Check
+                        </h5>
+<p class="text-on-surface-variant text-body-sm mb-4">
+                            Todos os membros atuais possuem <strong>MFA (2FA)</strong> habilitado. Recomendamos revisar acessos a cada 90 dias.
+                        </p>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-[11px] font-bold uppercase text-outline">
+<span>Pontuação de Segurança do Cofre</span>
+<span class="text-secondary">94%</span>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 94%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Invite User Modal (Overlay Level 2) -->
+<div class="fixed inset-0 z-[60] flex items-center justify-center hidden" id="invite-modal">
+<div class="absolute inset-0 bg-graphite-deep/80 backdrop-blur-sm"></div>
+<div class="relative bg-surface-container-high w-full max-w-md rounded-xl border border-outline-variant shadow-2xl animate-in fade-in zoom-in duration-200">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface">Convidar novo membro</h3>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors" onclick="document.getElementById('invite-modal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<form class="p-6 space-y-6">
+<div>
+<label class="block text-label-caps font-label-caps text-outline uppercase mb-2">E-mail do convidado</label>
+<input class="w-full bg-surface-container border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg px-4 py-3 text-on-surface placeholder:text-outline/50 outline-none transition-all" placeholder="exemplo@email.com" type="email"/>
+</div>
+<div>
+<label class="block text-label-caps font-label-caps text-outline uppercase mb-2">Papel / Nível de Acesso</label>
+<div class="grid grid-cols-1 gap-2">
+<label class="flex items-start gap-3 p-3 rounded-lg border border-outline-variant hover:bg-surface-container transition-all cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+<input checked="" class="mt-1 text-primary focus:ring-primary bg-surface-container" name="role" type="radio"/>
+<div>
+<p class="text-on-surface font-bold text-body-sm">Administrador</p>
+<p class="text-on-surface-variant text-[11px]">Controle total sobre membros e senhas.</p>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-lg border border-outline-variant hover:bg-surface-container transition-all cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+<input class="mt-1 text-primary focus:ring-primary bg-surface-container" name="role" type="radio"/>
+<div>
+<p class="text-on-surface font-bold text-body-sm">Editor</p>
+<p class="text-on-surface-variant text-[11px]">Pode ler e adicionar novas credenciais.</p>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-lg border border-outline-variant hover:bg-surface-container transition-all cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+<input class="mt-1 text-primary focus:ring-primary bg-surface-container" name="role" type="radio"/>
+<div>
+<p class="text-on-surface font-bold text-body-sm">Leitor</p>
+<p class="text-on-surface-variant text-[11px]">Somente visualização de credenciais.</p>
+</div>
+</label>
+</div>
+</div>
+<div class="pt-4 flex gap-3">
+<button class="flex-1 bg-surface-variant hover:bg-surface-container-highest text-on-surface font-bold py-3 rounded-lg transition-all active:scale-95 border border-outline-variant" onclick="document.getElementById('invite-modal').classList.add('hidden')" type="button">
+                        Cancelar
+                    </button>
+<button class="flex-1 bg-primary hover:bg-primary-container text-on-primary font-bold py-3 rounded-lg transition-all active:scale-95" type="submit">
+                        Enviar Convite
+                    </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Micro-interaction Script -->
+<script>
+        // Simple ripple-like effect on list items or buttons could be added here
+        document.querySelectorAll('tr').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (e.target.closest('button')) return;
+                // Intentional interaction feedback
+                row.classList.add('bg-surface-container-highest');
+                setTimeout(() => {
+                    row.classList.remove('bg-surface-container-highest');
+                }, 200);
+            });
+        });
+    </script>
+</body></html>

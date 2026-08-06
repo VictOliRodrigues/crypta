@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Guia de Acessibilidade - Sentinela</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#eeefff",
+                    "surface-bright": "#31394d",
+                    "info-cyan": "#06B6D4",
+                    "surface-dim": "#0b1326",
+                    "surface": "#0b1326",
+                    "on-error-container": "#ffdad6",
+                    "on-background": "#dae2fd",
+                    "background": "#0b1326",
+                    "tertiary-fixed": "#ffdbcd",
+                    "outline-variant": "#434655",
+                    "on-tertiary": "#581e00",
+                    "slate-surface": "#1E293B",
+                    "surface-container-lowest": "#060e20",
+                    "graphite-deep": "#020617",
+                    "tertiary": "#ffb596",
+                    "on-primary": "#002a78",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "inverse-surface": "#dae2fd",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "secondary": "#4edea3",
+                    "on-secondary": "#003824",
+                    "on-tertiary-fixed": "#360f00",
+                    "on-secondary-fixed": "#002113",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "surface-container-low": "#131b2e",
+                    "primary": "#b4c5ff",
+                    "on-error": "#690005",
+                    "outline": "#8d90a0",
+                    "error": "#ffb4ab",
+                    "on-secondary-container": "#00311f",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-surface": "#dae2fd",
+                    "inverse-on-surface": "#283044",
+                    "secondary-container": "#00a572",
+                    "surface-container-high": "#222a3d",
+                    "inverse-primary": "#0053db",
+                    "surface-container": "#171f33",
+                    "danger-red": "#EF4444",
+                    "on-tertiary-container": "#ffede6",
+                    "error-container": "#93000a",
+                    "tertiary-container": "#bc4800",
+                    "surface-variant": "#2d3449",
+                    "primary-container": "#2563eb",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-surface-variant": "#c3c6d7",
+                    "surface-tint": "#b4c5ff",
+                    "primary-fixed": "#dbe1ff",
+                    "on-primary-fixed": "#00174b",
+                    "warning-amber": "#F59E0B",
+                    "surface-container-highest": "#2d3449",
+                    "secondary-fixed": "#6ffbbe"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "margin-mobile": "16px",
+                    "max-width": "1280px",
+                    "margin-desktop": "32px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Inter"],
+                    "headline-lg": ["Manrope"],
+                    "mono-data": ["JetBrains Mono"],
+                    "body-sm": ["Inter"],
+                    "headline-md": ["Manrope"],
+                    "headline-lg-mobile": ["Manrope"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #131b2e;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 10px;
+        }
+        .focus-ring-demo {
+            outline: 2px solid #b4c5ff;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container dark:bg-surface-container flex flex-col h-full py-8 z-50">
+<div class="px-8 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-on-primary">security</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">Sentinela</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Secure Vault</p>
+</div>
+</div>
+</div>
+<div class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="upload_file">upload_file</span>
+<span class="font-label-caps text-label-caps">Import CSV</span>
+</a>
+<a class="text-primary font-bold border-l-4 border-primary bg-surface-container-high px-4 py-3 flex items-center gap-3 rounded-r-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</div>
+<div class="px-4 mt-auto">
+<button class="w-full bg-danger-red text-white py-3 rounded-lg flex items-center justify-center gap-2 font-bold active:opacity-80 transition-all mb-4">
+<span class="material-symbols-outlined">lock_reset</span>
+                Lock All Vaults
+            </button>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-caps text-label-caps">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Shell -->
+<main class="ml-[280px] w-full flex flex-col">
+<!-- TopAppBar -->
+<header class="w-full h-16 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant flex justify-between items-center px-margin-desktop sticky top-0 z-40">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-full py-2 pl-10 pr-4 text-body-sm font-body-sm focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Pesquisar documentação..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-highest transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-highest transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a diverse team leader in a corporate environment, featuring soft rim lighting and a deep slate background. The image is crisp, modern, and conveys a sense of reliability and technical expertise within a high-security software firm." src="https://lh3.googleusercontent.com/aida-public/AB6AXuClvl-na_3Bhk8P7rpTH_cRUCcft3UNCRdLWE1eb3AYIVcWUYx4PeO0JUYtlAK3b6jBQMmeJQBR6HDOeoQg3ubKT8Z4ZrYtBoB7vN3-5OyNlgF031P9RZKHM8UeRb-zHARDYn6--pAlet_Wp6LXMgmIhHvBG7rc729lvSg_x9Jv1-6oj67FvKt6-EG7Vnd43BqVid9jjgpe8ATF5JC6Ipueh5JoZgiSdwom4wFBQIm_VG2E8Cs9MnV3FQ"/>
+</div>
+</div>
+</header>
+<!-- Canvas Content -->
+<div class="p-margin-desktop max-w-max-width mx-auto w-full custom-scrollbar">
+<!-- Header Section -->
+<section class="mb-12">
+<div class="flex flex-col gap-2">
+<span class="text-primary font-label-caps text-label-caps tracking-widest">SENTINELA COMPLIANCE</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Guia de Acessibilidade</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">
+                        Nosso compromisso é garantir que o Sentinela seja uma ferramenta de segurança de dados verdadeiramente inclusiva. Seguimos rigorosamente as diretrizes WCAG 2.1 para proporcionar uma experiência fluida para todos os usuários, independentemente de suas capacidades funcionais.
+                    </p>
+</div>
+</section>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Navegação por Teclado (Focus States) -->
+<div class="col-span-12 lg:col-span-7 bg-surface-container p-8 rounded-xl border border-outline-variant relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-8xl">keyboard</span>
+</div>
+<div class="relative z-10">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">keyboard_tab</span>
+                            Navegação por Teclado
+                        </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">
+                            Todos os elementos interativos são acessíveis via tecla <kbd class="px-2 py-1 bg-surface-container-high rounded text-primary font-mono-data">Tab</kbd>. O anel de foco visível garante que usuários que não utilizam mouse saibam exatamente onde estão.
+                        </p>
+<div class="grid grid-cols-2 gap-4 bg-surface-container-low p-6 rounded-lg border border-outline-variant/30">
+<div class="space-y-4">
+<label class="block text-xs font-label-caps text-on-surface-variant mb-1">CAMPO COM FOCO</label>
+<input class="w-full bg-slate-surface border border-primary focus-ring-demo rounded px-4 py-3 text-body-sm outline-none" readonly="" type="text" value="sentinela@seguranca.com"/>
+<p class="text-[10px] text-on-surface-variant italic">Outline azul 2px indica o estado ativo.</p>
+</div>
+<div class="space-y-4">
+<label class="block text-xs font-label-caps text-on-surface-variant mb-1">BOTÃO COM FOCO</label>
+<button class="w-full bg-primary text-on-primary py-3 rounded font-bold focus-ring-demo">Entrar no Vault</button>
+<p class="text-[10px] text-on-surface-variant italic">Contraste de foco preservado em fundos claros.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Contraste e Cores -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container p-8 rounded-xl border border-outline-variant relative overflow-hidden">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">palette</span>
+                        Contraste e Cores
+                    </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">
+                        A cor nunca é o único indicador de status. Utilizamos ícones e padrões textuais para garantir a compreensão.
+                    </p>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 bg-surface-container-high rounded-lg border-l-4 border-primary">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded"></div>
+<span class="font-mono-data text-body-sm">Primary Blue</span>
+</div>
+<span class="px-2 py-1 bg-on-primary-container text-on-primary text-[10px] font-bold rounded">AAA</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-container-high rounded-lg border-l-4 border-error">
+<div class="flex items-center gap-3 text-error">
+<span class="material-symbols-outlined">error</span>
+<span class="font-mono-data text-body-sm">Erro Crítico</span>
+</div>
+<span class="text-[10px] text-on-surface-variant">Ícone + Cor</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-container-high rounded-lg border-l-4 border-secondary">
+<div class="flex items-center gap-3 text-secondary">
+<span class="material-symbols-outlined">check_circle</span>
+<span class="font-mono-data text-body-sm">Sucesso</span>
+</div>
+<span class="text-[10px] text-on-surface-variant">Ícone + Cor</span>
+</div>
+</div>
+</div>
+<!-- Leitores de Tela -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container p-8 rounded-xl border border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">settings_voice</span>
+                        Screen Readers
+                    </h3>
+<div class="space-y-4">
+<div class="p-4 bg-graphite-deep rounded border border-outline-variant/20">
+<code class="text-xs text-info-cyan block mb-2">&lt;button aria-label="Remover chave"&gt;</code>
+<div class="flex items-center justify-center p-4 bg-surface-container-high rounded">
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-danger-red/10 text-danger-red hover:bg-danger-red/20 transition-all">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                            Botões puramente iconográficos possuem <span class="text-primary">aria-labels</span> descritivos para leitura de áudio.
+                        </p>
+</div>
+</div>
+<!-- Áreas de Toque Mobile -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container p-8 rounded-xl border border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">touch_app</span>
+                        Áreas de Toque
+                    </h3>
+<div class="flex flex-col items-center gap-6">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<!-- Target Indicator -->
+<div class="absolute inset-0 border-2 border-dashed border-primary/30 rounded-full animate-pulse"></div>
+<div class="absolute -bottom-2 text-[10px] font-mono-data text-primary">48px min</div>
+<button class="w-12 h-12 bg-primary-container text-white rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center">
+                            Garantimos alvos de toque de no mínimo 48x48px (superando os 44px da WCAG) para prevenir erros de ativação.
+                        </p>
+</div>
+</div>
+<!-- Feedback Acessível (Toasts) -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container p-8 rounded-xl border border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">announcement</span>
+                        Feedback Dinâmico
+                    </h3>
+<div class="space-y-4">
+<div class="p-4 bg-slate-surface rounded-lg shadow-xl border-l-4 border-warning-amber">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-warning-amber">warning</span>
+<div>
+<p class="text-xs font-bold text-on-surface">Ação Necessária</p>
+<p class="text-[10px] text-on-surface-variant">Sua chave expira em 2 dias.</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 text-xs font-mono-data text-primary">
+<span class="material-symbols-outlined text-sm">record_voice_over</span>
+                            role="alert" | aria-live="polite"
+                        </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                            Mensagens de feedback são injetadas em regiões <span class="text-primary">aria-live</span> para notificação imediata por voz.
+                        </p>
+</div>
+</div>
+</div>
+<!-- Footer Section -->
+<footer class="mt-16 pt-8 border-t border-outline-variant flex justify-between items-center text-on-surface-variant">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+<span class="font-body-sm text-body-sm">Conformidade WCAG 2.1 Nível AA (Almejando AAA)</span>
+</div>
+<div class="flex gap-6">
+<a class="font-label-caps text-label-caps hover:text-primary transition-colors" href="#">Relatório Completo</a>
+<a class="font-label-caps text-label-caps hover:text-primary transition-colors" href="#">Suporte Inclusivo</a>
+</div>
+</footer>
+</div>
+</main>
+<!-- Floating Action Button (FAB) - Suppressed on documentation pages per rule, but for Acessibility visual demo, we can keep a subtle help one if relevant. Rule says: Suppress on Detail/Settings. This is a Guide/Doc. Will omit to follow strict suppression rule. -->
+<script>
+        // Micro-interactions for demonstration
+        document.querySelectorAll('.focus-ring-demo').forEach(el => {
+            el.addEventListener('click', () => {
+                console.log('Interação capturada para testes de acessibilidade.');
+            });
+        });
+
+        // Simulação de toast para o item 6
+        const toastDemo = document.querySelector('.bg-slate-surface');
+        if(toastDemo) {
+            toastDemo.addEventListener('mouseenter', () => {
+                toastDemo.style.transform = 'translateY(-2px)';
+                toastDemo.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            });
+            toastDemo.addEventListener('mouseleave', () => {
+                toastDemo.style.transform = 'translateY(0px)';
+            });
+        }
+    </script>
+</body></html>

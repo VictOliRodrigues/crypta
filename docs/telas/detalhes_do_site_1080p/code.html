@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Detalhes do Site</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface": "#0b1326",
+                    "secondary-fixed-dim": "#4edea3",
+                    "surface-container-highest": "#2d3449",
+                    "on-secondary-container": "#00311f",
+                    "on-tertiary": "#581e00",
+                    "on-surface": "#dae2fd",
+                    "outline-variant": "#434655",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-container": "#171f33",
+                    "graphite-deep": "#020617",
+                    "primary-fixed": "#dbe1ff",
+                    "primary-container": "#2563eb",
+                    "surface-tint": "#b4c5ff",
+                    "on-surface-variant": "#c3c6d7",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "surface-container-low": "#131b2e",
+                    "slate-surface": "#1E293B",
+                    "primary": "#b4c5ff",
+                    "inverse-primary": "#0053db",
+                    "background": "#0b1326",
+                    "tertiary-container": "#bc4800",
+                    "surface-container-lowest": "#060e20",
+                    "on-error-container": "#ffdad6",
+                    "on-tertiary-container": "#ffede6",
+                    "error-container": "#93000a",
+                    "on-primary": "#002a78",
+                    "on-primary-container": "#eeefff",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-background": "#dae2fd",
+                    "secondary-container": "#00a572",
+                    "tertiary-fixed": "#ffdbcd",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary-fixed": "#360f00",
+                    "inverse-surface": "#dae2fd",
+                    "on-error": "#690005",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-dim": "#0b1326",
+                    "secondary": "#4edea3",
+                    "danger-red": "#EF4444",
+                    "surface-bright": "#31394d",
+                    "on-secondary-fixed": "#002113",
+                    "on-primary-fixed": "#00174b",
+                    "tertiary": "#ffb596",
+                    "warning-amber": "#F59E0B",
+                    "outline": "#8d90a0",
+                    "info-cyan": "#06B6D4",
+                    "error": "#ffb4ab",
+                    "surface-container-high": "#222a3d",
+                    "on-secondary": "#003824",
+                    "surface-variant": "#2d3449",
+                    "on-secondary-fixed-variant": "#005236",
+                    "inverse-on-surface": "#283044"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "margin-desktop": "48px",
+                    "gutter": "24px",
+                    "base": "4px",
+                    "max-width": "1440px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Manrope"],
+                    "headline-lg": ["Manrope"],
+                    "headline-md": ["Manrope"],
+                    "body-lg": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "label-caps": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-md": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            font-family: 'Inter', sans-serif;
+            min-height: 1080px;
+            width: 1920px;
+            overflow-x: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #131b2e;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2d3449;
+            border-radius: 4px;
+        }
+        .copy-toast {
+            animation: slideUp 0.3s ease-out forwards;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .content-container {
+            width: 1920px;
+            margin: 0 auto;
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-surface">
+<div class="content-container">
+<!-- Sidebar Navigation -->
+<aside class="w-[300px] h-screen sticky top-0 bg-surface-container flex flex-col py-10 z-50 border-r border-outline-variant/30">
+<div class="px-10 mb-12 flex items-center gap-4">
+<div class="w-12 h-12 bg-primary-container rounded-xl flex items-center justify-center shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-on-primary-container text-2xl" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div>
+<h1 class="font-headline-md text-2xl font-extrabold text-primary leading-tight">Sentinela</h1>
+<p class="font-label-caps text-[10px] text-on-surface-variant tracking-widest uppercase opacity-70">Secure Vault</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-4 text-primary font-bold border-l-4 border-primary bg-surface-container-high px-6 py-4 hover:bg-surface-container-highest transition-all active:opacity-80 rounded-r-lg" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-4 hover:text-on-surface hover:bg-surface-container-highest transition-all active:opacity-80 rounded-lg" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-4 hover:text-on-surface hover:bg-surface-container-highest transition-all active:opacity-80 rounded-lg" href="#">
+<span class="material-symbols-outlined">upload_file</span>
+<span class="font-label-caps text-label-caps">Import CSV</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-4 hover:text-on-surface hover:bg-surface-container-highest transition-all active:opacity-80 rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="px-6 mb-8">
+<button class="w-full py-4 bg-error-container text-on-error-container font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-error-container/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">lock_person</span>
+<span class="font-label-caps text-label-caps">Lock All Vaults</span>
+</button>
+</div>
+<div class="px-6 border-t border-outline-variant/30 pt-6">
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-4 hover:text-on-surface hover:bg-surface-container-highest transition-all active:opacity-80 rounded-lg" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-caps text-label-caps">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 min-h-screen bg-surface">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 flex justify-between items-center px-12 w-full h-20">
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-outline text-2xl">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-lg w-96 placeholder:text-outline/60 font-medium" placeholder="Search credentials, sites or users..." type="text"/>
+</div>
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2.5 rounded-xl hover:bg-surface-container-highest active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2.5 rounded-xl hover:bg-surface-container-highest active:scale-95">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+<div class="h-8 w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-4 group cursor-pointer">
+<div class="text-right">
+<p class="text-sm font-bold text-on-surface leading-none">Admin User</p>
+<p class="text-[11px] font-label-caps text-outline uppercase">Premium Plan</p>
+</div>
+<div class="w-10 h-10 rounded-xl bg-primary-container p-0.5 border border-primary/20 shadow-inner">
+<img alt="User profile" class="w-full h-full object-cover rounded-[10px]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbuxlpF7tgS-7b5n9GlThdaRauJcpYCo3K7mUe8NnGtCNaYf4ngEEK8vuLmBiOBK_Ak5YJrhZLr5XEScgzSwoVxGHZOs1o3ITNDnLZy7mYf7-AVheSZ2iZAeudMqmy1zmGKj_3dBUAfQoGe1Ks8JU9y0uaIfh5CP4E0YpMC9OUH_pmQGbFLxv-szS_kQ4loVyAFBeW3eESgsxGea3nxSdcVz1rA7HQCHzW1iWQKObXpyOdP1PzdEh9ng"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="p-12 max-w-[1440px] mx-auto">
+<!-- Site Header Section -->
+<div class="mb-12 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+<div class="flex items-center gap-8">
+<div class="w-24 h-24 bg-surface-container-high rounded-2xl border border-outline-variant/50 flex items-center justify-center p-5 shadow-xl shadow-black/20">
+<img alt="Google logo" class="w-full h-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXB-8H_-5NxT2QPakyn2dtm5yEodfPSx12TQoa7tTS16M4rAiSLC0wltmB089BhleCGEvoW4ifnkPAMBAgsEXwpfh7exrl2P2mKYbGes4DrRHt-9D3Z_aOua2prLb_fAEkH1DN8grQwdMXlXOGgU3n2x3vGKD9jBu-Q1MCogPzesPrV54bnyL1KjdaDRijCHeD9CqZOn6JHqvP2gGSwoS70gVo2heVPfwKVAnqyOVXM0ciX8O5qCrsySang"/>
+</div>
+<div>
+<div class="flex items-center gap-4 mb-2">
+<h2 class="font-headline-lg text-headline-lg tracking-tight">Google</h2>
+<span class="px-3 py-1 bg-secondary-container/20 text-secondary text-[11px] font-bold rounded-full uppercase tracking-widest border border-secondary/30">Trusted Site</span>
+</div>
+<div class="flex items-center gap-3">
+<a class="text-primary hover:text-primary-fixed-dim flex items-center gap-2 font-mono-data text-mono-data transition-colors bg-primary/5 px-3 py-1 rounded-md border border-primary/10" href="https://accounts.google.com" target="_blank">
+                                    https://accounts.google.com
+                                    <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+<span class="text-outline/40">•</span>
+<p class="text-on-surface-variant text-body-lg font-medium">Global cloud identity management.</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-8 py-3.5 border-2 border-outline-variant/50 text-on-surface hover:border-primary/50 hover:bg-primary/5 rounded-xl flex items-center gap-2 font-label-caps text-label-caps transition-all active:scale-95 font-bold">
+<span class="material-symbols-outlined text-xl">launch</span>
+                            Abrir site
+                        </button>
+<button class="px-8 py-3.5 bg-primary text-on-primary hover:bg-primary/90 rounded-xl flex items-center gap-2 font-label-caps text-label-caps font-bold transition-all shadow-xl shadow-primary/20 active:scale-95">
+<span class="material-symbols-outlined text-xl">add</span>
+                            Nova credencial
+                        </button>
+</div>
+</div>
+<!-- Bento Grid of Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+<div class="bg-surface-container-low rounded-2xl p-7 border border-outline-variant/20 flex items-center gap-6 shadow-sm hover:border-primary/30 transition-colors group">
+<div class="w-14 h-14 rounded-xl bg-info-cyan/10 flex items-center justify-center text-info-cyan group-hover:bg-info-cyan group-hover:text-white transition-all">
+<span class="material-symbols-outlined text-3xl">person</span>
+</div>
+<div>
+<p class="text-outline font-label-caps text-[11px] uppercase tracking-widest mb-1">Contas Ativas</p>
+<p class="font-headline-md text-3xl font-extrabold">04</p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-7 border border-outline-variant/20 flex items-center gap-6 shadow-sm hover:border-secondary/30 transition-colors group">
+<div class="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-all">
+<span class="material-symbols-outlined text-3xl">verified_user</span>
+</div>
+<div>
+<p class="text-outline font-label-caps text-[11px] uppercase tracking-widest mb-1">Segurança</p>
+<p class="font-headline-md text-3xl font-extrabold">100%</p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-7 border border-outline-variant/20 flex items-center gap-6 shadow-sm hover:border-warning-amber/30 transition-colors group">
+<div class="w-14 h-14 rounded-xl bg-warning-amber/10 flex items-center justify-center text-warning-amber group-hover:bg-warning-amber group-hover:text-white transition-all">
+<span class="material-symbols-outlined text-3xl">history</span>
+</div>
+<div>
+<p class="text-outline font-label-caps text-[11px] uppercase tracking-widest mb-1">Último Acesso</p>
+<p class="font-headline-md text-3xl font-extrabold">Hoje</p>
+</div>
+</div>
+</div>
+<!-- Credentials List Header -->
+<div class="flex items-center justify-between mb-6 px-4">
+<div class="flex items-center gap-4">
+<h3 class="font-headline-md text-2xl font-bold">Credenciais Armazenadas</h3>
+<span class="px-2.5 py-0.5 bg-surface-container-highest text-outline text-xs font-bold rounded-md">3 total</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 text-on-surface-variant hover:text-primary transition-all bg-surface-container/50 rounded-lg border border-outline-variant/20 text-sm font-semibold">
+<span class="material-symbols-outlined text-xl">filter_list</span>
+                            Filtrar
+                        </button>
+<button class="flex items-center gap-2 px-4 py-2 text-on-surface-variant hover:text-primary transition-all bg-surface-container/50 rounded-lg border border-outline-variant/20 text-sm font-semibold">
+<span class="material-symbols-outlined text-xl">sort</span>
+                            Ordenar
+                        </button>
+</div>
+</div>
+<!-- Credentials Items -->
+<div class="space-y-4">
+<!-- Item 1 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high border-l-[6px] border-primary border-y border-r border-outline-variant/20 rounded-r-2xl p-6 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-8 shadow-sm hover:shadow-xl hover:shadow-black/20 hover:-translate-y-0.5">
+<div class="flex flex-col lg:flex-row lg:items-center gap-12 flex-1">
+<div class="min-w-[280px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Usuário</p>
+<div class="flex items-center gap-3">
+<span class="text-lg font-bold text-on-surface">dev.sentinela@gmail.com</span>
+<button class="text-outline/40 hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('dev.sentinela@gmail.com', this)">
+<span class="material-symbols-outlined text-xl">content_copy</span>
+</button>
+</div>
+</div>
+<div class="min-w-[220px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Senha</p>
+<div class="flex items-center gap-3">
+<span class="font-mono-data text-on-surface-variant tracking-[0.4em] text-lg">••••••••••••</span>
+<button class="text-outline/40 hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('••••••••••••', this)">
+<span class="material-symbols-outlined text-xl">content_copy</span>
+</button>
+<button class="text-outline/40 hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<div class="hidden xl:block flex-1 max-w-[300px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Observação</p>
+<p class="text-body-sm text-on-surface-variant font-medium leading-relaxed">Conta de desenvolvimento principal para serviços de infraestrutura.</p>
+</div>
+<div class="min-w-[140px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Atualizado</p>
+<p class="text-body-sm text-on-surface font-semibold flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                    2 dias atrás
+                                </p>
+</div>
+</div>
+<button class="bg-surface-container-highest/50 hover:bg-primary-container text-on-surface group-hover:text-on-primary-container px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-3 active:scale-95 border border-outline-variant/30">
+                            Detalhes
+                            <span class="material-symbols-outlined text-xl">chevron_right</span>
+</button>
+</div>
+<!-- Item 2 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high border-l-[6px] border-transparent hover:border-outline border-y border-r border-outline-variant/20 rounded-r-2xl p-6 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-8 shadow-sm hover:shadow-xl hover:shadow-black/20 hover:-translate-y-0.5">
+<div class="flex flex-col lg:flex-row lg:items-center gap-12 flex-1">
+<div class="min-w-[280px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Usuário</p>
+<div class="flex items-center gap-3">
+<span class="text-lg font-bold text-on-surface">personal.user@gmail.com</span>
+<button class="text-outline/40 hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('personal.user@gmail.com', this)">
+<span class="material-symbols-outlined text-xl">content_copy</span>
+</button>
+</div>
+</div>
+<div class="min-w-[220px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Senha</p>
+<div class="flex items-center gap-3">
+<span class="font-mono-data text-on-surface-variant tracking-[0.4em] text-lg">••••••••</span>
+<button class="text-outline/40 hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('••••••••', this)">
+<span class="material-symbols-outlined text-xl">content_copy</span>
+</button>
+<button class="text-outline/40 hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<div class="hidden xl:block flex-1 max-w-[300px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Observação</p>
+<p class="text-body-sm text-on-surface-variant font-medium leading-relaxed">E-mail para contatos pessoais e redes sociais.</p>
+</div>
+<div class="min-w-[140px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Atualizado</p>
+<p class="text-body-sm text-on-surface font-semibold flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-outline/40"></span>
+                                    15 Mai 2024
+                                </p>
+</div>
+</div>
+<button class="bg-surface-container-highest/50 hover:bg-primary-container text-on-surface group-hover:text-on-primary-container px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-3 active:scale-95 border border-outline-variant/30">
+                            Detalhes
+                            <span class="material-symbols-outlined text-xl">chevron_right</span>
+</button>
+</div>
+<!-- Item 3 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high border-l-[6px] border-transparent hover:border-outline border-y border-r border-outline-variant/20 rounded-r-2xl p-6 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-8 shadow-sm hover:shadow-xl hover:shadow-black/20 hover:-translate-y-0.5">
+<div class="flex flex-col lg:flex-row lg:items-center gap-12 flex-1">
+<div class="min-w-[280px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Usuário</p>
+<div class="flex items-center gap-3">
+<span class="text-lg font-bold text-on-surface">marketing.team@google.com</span>
+<button class="text-outline/40 hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('marketing.team@google.com', this)">
+<span class="material-symbols-outlined text-xl">content_copy</span>
+</button>
+</div>
+</div>
+<div class="min-w-[220px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Senha</p>
+<div class="flex items-center gap-3">
+<span class="font-mono-data text-on-surface-variant tracking-[0.4em] text-lg">••••••••••••••</span>
+<button class="text-outline/40 hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('••••••••••••••', this)">
+<span class="material-symbols-outlined text-xl">content_copy</span>
+</button>
+<button class="text-outline/40 hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<div class="hidden xl:block flex-1 max-w-[300px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Observação</p>
+<p class="text-body-sm text-on-surface-variant font-medium leading-relaxed">Shared workspace login for campaign management.</p>
+</div>
+<div class="min-w-[140px]">
+<p class="text-[11px] font-label-caps text-outline uppercase mb-2 tracking-widest opacity-60">Atualizado</p>
+<p class="text-body-sm text-on-surface font-semibold flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                    Ontem
+                                </p>
+</div>
+</div>
+<button class="bg-surface-container-highest/50 hover:bg-primary-container text-on-surface group-hover:text-on-primary-container px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-3 active:scale-95 border border-outline-variant/30">
+                            Detalhes
+                            <span class="material-symbols-outlined text-xl">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Empty State / Footer Helper -->
+<div class="mt-16 p-12 border-2 border-dashed border-outline-variant/30 rounded-[32px] text-center bg-surface-container-lowest/30 max-w-2xl mx-auto">
+<div class="w-16 h-16 bg-surface-container rounded-2xl flex items-center justify-center mx-auto mb-6 border border-outline-variant/20 shadow-lg">
+<span class="material-symbols-outlined text-4xl text-primary" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+</div>
+<h4 class="text-on-surface text-xl font-extrabold mb-3">Sua privacidade é nossa prioridade</h4>
+<p class="text-on-surface-variant text-body-lg max-w-md mx-auto leading-relaxed">O Sentinela utiliza criptografia de nível militar (AES-256) ponta-a-ponta para garantir que apenas você possua a chave de acesso aos seus dados.</p>
+</div>
+</div>
+</main>
+</div>
+<!-- Toast Notification System -->
+<div class="fixed bottom-10 right-10 flex flex-col gap-4 z-[100]" id="toast-container"></div>
+<script>
+        function copyToClipboard(text, btn) {
+            // Simulated copy functionality
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'copy-toast flex items-center gap-4 bg-surface-container-highest/90 backdrop-blur-md border-l-4 border-secondary text-on-surface px-8 py-5 rounded-2xl shadow-2xl min-w-[360px] border border-outline-variant/30';
+            toast.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                </div>
+                <div>
+                    <p class="font-bold text-base">Copiado com sucesso!</p>
+                    <p class="text-sm text-on-surface-variant font-medium">Enviado para a área de transferência.</p>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Interaction feedback on button
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined text-xl">done</span>';
+            btn.classList.add('text-secondary');
+            btn.classList.remove('text-outline/40');
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => toast.remove(), 500);
+                btn.innerHTML = originalIcon;
+                btn.classList.remove('text-secondary');
+                btn.classList.add('text-outline/40');
+            }, 3000);
+        }
+    </script>
+</body></html>

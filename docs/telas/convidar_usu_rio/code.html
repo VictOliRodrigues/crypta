@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Convidar Usuário</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Manrope:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#171f33",
+                    "outline": "#8d90a0",
+                    "on-secondary": "#003824",
+                    "on-secondary-container": "#00311f",
+                    "surface-variant": "#2d3449",
+                    "surface": "#0b1326",
+                    "on-tertiary-container": "#ffede6",
+                    "primary": "#b4c5ff",
+                    "error-container": "#93000a",
+                    "surface-container-high": "#222a3d",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed": "#6ffbbe",
+                    "background": "#0b1326",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "on-tertiary": "#581e00",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-error": "#690005",
+                    "on-secondary-fixed": "#002113",
+                    "outline-variant": "#434655",
+                    "surface-container-low": "#131b2e",
+                    "tertiary-fixed": "#ffdbcd",
+                    "on-primary": "#002a78",
+                    "secondary-container": "#00a572",
+                    "graphite-deep": "#020617",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "inverse-on-surface": "#283044",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-primary-container": "#eeefff",
+                    "surface-container-highest": "#2d3449",
+                    "tertiary-container": "#bc4800",
+                    "warning-amber": "#F59E0B",
+                    "surface-dim": "#0b1326",
+                    "on-primary-fixed": "#00174b",
+                    "danger-red": "#EF4444",
+                    "tertiary": "#ffb596",
+                    "on-tertiary-fixed": "#360f00",
+                    "error": "#ffb4ab",
+                    "info-cyan": "#06B6D4",
+                    "surface-container-lowest": "#060e20",
+                    "surface-bright": "#31394d",
+                    "on-surface-variant": "#c3c6d7",
+                    "primary-container": "#2563eb",
+                    "inverse-primary": "#0053db",
+                    "surface-tint": "#b4c5ff",
+                    "on-background": "#dae2fd",
+                    "inverse-surface": "#dae2fd",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "primary-fixed": "#dbe1ff",
+                    "on-secondary-fixed-variant": "#005236",
+                    "slate-surface": "#1E293B",
+                    "secondary": "#4edea3",
+                    "on-surface": "#dae2fd"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-desktop": "32px",
+                    "max-width": "1280px",
+                    "gutter": "16px",
+                    "base": "4px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Manrope"],
+                    "headline-lg-mobile": ["Manrope"],
+                    "mono-data": ["JetBrains Mono"],
+                    "label-caps": ["Inter"],
+                    "headline-md": ["Manrope"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+            line-height: 1;
+        }
+        .modal-overlay {
+            backdrop-filter: blur(8px);
+            background-color: rgba(2, 6, 23, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-lg overflow-hidden">
+<!-- Sidebar (As per JSON Blueprint) -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container flex flex-col py-8 z-10">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-on-primary">lock</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary leading-tight">Sentinela</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant opacity-70">SECURE VAULT</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col">
+<!-- Vaults (Active) -->
+<a class="text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-caps text-label-caps">VAULTS</span>
+</a>
+<!-- Invitations -->
+<a class="text-primary font-bold border-l-4 border-primary bg-surface-container-high px-4 py-3 flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-caps text-label-caps">INVITATIONS</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">upload_file</span>
+<span class="font-label-caps text-label-caps">IMPORT CSV</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-caps text-label-caps">SETTINGS</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full py-4 bg-danger-red text-white font-bold rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined">lock_reset</span>
+<span class="font-label-caps text-label-caps">LOCK ALL VAULTS</span>
+</button>
+<a class="mt-4 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all flex items-center gap-4 rounded" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-caps text-label-caps">LOGOUT</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas (Blurred Background) -->
+<main class="ml-[280px] min-h-screen p-margin-desktop relative">
+<!-- Header -->
+<header class="flex justify-between items-center mb-8">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Vault Members</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Manage who has access to the "Company Assets" vault.</p>
+</div>
+<div class="flex gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-variant border-none rounded-lg text-body-sm text-on-surface placeholder:text-outline w-64 focus:ring-2 focus:ring-primary transition-all" placeholder="Search members..." type="text"/>
+</div>
+</div>
+</header>
+<!-- Placeholder Content to show background context -->
+<div class="grid grid-cols-1 gap-4 opacity-40 select-none pointer-events-none">
+<div class="bg-surface-container border border-outline-variant p-4 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">person</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface">Alex Thompson (You)</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Owner • alex@sentinela.io</p>
+</div>
+</div>
+<span class="px-3 py-1 bg-primary-container text-white text-label-caps rounded-full">OWNER</span>
+</div>
+<div class="bg-surface-container border border-outline-variant p-4 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary">person</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface">Sarah Connor</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Editor • sarah.c@cyberdyne.com</p>
+</div>
+</div>
+<span class="px-3 py-1 bg-surface-variant text-on-surface-variant text-label-caps rounded-full">EDITOR</span>
+</div>
+</div>
+<!-- MODAL OVERLAY (Active) -->
+<div class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-margin-mobile" id="inviteModal">
+<!-- Modal Card (Elevation Level 2) -->
+<div class="bg-slate-surface w-full max-w-[480px] rounded-xl border border-outline-variant shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+<!-- Modal Header -->
+<div class="px-8 py-6 border-b border-outline-variant bg-surface-container-high flex justify-between items-center">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Convidar para o cofre</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Adicione um novo membro ao cofre compartilhado.</p>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors p-1" onclick="this.closest('#inviteModal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body (Form) -->
+<div class="p-8 space-y-6">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="block font-label-caps text-label-caps text-primary tracking-wider" for="email">E-MAIL DO USUÁRIO</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">mail</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface border border-outline-variant rounded-lg text-body-lg text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none" id="email" placeholder="exemplo@email.com" type="email"/>
+</div>
+</div>
+<!-- Permission Field -->
+<div class="space-y-2">
+<label class="block font-label-caps text-label-caps text-primary tracking-wider" for="permission">PERMISSÃO</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">admin_panel_settings</span>
+<select class="w-full pl-12 pr-10 py-3 bg-surface border border-outline-variant rounded-lg text-body-lg text-on-surface appearance-none focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none cursor-pointer" id="permission">
+<option selected="" value="editor">Editor</option>
+<option value="viewer">Visualizador</option>
+<option value="admin">Administrador</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+<p class="text-[11px] text-on-surface-variant italic px-1">Editores podem visualizar, adicionar e editar itens no cofre.</p>
+</div>
+<!-- Decorative Divider -->
+<div class="flex items-center gap-4 py-2">
+<div class="h-[1px] flex-1 bg-outline-variant"></div>
+<span class="material-symbols-outlined text-outline-variant scale-75">security</span>
+<div class="h-[1px] flex-1 bg-outline-variant"></div>
+</div>
+<!-- Security Note -->
+<div class="p-4 bg-surface-container-low border-l-4 border-secondary rounded-r-lg flex gap-3">
+<span class="material-symbols-outlined text-secondary shrink-0">info</span>
+<p class="text-body-sm text-on-surface-variant">O convite expirará em 7 dias. O usuário precisará ter uma conta ativa no <strong>Sentinela</strong> para aceitar.</p>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="px-8 py-6 bg-surface-container-high border-t border-outline-variant flex justify-end gap-4">
+<button class="px-6 py-2.5 font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors active:scale-95" onclick="this.closest('#inviteModal').classList.add('hidden')">
+                        CANCELAR
+                    </button>
+<button class="px-8 py-2.5 bg-primary-container text-white font-bold rounded-lg flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary-container/20" id="submitInvite">
+<span class="font-label-caps text-label-caps">CRIAR CONVITE</span>
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Toast Notification (Hidden by default) -->
+<div class="fixed bottom-8 right-8 z-[100] transform translate-y-20 opacity-0 transition-all duration-500 ease-out" id="toast">
+<div class="bg-surface-container-high border-l-4 border-secondary p-4 rounded-lg shadow-2xl flex items-center gap-4 min-w-[300px]">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface">Convite enviado</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">O link foi enviado para o destinatário.</p>
+</div>
+<button class="ml-auto text-outline hover:text-on-surface" onclick="toggleToast(false)">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+<script>
+        // Micro-interactions and Modal Control
+        const modal = document.getElementById('inviteModal');
+        const submitBtn = document.getElementById('submitInvite');
+        const toast = document.getElementById('toast');
+
+        function toggleToast(show) {
+            if (show) {
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                setTimeout(() => toggleToast(false), 5000);
+            } else {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }
+        }
+
+        submitBtn.addEventListener('click', () => {
+            const emailInput = document.getElementById('email');
+            if(emailInput.value.trim() === '') {
+                emailInput.classList.add('border-danger-red');
+                setTimeout(() => emailInput.classList.remove('border-danger-red'), 1000);
+                return;
+            }
+
+            // Simulate loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span class="animate-spin material-symbols-outlined">progress_activity</span> <span class="font-label-caps text-label-caps">ENVIANDO...</span>`;
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                toggleToast(true);
+                // Reset form
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span class="font-label-caps text-label-caps">CRIAR CONVITE</span> <span class="material-symbols-outlined text-[20px]">send</span>`;
+                emailInput.value = '';
+            }, 1200);
+        });
+
+        // Close modal on background click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+
+        // Keyboard ESC to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+            }
+        });
+    </script>
+</body></html>

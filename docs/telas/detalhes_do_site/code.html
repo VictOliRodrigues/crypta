@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Detalhes do Site</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface": "#0b1326",
+                    "secondary-fixed-dim": "#4edea3",
+                    "surface-container-highest": "#2d3449",
+                    "on-secondary-container": "#00311f",
+                    "on-tertiary": "#581e00",
+                    "on-surface": "#dae2fd",
+                    "outline-variant": "#434655",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-container": "#171f33",
+                    "graphite-deep": "#020617",
+                    "primary-fixed": "#dbe1ff",
+                    "primary-container": "#2563eb",
+                    "surface-tint": "#b4c5ff",
+                    "on-surface-variant": "#c3c6d7",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "surface-container-low": "#131b2e",
+                    "slate-surface": "#1E293B",
+                    "primary": "#b4c5ff",
+                    "inverse-primary": "#0053db",
+                    "background": "#0b1326",
+                    "tertiary-container": "#bc4800",
+                    "surface-container-lowest": "#060e20",
+                    "on-error-container": "#ffdad6",
+                    "on-tertiary-container": "#ffede6",
+                    "error-container": "#93000a",
+                    "on-primary": "#002a78",
+                    "on-primary-container": "#eeefff",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-background": "#dae2fd",
+                    "secondary-container": "#00a572",
+                    "tertiary-fixed": "#ffdbcd",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary-fixed": "#360f00",
+                    "inverse-surface": "#dae2fd",
+                    "on-error": "#690005",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-dim": "#0b1326",
+                    "secondary": "#4edea3",
+                    "danger-red": "#EF4444",
+                    "surface-bright": "#31394d",
+                    "on-secondary-fixed": "#002113",
+                    "on-primary-fixed": "#00174b",
+                    "tertiary": "#ffb596",
+                    "warning-amber": "#F59E0B",
+                    "outline": "#8d90a0",
+                    "info-cyan": "#06B6D4",
+                    "error": "#ffb4ab",
+                    "surface-container-high": "#222a3d",
+                    "on-secondary": "#003824",
+                    "surface-variant": "#2d3449",
+                    "on-secondary-fixed-variant": "#005236",
+                    "inverse-on-surface": "#283044"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "margin-desktop": "32px",
+                    "gutter": "16px",
+                    "base": "4px",
+                    "max-width": "1280px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Manrope"],
+                    "headline-lg": ["Manrope"],
+                    "headline-md": ["Manrope"],
+                    "body-lg": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "label-caps": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #131b2e;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2d3449;
+            border-radius: 3px;
+        }
+        .copy-toast {
+            animation: slideUp 0.3s ease-out forwards;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container flex flex-col h-full py-8 z-50">
+<div class="px-8 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">Sentinela</h1>
+<p class="font-label-caps text-[10px] text-on-surface-variant tracking-widest uppercase">Secure Vault</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 text-primary font-bold border-l-4 border-primary bg-surface-container-high px-4 py-3 hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined">upload_file</span>
+<span class="font-label-caps text-label-caps">Import CSV</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="px-6 mb-6">
+<button class="w-full py-3 bg-error-container text-on-error-container font-bold rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">lock_person</span>
+<span class="font-label-caps text-label-caps">Lock All Vaults</span>
+</button>
+</div>
+<div class="px-4 border-t border-outline-variant pt-4">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-caps text-label-caps">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[280px] min-h-screen relative">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-40 bg-surface border-b border-outline-variant flex justify-between items-center px-margin-desktop w-full h-16">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-64 placeholder:text-outline" placeholder="Search credentials..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:bg-surface-container-highest transition-colors p-2 rounded-full active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-highest transition-colors p-2 rounded-full active:scale-95">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a user for a security-focused software interface, featuring soft studio lighting against a neutral dark grey background. The style is modern corporate, emphasizing trust and precision with clear focus and high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbuxlpF7tgS-7b5n9GlThdaRauJcpYCo3K7mUe8NnGtCNaYf4ngEEK8vuLmBiOBK_Ak5YJrhZLr5XEScgzSwoVxGHZOs1o3ITNDnLZy7mYf7-AVheSZ2iZAeudMqmy1zmGKj_3dBUAfQoGe1Ks8JU9y0uaIfh5CP4E0YpMC9OUH_pmQGbFLxv-szS_kQ4loVyAFBeW3eESgsxGea3nxSdcVz1rA7HQCHzW1iWQKObXpyOdP1PzdEh9ng"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="p-margin-desktop max-w-6xl mx-auto">
+<!-- Site Header Section -->
+<div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="flex items-start gap-6">
+<div class="w-20 h-20 bg-surface-container-high rounded-xl border border-outline-variant flex items-center justify-center p-4">
+<img class="w-full h-auto object-contain" data-alt="The Google logo rendered in a minimalist, clean vector style, centered on a neutral dark slate background within a square frame. The lighting is flat and professional, matching a high-security software dashboard aesthetic with crisp edges and primary brand colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8H_-5NxT2QPakyn2dtm5yEodfPSx12TQoa7tTS16M4rAiSLC0wltmB089BhleCGEvoW4ifnkPAMBAgsEXwpfh7exrl2P2mKYbGes4DrRHt-9D3Z_aOua2prLb_fAEkH1DN8grQwdMXlXOGgU3n2x3vGKD9jBu-Q1MCogPzesPrV54bnyL1KjdaDRijCHeD9CqZOn6JHqvP2gGSwoS70gVo2heVPfwKVAnqyOVXM0ciX8O5qCrsySang"/>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h2 class="font-headline-lg text-headline-lg">Google</h2>
+<span class="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded uppercase tracking-wider">Trusted Site</span>
+</div>
+<a class="text-primary hover:underline flex items-center gap-1 font-mono-data text-mono-data" href="https://accounts.google.com" target="_blank">
+                            https://accounts.google.com
+                            <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+<p class="text-on-surface-variant text-body-sm mt-2 max-w-md">Primary account for authentication, workspace services, and global cloud identity management.</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-5 py-2.5 border border-primary text-primary hover:bg-primary/10 rounded-lg flex items-center gap-2 font-label-caps text-label-caps transition-all active:scale-95">
+<span class="material-symbols-outlined">launch</span>
+                        Abrir site
+                    </button>
+<button class="px-5 py-2.5 bg-primary text-on-primary hover:bg-primary/90 rounded-lg flex items-center gap-2 font-label-caps text-label-caps font-bold transition-all shadow-lg shadow-primary/10 active:scale-95">
+<span class="material-symbols-outlined">add</span>
+                        Nova credencial
+                    </button>
+</div>
+</div>
+<!-- Bento Grid of Stats (Subtle) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-10">
+<div class="bg-surface-container rounded-xl p-5 border border-outline-variant/30 flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-info-cyan/10 flex items-center justify-center text-info-cyan">
+<span class="material-symbols-outlined">person</span>
+</div>
+<div>
+<p class="text-on-surface-variant font-label-caps text-[10px] uppercase">Contas Ativas</p>
+<p class="font-headline-md text-headline-md">04</p>
+</div>
+</div>
+<div class="bg-surface-container rounded-xl p-5 border border-outline-variant/30 flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">verified_user</span>
+</div>
+<div>
+<p class="text-on-surface-variant font-label-caps text-[10px] uppercase">Segurança</p>
+<p class="font-headline-md text-headline-md">100%</p>
+</div>
+</div>
+<div class="bg-surface-container rounded-xl p-5 border border-outline-variant/30 flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-warning-amber/10 flex items-center justify-center text-warning-amber">
+<span class="material-symbols-outlined">history</span>
+</div>
+<div>
+<p class="text-on-surface-variant font-label-caps text-[10px] uppercase">Último Acesso</p>
+<p class="font-headline-md text-headline-md">Hoje</p>
+</div>
+</div>
+</div>
+<!-- Credentials List Header -->
+<div class="flex items-center justify-between mb-4 px-2">
+<h3 class="font-headline-md text-headline-md">Credenciais Armazenadas</h3>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">filter_list</span></button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">sort</span></button>
+</div>
+</div>
+<!-- Credentials Items -->
+<div class="space-y-3">
+<!-- Item 1 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high border-l-4 border-primary border-y border-r border-outline-variant/20 rounded-r-xl p-4 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-10 flex-1">
+<div class="min-w-[240px]">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Usuário</p>
+<div class="flex items-center gap-2">
+<span class="text-body-lg font-medium">dev.sentinela@gmail.com</span>
+<button class="text-outline hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('dev.sentinela@gmail.com', this)">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+</div>
+</div>
+<div class="min-w-[180px]">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Senha</p>
+<div class="flex items-center gap-2">
+<span class="font-mono-data text-on-surface-variant tracking-[0.3em]">••••••••••••</span>
+<button class="text-outline hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('••••••••••••', this)">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button class="text-outline hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</div>
+<div class="hidden lg:block flex-1">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Observação</p>
+<p class="text-body-sm text-on-surface-variant truncate">Conta de desenvolvimento principal.</p>
+</div>
+<div class="min-w-[120px]">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Atualizado</p>
+<p class="text-body-sm text-on-surface-variant">2 dias atrás</p>
+</div>
+</div>
+<button class="bg-surface-container-highest hover:bg-primary-container hover:text-on-primary-container px-4 py-2 rounded font-label-caps text-label-caps transition-all flex items-center gap-2 active:scale-95">
+                        Abrir detalhes
+                        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+<!-- Item 2 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high border-l-4 border-transparent border-y border-r border-outline-variant/20 rounded-r-xl p-4 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-10 flex-1">
+<div class="min-w-[240px]">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Usuário</p>
+<div class="flex items-center gap-2">
+<span class="text-body-lg font-medium">personal.user@gmail.com</span>
+<button class="text-outline hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('personal.user@gmail.com', this)">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+</div>
+</div>
+<div class="min-w-[180px]">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Senha</p>
+<div class="flex items-center gap-2">
+<span class="font-mono-data text-on-surface-variant tracking-[0.3em]">••••••••</span>
+<button class="text-outline hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('••••••••', this)">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button class="text-outline hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</div>
+<div class="hidden lg:block flex-1">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Observação</p>
+<p class="text-body-sm text-on-surface-variant truncate">E-mail para contatos pessoais.</p>
+</div>
+<div class="min-w-[120px]">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Atualizado</p>
+<p class="text-body-sm text-on-surface-variant">15 Mai 2024</p>
+</div>
+</div>
+<button class="bg-surface-container-highest hover:bg-primary-container hover:text-on-primary-container px-4 py-2 rounded font-label-caps text-label-caps transition-all flex items-center gap-2 active:scale-95">
+                        Abrir detalhes
+                        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+<!-- Item 3 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high border-l-4 border-transparent border-y border-r border-outline-variant/20 rounded-r-xl p-4 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-10 flex-1">
+<div class="min-w-[240px]">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Usuário</p>
+<div class="flex items-center gap-2">
+<span class="text-body-lg font-medium">marketing.team@google.com</span>
+<button class="text-outline hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('marketing.team@google.com', this)">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+</div>
+</div>
+<div class="min-w-[180px]">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Senha</p>
+<div class="flex items-center gap-2">
+<span class="font-mono-data text-on-surface-variant tracking-[0.3em]">••••••••••••••</span>
+<button class="text-outline hover:text-primary transition-colors active:scale-90" onclick="copyToClipboard('••••••••••••••', this)">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button class="text-outline hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</div>
+<div class="hidden lg:block flex-1">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Observação</p>
+<p class="text-body-sm text-on-surface-variant truncate">Shared workspace login.</p>
+</div>
+<div class="min-w-[120px]">
+<p class="text-[10px] font-label-caps text-outline uppercase mb-1">Atualizado</p>
+<p class="text-body-sm text-on-surface-variant">Ontem</p>
+</div>
+</div>
+<button class="bg-surface-container-highest hover:bg-primary-container hover:text-on-primary-container px-4 py-2 rounded font-label-caps text-label-caps transition-all flex items-center gap-2 active:scale-95">
+                        Abrir detalhes
+                        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Empty State / Footer Helper -->
+<div class="mt-12 p-8 border border-dashed border-outline-variant/50 rounded-2xl text-center">
+<span class="material-symbols-outlined text-4xl text-outline mb-4">shield_with_heart</span>
+<h4 class="text-on-surface font-semibold mb-2">Suas credenciais estão protegidas</h4>
+<p class="text-on-surface-variant text-body-sm max-w-sm mx-auto">O Sentinela utiliza criptografia de ponta-a-ponta para garantir que apenas você tenha acesso a esses dados.</p>
+</div>
+</div>
+</main>
+<!-- Toast Notification System -->
+<div class="fixed bottom-6 right-6 flex flex-col gap-3 z-[100]" id="toast-container"></div>
+<script>
+        function copyToClipboard(text, btn) {
+            // Simulated copy functionality
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'copy-toast flex items-center gap-3 bg-surface-container-highest border-l-4 border-secondary text-on-surface px-6 py-4 rounded shadow-2xl min-w-[300px]';
+            toast.innerHTML = `
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                <div>
+                    <p class="font-bold text-sm">Copiado com sucesso!</p>
+                    <p class="text-xs text-on-surface-variant">Informação enviada para a área de transferência.</p>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Interaction feedback on button
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">done</span>';
+            btn.classList.add('text-secondary');
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => toast.remove(), 500);
+                btn.innerHTML = originalIcon;
+                btn.classList.remove('text-secondary');
+            }, 3000);
+        }
+
+        // Add a subtle parallax movement to the "Vault" items on mouse move
+        document.addEventListener('mousemove', (e) => {
+            const cards = document.querySelectorAll('.group');
+            const x = (window.innerWidth / 2 - e.pageX) / 100;
+            const y = (window.innerHeight / 2 - e.pageY) / 100;
+            
+            cards.forEach(card => {
+                card.style.transform = `translateX(${x}px) translateY(${y}px)`;
+            });
+        });
+    </script>
+</body></html>

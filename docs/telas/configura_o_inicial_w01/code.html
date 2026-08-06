@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Configuração Inicial</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#c3c6d7",
+                    "inverse-on-surface": "#283044",
+                    "surface-container": "#171f33",
+                    "background": "#0b1326",
+                    "tertiary-container": "#bc4800",
+                    "on-tertiary-fixed": "#360f00",
+                    "primary": "#b4c5ff",
+                    "error": "#ffb4ab",
+                    "secondary": "#4edea3",
+                    "inverse-primary": "#0053db",
+                    "danger-red": "#EF4444",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-primary-container": "#eeefff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-secondary": "#003824",
+                    "surface-container-lowest": "#060e20",
+                    "surface-dim": "#0b1326",
+                    "slate-surface": "#1E293B",
+                    "tertiary-fixed": "#ffdbcd",
+                    "tertiary": "#ffb596",
+                    "on-primary-fixed": "#00174b",
+                    "primary-fixed": "#dbe1ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "info-cyan": "#06B6D4",
+                    "on-background": "#dae2fd",
+                    "surface-tint": "#b4c5ff",
+                    "on-error-container": "#ffdad6",
+                    "primary-container": "#2563eb",
+                    "on-tertiary": "#581e00",
+                    "on-error": "#690005",
+                    "inverse-surface": "#dae2fd",
+                    "surface-bright": "#31394d",
+                    "on-secondary-container": "#00311f",
+                    "on-secondary-fixed-variant": "#005236",
+                    "outline": "#8d90a0",
+                    "on-surface": "#dae2fd",
+                    "graphite-deep": "#020617",
+                    "surface-container-highest": "#2d3449",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "secondary-container": "#00a572",
+                    "on-secondary-fixed": "#002113",
+                    "surface-variant": "#2d3449",
+                    "outline-variant": "#434655",
+                    "surface-container-low": "#131b2e",
+                    "error-container": "#93000a",
+                    "on-tertiary-container": "#ffede6",
+                    "warning-amber": "#F59E0B",
+                    "surface": "#0b1326",
+                    "on-primary": "#002a78",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-container-high": "#222a3d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "max-width": "1280px",
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px"
+            },
+            "fontFamily": {
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Manrope"],
+                    "headline-md": ["Manrope"],
+                    "label-caps": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "body-lg": ["Inter"],
+                    "headline-lg-mobile": ["Manrope"]
+            },
+            "fontSize": {
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center font-body-lg text-body-lg p-margin-mobile md:p-0 overflow-hidden relative">
+<!-- Atmospheric Background Animation -->
+<div class="fixed inset-0 z-0 pointer-events-none opacity-40">
+
+</div>
+<!-- Main Content Canvas -->
+<main class="relative z-10 w-full max-w-[480px] flex flex-col gap-8 animate-in fade-in duration-1000">
+<!-- Header & Logo Section -->
+<header class="flex flex-col items-center text-center gap-4">
+<div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-4xl text-on-primary-container" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+<div class="flex flex-col gap-1">
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">Sentinela</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant uppercase tracking-widest font-semibold">Configurar Cofre</p>
+</div>
+</header>
+<!-- Configuration Form Card -->
+<section class="glass-card p-8 rounded-xl shadow-2xl">
+<form class="flex flex-col gap-6" id="setupForm" onsubmit="return false;">
+<!-- Field: Name -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant" for="adminName">Nome Completo</label>
+<div class="relative group">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="adminName" placeholder="Ex: Administrador do Sistema" required="" type="text"/>
+</div>
+</div>
+<!-- Field: Email -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant" for="adminEmail">E-mail Corporativo</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="adminEmail" placeholder="nome@empresa.com" required="" type="email"/>
+</div>
+</div>
+<!-- Field: Password -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant" for="adminPassword">Senha do Administrador</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 text-on-surface placeholder:text-outline font-mono-data focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none pr-12" id="adminPassword" placeholder="••••••••••••" required="" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors" onclick="togglePassword('adminPassword')" type="button">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+<!-- Password Requirements Indicator -->
+<div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-2 px-1">
+<div class="flex items-center gap-2 text-[11px] text-outline transition-colors" id="req-length">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>Mín. 12 caracteres</span>
+</div>
+<div class="flex items-center gap-2 text-[11px] text-outline transition-colors" id="req-symbol">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>Símbolo (!@#$)</span>
+</div>
+<div class="flex items-center gap-2 text-[11px] text-outline transition-colors" id="req-number">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>Número (0-9)</span>
+</div>
+<div class="flex items-center gap-2 text-[11px] text-outline transition-colors" id="req-upper">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>Letra maiúscula</span>
+</div>
+</div>
+</div>
+<!-- Field: Confirm Password -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant" for="confirmPassword">Confirmar Senha</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 text-on-surface placeholder:text-outline font-mono-data focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none pr-12" id="confirmPassword" placeholder="••••••••••••" required="" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors" onclick="togglePassword('confirmPassword')" type="button">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<!-- Security Disclaimer -->
+<div class="flex gap-3 bg-surface-container-highest/30 p-3 rounded-lg border border-outline-variant/30">
+<span class="material-symbols-outlined text-secondary text-xl">security</span>
+<p class="text-[12px] leading-tight text-on-surface-variant">
+                        Esta conta terá acesso total ao cofre. Armazene as credenciais em um local seguro e isolado.
+                    </p>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-primary text-on-primary-fixed py-4 rounded-lg font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2 group shadow-xl shadow-primary/20" type="submit">
+<span>Criar conta inicial</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</form>
+</section>
+<!-- Footer -->
+<footer class="flex justify-center gap-6 text-on-surface-variant/60 font-label-caps text-[10px]">
+<a class="hover:text-primary transition-colors" href="#">POLÍTICA DE PRIVACIDADE</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">DOCUMENTAÇÃO</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">SUPORTE TÉCNICO</a>
+</footer>
+</main>
+<!-- Side Decoration (Web Only) -->
+<div class="hidden lg:block fixed left-12 bottom-12 z-20">
+<div class="flex flex-col gap-4">
+<div class="w-1 h-32 bg-gradient-to-t from-primary/50 to-transparent rounded-full opacity-30"></div>
+<div class="font-mono-data text-xs text-primary/40 rotate-180 [writing-mode:vertical-lr]">SENTINELA v2.4.0</div>
+</div>
+</div>
+<script>
+        // Password Visibility Toggle
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            const icon = input.nextElementSibling.querySelector('.material-symbols-outlined');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+
+        // Live Password Validation logic
+        const passwordInput = document.getElementById('adminPassword');
+        const confirmInput = document.getElementById('confirmPassword');
+        
+        const checks = {
+            length: (v) => v.length >= 12,
+            symbol: (v) => /[^A-Za-z0-9]/.test(v),
+            number: (v) => /[0-9]/.test(v),
+            upper: (v) => /[A-Z]/.test(v)
+        };
+
+        passwordInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            Object.keys(checks).forEach(key => {
+                const element = document.getElementById(`req-${key}`);
+                const icon = element.querySelector('.material-symbols-outlined');
+                if (checks[key](val)) {
+                    element.classList.remove('text-outline');
+                    element.classList.add('text-secondary');
+                    icon.style.fontVariationSettings = "'FILL' 1";
+                } else {
+                    element.classList.add('text-outline');
+                    element.classList.remove('text-secondary');
+                    icon.style.fontVariationSettings = "'FILL' 0";
+                }
+            });
+        });
+
+        // Form Submission Micro-interaction
+        document.getElementById('setupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> <span>Configurando Cofre...</span>';
+            
+            setTimeout(() => {
+                btn.innerHTML = '<span class="material-symbols-outlined">check</span> <span>Sucesso!</span>';
+                btn.classList.replace('bg-primary', 'bg-secondary');
+                btn.classList.replace('text-on-primary-fixed', 'text-on-secondary');
+            }, 1800);
+        });
+    </script>
+</body></html>

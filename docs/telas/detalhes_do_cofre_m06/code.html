@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Sentinela - Vault Details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffdbcd",
+                    "surface-tint": "#b4c5ff",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "inverse-on-surface": "#283044",
+                    "on-primary-fixed": "#00174b",
+                    "on-tertiary": "#581e00",
+                    "graphite-deep": "#020617",
+                    "on-primary-container": "#eeefff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-tertiary-fixed": "#360f00",
+                    "surface-container-highest": "#2d3449",
+                    "on-error-container": "#ffdad6",
+                    "on-secondary-container": "#00311f",
+                    "tertiary": "#ffb596",
+                    "warning-amber": "#F59E0B",
+                    "surface-container": "#171f33",
+                    "on-secondary-fixed": "#002113",
+                    "slate-surface": "#1E293B",
+                    "danger-red": "#EF4444",
+                    "primary": "#b4c5ff",
+                    "on-secondary-fixed-variant": "#005236",
+                    "error": "#ffb4ab",
+                    "surface": "#0b1326",
+                    "on-surface-variant": "#c3c6d7",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "tertiary-container": "#bc4800",
+                    "on-surface": "#dae2fd",
+                    "inverse-surface": "#dae2fd",
+                    "error-container": "#93000a",
+                    "on-secondary": "#003824",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "surface-bright": "#31394d",
+                    "primary-fixed": "#dbe1ff",
+                    "surface-container-low": "#131b2e",
+                    "on-tertiary-container": "#ffede6",
+                    "secondary": "#4edea3",
+                    "surface-dim": "#0b1326",
+                    "secondary-container": "#00a572",
+                    "outline": "#8d90a0",
+                    "outline-variant": "#434655",
+                    "on-primary": "#002a78",
+                    "surface-container-lowest": "#060e20",
+                    "secondary-fixed": "#6ffbbe",
+                    "surface-container-high": "#222a3d",
+                    "primary-container": "#2563eb",
+                    "background": "#0b1326",
+                    "on-background": "#dae2fd",
+                    "surface-variant": "#2d3449",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "inverse-primary": "#0053db",
+                    "on-error": "#690005",
+                    "info-cyan": "#06B6D4"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "max-width": "1280px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Manrope"],
+                    "mono-data": ["JetBrains Mono"],
+                    "body-sm": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "headline-md": ["Manrope"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Manrope"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .safe-pb {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        /* Custom scrollbar for webview feel */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1326;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 10px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant w-full top-0 z-50 fixed">
+<div class="flex justify-between items-center px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-4">
+<button class="active:opacity-80 transition-colors p-2 -ml-2">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary font-bold">Work Project</h1>
+</div>
+<button class="hover:bg-surface-variant transition-colors active:opacity-80 p-2 rounded-full">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 mt-16 mb-20 overflow-y-auto px-margin-mobile pt-6 max-w-screen-md mx-auto w-full">
+<!-- Vault Summary Section -->
+<section class="bg-surface-container-low border border-outline-variant rounded-xl p-5 mb-6">
+<div class="flex flex-col gap-2">
+<p class="font-body-lg text-body-lg text-on-surface">Credentials for Project Phoenix</p>
+<div class="flex flex-wrap gap-3 mt-2">
+<div class="flex items-center gap-1.5 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full">
+<span class="material-symbols-outlined text-sm" style="font-size: 16px;">group</span>
+<span class="font-label-caps text-label-caps">8 Members</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 bg-surface-container-highest text-on-surface rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-sm" style="font-size: 16px;">verified_user</span>
+<span class="font-label-caps text-label-caps">Editor</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Search Bar -->
+<div class="relative mb-6">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+</div>
+<input class="w-full bg-surface-container-high border border-outline-variant text-on-surface rounded-full py-3 pl-12 pr-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-on-surface-variant/50 font-body-sm text-body-sm" placeholder="Search for site or user" type="text"/>
+</div>
+<!-- Site Items List -->
+<div class="space-y-3 pb-8">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest px-1">Sites</h2>
+<!-- Site Item: Google -->
+<button class="w-full text-left bg-surface-container rounded-xl p-4 border border-outline-variant hover:bg-surface-bright transition-colors active:scale-[0.98] transition-transform group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-variant flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">public</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-body-lg font-semibold text-on-surface truncate">Google</h3>
+<span class="font-label-caps text-[10px] text-on-surface-variant opacity-70">2h ago</span>
+</div>
+<p class="font-mono-data text-body-sm text-on-surface-variant truncate">accounts.google.com</p>
+<p class="font-label-caps text-label-caps text-secondary mt-1">12 credentials</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</button>
+<!-- Site Item: AWS -->
+<button class="w-full text-left bg-surface-container rounded-xl p-4 border border-outline-variant hover:bg-surface-bright transition-colors active:scale-[0.98] transition-transform group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-variant flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">cloud</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-body-lg font-semibold text-on-surface truncate">AWS</h3>
+<span class="font-label-caps text-[10px] text-on-surface-variant opacity-70">5h ago</span>
+</div>
+<p class="font-mono-data text-body-sm text-on-surface-variant truncate">console.aws.amazon.com</p>
+<p class="font-label-caps text-label-caps text-secondary mt-1">4 credentials</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</button>
+<!-- Site Item: GitHub -->
+<button class="w-full text-left bg-surface-container rounded-xl p-4 border border-outline-variant hover:bg-surface-bright transition-colors active:scale-[0.98] transition-transform group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-variant flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-body-lg font-semibold text-on-surface truncate">GitHub</h3>
+<span class="font-label-caps text-[10px] text-on-surface-variant opacity-70">Yesterday</span>
+</div>
+<p class="font-mono-data text-body-sm text-on-surface-variant truncate">github.com</p>
+<p class="font-label-caps text-label-caps text-secondary mt-1">8 credentials</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</button>
+<!-- Site Item: Slack -->
+<button class="w-full text-left bg-surface-container rounded-xl p-4 border border-outline-variant hover:bg-surface-bright transition-colors active:scale-[0.98] transition-transform group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-variant flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">forum</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-body-lg font-semibold text-on-surface truncate">Slack</h3>
+<span class="font-label-caps text-[10px] text-on-surface-variant opacity-70">2d ago</span>
+</div>
+<p class="font-mono-data text-body-sm text-on-surface-variant truncate">sentinela-hq.slack.com</p>
+<p class="font-label-caps text-label-caps text-secondary mt-1">2 credentials</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</button>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary text-on-primary flex items-center justify-center rounded-full shadow-lg active:scale-95 transition-transform z-40">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 bg-surface-container border-t border-outline-variant z-50 pb-safe">
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="font-label-caps text-label-caps">Cofres</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-bright px-5 py-1 rounded-full active:scale-95 transition-transform">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-caps text-label-caps">Convites</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-bright px-5 py-1 rounded-full active:scale-95 transition-transform">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps">Conta</span>
+</button>
+</nav>
+<script>
+        // Simple micro-interaction for list items
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                btn.style.opacity = '0.7';
+            });
+            btn.addEventListener('touchend', () => {
+                btn.style.opacity = '1';
+            });
+        });
+        
+        // Dynamic search highlighting (UI only)
+        const searchInput = document.querySelector('input');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-[1.01]');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-[1.01]');
+        });
+    </script>
+</body></html>

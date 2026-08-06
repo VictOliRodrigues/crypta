@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Gestão de Membros</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "surface-container": "#171f33",
+                "outline": "#8d90a0",
+                "on-secondary": "#003824",
+                "on-secondary-container": "#00311f",
+                "surface-variant": "#2d3449",
+                "surface": "#0b1326",
+                "on-tertiary-container": "#ffede6",
+                "primary": "#b4c5ff",
+                "error-container": "#93000a",
+                "surface-container-high": "#222a3d",
+                "on-error-container": "#ffdad6",
+                "secondary-fixed": "#6ffbbe",
+                "background": "#0b1326",
+                "tertiary-fixed-dim": "#ffb596",
+                "on-tertiary": "#581e00",
+                "primary-fixed-dim": "#b4c5ff",
+                "on-error": "#690005",
+                "on-secondary-fixed": "#002113",
+                "outline-variant": "#434655",
+                "surface-container-low": "#131b2e",
+                "tertiary-fixed": "#ffdbcd",
+                "on-primary": "#002a78",
+                "secondary-container": "#00a572",
+                "graphite-deep": "#020617",
+                "on-tertiary-fixed-variant": "#7d2d00",
+                "inverse-on-surface": "#283044",
+                "secondary-fixed-dim": "#4edea3",
+                "on-primary-container": "#eeefff",
+                "surface-container-highest": "#2d3449",
+                "tertiary-container": "#bc4800",
+                "warning-amber": "#F59E0B",
+                "surface-dim": "#0b1326",
+                "on-primary-fixed": "#00174b",
+                "danger-red": "#EF4444",
+                "tertiary": "#ffb596",
+                "on-tertiary-fixed": "#360f00",
+                "error": "#ffb4ab",
+                "info-cyan": "#06B6D4",
+                "surface-container-lowest": "#060e20",
+                "surface-bright": "#31394d",
+                "on-surface-variant": "#c3c6d7",
+                "primary-container": "#2563eb",
+                "inverse-primary": "#0053db",
+                "surface-tint": "#b4c5ff",
+                "on-background": "#dae2fd",
+                "inverse-surface": "#dae2fd",
+                "on-primary-fixed-variant": "#003ea8",
+                "primary-fixed": "#dbe1ff",
+                "on-secondary-fixed-variant": "#005236",
+                "slate-surface": "#1E293B",
+                "secondary": "#4edea3",
+                "on-surface": "#dae2fd"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "spacing": {
+                "margin-desktop": "32px",
+                "max-width": "1280px",
+                "gutter": "16px",
+                "base": "4px",
+                "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                "body-sm": ["Inter"],
+                "headline-lg": ["Manrope"],
+                "headline-lg-mobile": ["Manrope"],
+                "mono-data": ["JetBrains Mono"],
+                "label-caps": ["Inter"],
+                "headline-md": ["Manrope"],
+                "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #171f33;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 10px;
+        }
+        /* Lock screen resolution for design review */
+        .viewport-container {
+            width: 1920px;
+            height: 1080px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+        }
+    </style>
+</head>
+<body class="font-body-lg overflow-x-auto bg-graphite-deep">
+<div class="viewport-container shadow-2xl">
+<!-- SideNavBar -->
+<aside class="w-[280px] bg-surface-container flex flex-col h-full py-8 z-50 border-r border-outline-variant/30">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">shield_lock</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">Sentinela</h1>
+<p class="text-[10px] uppercase tracking-widest text-outline">Secure Vault</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant px-margin-desktop py-3 hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<a class="flex items-center gap-3 text-primary font-bold border-l-4 border-primary bg-surface-container-high px-margin-desktop py-3 transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-margin-desktop py-3 hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined" data-icon="upload_file">upload_file</span>
+<span class="font-label-caps text-label-caps">Import CSV</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-margin-desktop py-3 hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full bg-danger-red hover:bg-red-600 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-danger-red/20">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="font-label-caps text-label-caps">Lock All Vaults</span>
+</button>
+<div class="mt-6 border-t border-outline-variant pt-4">
+<a class="flex items-center gap-3 text-on-surface-variant px-2 py-3 hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-caps text-label-caps uppercase">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 h-full bg-background overflow-y-auto custom-scrollbar">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-margin-desktop w-full h-20 bg-surface/80 backdrop-blur-md border-b border-outline-variant sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Membros do Cofre</h2>
+<div class="h-6 w-[1px] bg-outline-variant"></div>
+<span class="text-on-surface-variant text-body-sm font-medium">Cofre Financeiro Corporativo</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant">
+<div class="text-right">
+<p class="text-body-sm font-bold text-on-surface">Alex Thompson</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Administrador</p>
+</div>
+<img alt="Profile" class="w-10 h-10 rounded-full object-cover border-2 border-primary" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqKljwxxiUYWIxmaffK9CsGS6MYdPYym2hzSkSvwh14N9TQGNBzCKosQTmWmpOKUDqJ2UBZj2KlkaWTYQ6W3HimEEpNZLYHVMlwM0ddLrswD8dbX_jtnennJU9P14boF6Sooj-xKqMgBddLqlDzOZR51jnJf4LtsSUl5afYI0J08JK6e7P06hBZB2Swcza_aI2Xy-8Wu4THozVvg1DuHYCNFvpJs4y4w-8mKodV8ynPS2ieAUznFV3cQ"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="p-10 w-full max-w-[1600px] mx-auto">
+<!-- Hero Action Section -->
+<div class="flex justify-between items-end mb-12">
+<div>
+<h3 class="font-headline-lg text-4xl text-on-surface mb-3">Gerenciar Acessos</h3>
+<p class="text-on-surface-variant text-lg max-w-2xl leading-relaxed">
+                        Controle quem pode visualizar, editar ou gerenciar as credenciais deste cofre. 
+                        Garanta a segurança dos dados corporativos seguindo o princípio do privilégio mínimo.
+                    </p>
+</div>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-bold px-8 py-4 rounded-xl flex items-center gap-3 transition-all active:scale-95 shadow-xl shadow-primary/20" onclick="document.getElementById('invite-modal').classList.remove('hidden')">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'wght' 700;">person_add</span>
+<span class="font-label-caps text-sm tracking-wide">Convidar novo usuário</span>
+</button>
+</div>
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-12 gap-8 items-start">
+<!-- Active Members List (Large Card) -->
+<section class="col-span-8 bg-surface-container rounded-2xl border border-outline-variant shadow-lg overflow-hidden">
+<div class="px-8 py-6 border-b border-outline-variant bg-surface-container-high flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="group">group</span>
+<h4 class="font-headline-md text-xl font-bold text-on-surface">Membros Ativos</h4>
+</div>
+<span class="bg-surface-variant text-on-surface-variant px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">4 Membros Ativos</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left table-auto">
+<thead class="bg-surface-container-low/50 border-b border-outline-variant">
+<tr>
+<th class="px-8 py-5 font-label-caps text-[11px] text-outline uppercase tracking-[0.1em]">Nome do Usuário</th>
+<th class="px-8 py-5 font-label-caps text-[11px] text-outline uppercase tracking-[0.1em]">Papel Atribuído</th>
+<th class="px-8 py-5 font-label-caps text-[11px] text-outline uppercase tracking-[0.1em]">Nível de Acesso</th>
+<th class="px-8 py-5 font-label-caps text-[11px] text-outline uppercase tracking-[0.1em] text-right">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-highest/50 transition-colors group cursor-default">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-lg border border-primary/20">AT</div>
+<div>
+<p class="text-on-surface font-bold text-lg">Alex Thompson</p>
+<p class="text-on-surface-variant text-sm">alex.t@sentinela.io</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-container/10 text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-widest">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                            Administrador
+                                        </span>
+</td>
+<td class="px-8 py-6">
+<p class="text-on-surface-variant text-body-sm font-medium">Acesso Total ao Sistema</p>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors p-3 rounded-xl hover:bg-surface-variant">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-highest/50 transition-colors group cursor-default">
+<td class="px-8 py-6 border-l-4 border-transparent hover:border-primary transition-all">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold text-lg border border-secondary/20">SM</div>
+<div>
+<p class="text-on-surface font-bold text-lg">Sarah Miller</p>
+<p class="text-on-surface-variant text-sm">s.miller@corp.com</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary-container/10 text-secondary border border-secondary/20 text-[10px] font-bold uppercase tracking-widest">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                            Editor
+                                        </span>
+</td>
+<td class="px-8 py-6">
+<p class="text-on-surface-variant text-body-sm font-medium">Leitura e Escrita</p>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors p-3 rounded-xl hover:bg-surface-variant">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-highest/50 transition-colors group cursor-default">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary/20 flex items-center justify-center text-tertiary font-bold text-lg border border-tertiary/20">JL</div>
+<div>
+<p class="text-on-surface font-bold text-lg">John Lowery</p>
+<p class="text-on-surface-variant text-sm">j.lowery@partner.io</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-variant/30 text-on-surface-variant border border-outline-variant/30 text-[10px] font-bold uppercase tracking-widest">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+                                            Leitor
+                                        </span>
+</td>
+<td class="px-8 py-6">
+<p class="text-on-surface-variant text-body-sm font-medium">Somente Visualização</p>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors p-3 rounded-xl hover:bg-surface-variant">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Right Side: Pending Invites & Stats -->
+<div class="col-span-4 space-y-8">
+<!-- Pending Invitations Card -->
+<section class="bg-surface-container rounded-2xl border border-outline-variant shadow-lg overflow-hidden">
+<div class="px-6 py-5 border-b border-outline-variant bg-surface-container-high">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-warning-amber text-2xl" data-icon="mail">mail</span>
+<h4 class="font-headline-md text-lg font-bold text-on-surface">Convites Pendentes</h4>
+</div>
+</div>
+<div class="p-6 space-y-4">
+<!-- Invite Item 1 -->
+<div class="p-5 rounded-xl bg-surface-container-low border border-outline-variant/40 flex justify-between items-center group transition-all hover:border-primary/40">
+<div>
+<p class="text-on-surface font-bold text-body-lg">marcos.rocha@tech.com</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="text-[10px] uppercase font-bold text-outline">Papel:</span>
+<span class="text-secondary text-[10px] uppercase font-bold tracking-widest">Editor</span>
+</div>
+</div>
+<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-info-cyan hover:bg-info-cyan/10 rounded-lg transition-colors" title="Reenviar">
+<span class="material-symbols-outlined text-xl">refresh</span>
+</button>
+<button class="p-2 text-danger-red hover:bg-danger-red/10 rounded-lg transition-colors" title="Revogar">
+<span class="material-symbols-outlined text-xl">cancel</span>
+</button>
+</div>
+</div>
+<!-- Invite Item 2 -->
+<div class="p-5 rounded-xl bg-surface-container-low border border-outline-variant/40 flex justify-between items-center group transition-all hover:border-primary/40">
+<div>
+<p class="text-on-surface font-bold text-body-lg">suporte@ext.dev</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="text-[10px] uppercase font-bold text-outline">Papel:</span>
+<span class="text-on-surface-variant text-[10px] uppercase font-bold tracking-widest">Leitor</span>
+</div>
+</div>
+<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-info-cyan hover:bg-info-cyan/10 rounded-lg transition-colors" title="Reenviar">
+<span class="material-symbols-outlined text-xl">refresh</span>
+</button>
+<button class="p-2 text-danger-red hover:bg-danger-red/10 rounded-lg transition-colors" title="Revogar">
+<span class="material-symbols-outlined text-xl">cancel</span>
+</button>
+</div>
+</div>
+</div>
+<div class="px-6 py-4 bg-surface-container-low/50 border-t border-outline-variant/30">
+<button class="w-full py-2 text-primary font-bold text-xs uppercase tracking-widest hover:underline transition-all">Ver todos os convites</button>
+</div>
+</section>
+<!-- Security Insights Card -->
+<section class="bg-gradient-to-br from-surface-container to-surface-container-high rounded-2xl border border-primary/20 p-8 relative overflow-hidden shadow-lg group">
+<div class="absolute -right-12 -bottom-12 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity rotate-12 group-hover:rotate-6 duration-700">
+<span class="material-symbols-outlined text-[200px]">verified_user</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">security</span>
+<h5 class="text-primary font-bold text-xl uppercase tracking-tighter">Security Check</h5>
+</div>
+<p class="text-on-surface-variant text-base leading-relaxed mb-8">
+                                Todos os membros atuais possuem <strong>MFA (Autenticação de Dois Fatores)</strong> habilitada. 
+                                <span class="block mt-2">Recomendamos revisar acessos a cada 90 dias para manter a conformidade.</span>
+</p>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest text-outline">
+<span>Saúde do Cofre</span>
+<span class="text-secondary text-lg">94%</span>
+</div>
+<div class="w-full bg-surface-variant h-3 rounded-full overflow-hidden shadow-inner">
+<div class="bg-gradient-to-r from-secondary/60 to-secondary h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_12px_rgba(78,222,163,0.3)]" style="width: 94%"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant/60 italic text-right mt-1">Última auditoria hoje às 09:42</p>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Invite User Modal (Overlay Level 2) -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center hidden" id="invite-modal">
+<div class="absolute inset-0 bg-graphite-deep/90 backdrop-blur-md" onclick="document.getElementById('invite-modal').classList.add('hidden')"></div>
+<div class="relative bg-surface-container-high w-full max-w-xl rounded-2xl border border-outline-variant shadow-2xl animate-in fade-in zoom-in duration-300">
+<div class="p-8 border-b border-outline-variant flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">person_add</span>
+<h3 class="font-headline-md text-2xl font-bold text-on-surface">Convidar novo membro</h3>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors p-2 rounded-full hover:bg-surface-variant" onclick="document.getElementById('invite-modal').classList.add('hidden')">
+<span class="material-symbols-outlined text-2xl">close</span>
+</button>
+</div>
+<form class="p-8 space-y-8">
+<div>
+<label class="block text-label-caps font-label-caps text-outline uppercase tracking-widest mb-3">E-mail corporativo do convidado</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">mail</span>
+<input class="w-full bg-surface-container border border-outline-variant focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-xl pl-12 pr-4 py-4 text-on-surface placeholder:text-outline/40 outline-none transition-all text-lg" placeholder="nome.sobrenome@empresa.com" type="email"/>
+</div>
+</div>
+<div>
+<label class="block text-label-caps font-label-caps text-outline uppercase tracking-widest mb-3">Papel e Permissões</label>
+<div class="grid grid-cols-1 gap-3">
+<label class="group flex items-start gap-4 p-5 rounded-xl border border-outline-variant hover:bg-surface-container transition-all cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-[0_0_15px_rgba(180,197,255,0.05)]">
+<div class="mt-1">
+<input checked="" class="w-5 h-5 text-primary focus:ring-primary focus:ring-offset-0 bg-surface-container border-outline-variant transition-all" name="role" type="radio"/>
+</div>
+<div>
+<p class="text-on-surface font-bold text-lg group-hover:text-primary transition-colors">Administrador</p>
+<p class="text-on-surface-variant text-sm mt-1">Acesso total às configurações do cofre, gestão de membros e credenciais.</p>
+</div>
+</label>
+<label class="group flex items-start gap-4 p-5 rounded-xl border border-outline-variant hover:bg-surface-container transition-all cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+<div class="mt-1">
+<input class="w-5 h-5 text-primary focus:ring-primary focus:ring-offset-0 bg-surface-container border-outline-variant transition-all" name="role" type="radio"/>
+</div>
+<div>
+<p class="text-on-surface font-bold text-lg group-hover:text-primary transition-colors">Editor</p>
+<p class="text-on-surface-variant text-sm mt-1">Pode visualizar, adicionar, editar e exportar as credenciais existentes.</p>
+</div>
+</label>
+<label class="group flex items-start gap-4 p-5 rounded-xl border border-outline-variant hover:bg-surface-container transition-all cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+<div class="mt-1">
+<input class="w-5 h-5 text-primary focus:ring-primary focus:ring-offset-0 bg-surface-container border-outline-variant transition-all" name="role" type="radio"/>
+</div>
+<div>
+<p class="text-on-surface font-bold text-lg group-hover:text-primary transition-colors">Leitor</p>
+<p class="text-on-surface-variant text-sm mt-1">Apenas visualização das credenciais sem permissão de alteração.</p>
+</div>
+</label>
+</div>
+</div>
+<div class="pt-4 flex gap-4">
+<button class="flex-1 bg-surface-variant hover:bg-surface-container-highest text-on-surface font-bold py-4 rounded-xl transition-all active:scale-95 border border-outline-variant text-lg" onclick="document.getElementById('invite-modal').classList.add('hidden')" type="button">
+                    Cancelar
+                </button>
+<button class="flex-1 bg-primary hover:bg-primary-container text-on-primary font-bold py-4 rounded-xl transition-all active:scale-95 text-lg shadow-lg shadow-primary/20" type="submit">
+                    Enviar Convite
+                </button>
+</div>
+</form>
+</div>
+</div>
+<script>
+    // Visual interaction feedback
+    document.querySelectorAll('tr').forEach(row => {
+        row.addEventListener('click', (e) => {
+            if (e.target.closest('button')) return;
+            row.classList.add('bg-surface-container-highest');
+            setTimeout(() => {
+                row.classList.remove('bg-surface-container-highest');
+            }, 200);
+        });
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.getElementById('invite-modal').classList.add('hidden');
+        }
+    });
+</script>
+</body></html>

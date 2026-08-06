@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Guia de Componentes de Feedback</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#060e20",
+                    "on-secondary-fixed": "#002113",
+                    "surface-variant": "#2d3449",
+                    "slate-surface": "#1E293B",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-error-container": "#ffdad6",
+                    "on-background": "#dae2fd",
+                    "on-secondary": "#003824",
+                    "error-container": "#93000a",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "on-surface": "#dae2fd",
+                    "on-secondary-container": "#00311f",
+                    "outline": "#8d90a0",
+                    "tertiary": "#ffb596",
+                    "graphite-deep": "#020617",
+                    "inverse-surface": "#dae2fd",
+                    "on-tertiary": "#581e00",
+                    "on-primary-fixed": "#00174b",
+                    "on-error": "#690005",
+                    "on-surface-variant": "#c3c6d7",
+                    "info-cyan": "#06B6D4",
+                    "tertiary-fixed": "#ffdbcd",
+                    "surface-dim": "#0b1326",
+                    "primary": "#b4c5ff",
+                    "on-primary": "#002a78",
+                    "surface-container-low": "#131b2e",
+                    "surface-bright": "#31394d",
+                    "surface-tint": "#b4c5ff",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "secondary": "#4edea3",
+                    "surface-container-high": "#222a3d",
+                    "inverse-primary": "#0053db",
+                    "warning-amber": "#F59E0B",
+                    "danger-red": "#EF4444",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-tertiary-container": "#ffede6",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-primary-container": "#eeefff",
+                    "surface-container": "#171f33",
+                    "surface-container-highest": "#2d3449",
+                    "on-tertiary-fixed": "#360f00",
+                    "surface": "#0b1326",
+                    "secondary-container": "#00a572",
+                    "primary-fixed": "#dbe1ff",
+                    "outline-variant": "#434655",
+                    "background": "#0b1326",
+                    "inverse-on-surface": "#283044",
+                    "primary-container": "#2563eb",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "error": "#ffb4ab",
+                    "tertiary-container": "#bc4800"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "max-width": "1280px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px",
+                    "margin-mobile": "16px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "headline-lg": ["Manrope"],
+                    "headline-md": ["Manrope"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0b1326;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 10px;
+        }
+        .toast-entrance {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-lg overflow-x-hidden">
+<!-- Sidebar (As per JSON) -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container flex flex-col py-8 z-50 border-r border-outline-variant">
+<div class="px-6 mb-10">
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">Sentinela</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant opacity-70">Secure Vault</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all" href="#">
+<span class="material-symbols-outlined">upload_file</span>
+<span class="font-label-caps text-label-caps">Import CSV</span>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-4 text-primary font-bold border-l-4 border-primary bg-surface-container-high px-4 py-3 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-4">
+<button class="w-full bg-danger-red text-white py-3 font-label-caps text-label-caps rounded-lg hover:opacity-90 active:opacity-80 transition-all">
+                Lock All Vaults
+            </button>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 mt-4 hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-caps text-label-caps">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Top App Bar (As per JSON) -->
+<header class="fixed top-0 right-0 left-0 h-16 bg-surface flex justify-between items-center px-margin-desktop ml-[280px] z-40 border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant font-body-sm w-64" placeholder="Search components..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:bg-surface-container-highest transition-colors p-2 rounded-full active:scale-95 transition-transform">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-highest transition-colors p-2 rounded-full active:scale-95 transition-transform">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a user with a neutral background, styled in high-fidelity corporate photography. The lighting is soft and directional, fitting a modern tech company employee profile. The color temperature is slightly cool to match the slate and primary blue tones of the Sentinela security application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBw6bY5g8WL6ncH7ODW8POf0AyWhPxUaMIQjHpklod_OTm0o7CmOTWvWUWwTfxwt2rEXQPMNL_FhZmmJGUcdzGjq7RJyavmQu3ImTmX-cSFWEiM-UMPsaJKC2XTzcoUa7OBW9G5gZSotNY-_8aWLZkhyj94-esczytLrFH8W4qoB6gArzlOj0Pjqf1UppGDtWnYXlX2Mf2PtSUzJBkIaqpsN2F8lgxOEt-9tur9uqdZcVQzd_sEfpmJ0g"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-[280px] mt-16 p-margin-desktop min-h-screen">
+<div class="max-w-[1200px] mx-auto space-y-12">
+<!-- Hero Section -->
+<section class="space-y-4">
+<h2 class="font-headline-lg text-headline-lg text-primary">Toasts &amp; Feedback</h2>
+<p class="text-on-surface-variant max-w-2xl">
+                    Este guia detalha o sistema de notificações e feedback da Sentinela. Nossos componentes priorizam a clareza técnica e segurança, utilizando tonalidades específicas para indicar estados críticos sem distrair o usuário de suas tarefas principais.
+                </p>
+</section>
+<!-- Grid Layout for Documentation -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Feedback Types List (Left Column) -->
+<div class="lg:col-span-8 space-y-10">
+<!-- SUCCESS TOASTS -->
+<div class="space-y-6">
+<div class="flex items-center gap-3 border-b border-outline-variant pb-2">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<h3 class="font-headline-md text-headline-md">Toasts de Sucesso</h3>
+</div>
+<p class="text-body-sm text-on-surface-variant italic">Utilizados para confirmar ações concluídas com êxito pelo usuário.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Case 1: Cofre criado -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant flex items-center gap-4 relative overflow-hidden group hover:border-secondary transition-colors">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div class="flex-1">
+<p class="font-label-caps text-label-caps text-secondary">Ação Concluída</p>
+<p class="text-on-surface font-mono-data">Cofre criado</p>
+</div>
+</div>
+<!-- Case 2: Site atualizado -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant flex items-center gap-4 relative overflow-hidden group hover:border-secondary transition-colors">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">update</span>
+<div class="flex-1">
+<p class="font-label-caps text-label-caps text-secondary">Sincronização</p>
+<p class="text-on-surface font-mono-data">Site atualizado</p>
+</div>
+</div>
+<!-- Case 3: Senha copiada -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant flex items-center gap-4 relative overflow-hidden group hover:border-secondary transition-colors">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">content_copy</span>
+<div class="flex-1">
+<p class="font-label-caps text-label-caps text-secondary">Área de Transferência</p>
+<p class="text-on-surface font-mono-data">Senha copiada</p>
+</div>
+</div>
+<!-- Case 4: Importação concluída -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant flex items-center gap-4 relative overflow-hidden group hover:border-secondary transition-colors">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+<div class="flex-1">
+<p class="font-label-caps text-label-caps text-secondary">Importação CSV</p>
+<p class="text-on-surface font-mono-data">Importação concluída</p>
+</div>
+</div>
+</div>
+</div>
+<!-- ERROR TOASTS -->
+<div class="space-y-6">
+<div class="flex items-center gap-3 border-b border-outline-variant pb-2">
+<span class="material-symbols-outlined text-danger-red">error</span>
+<h3 class="font-headline-md text-headline-md">Toasts de Erro</h3>
+</div>
+<p class="text-body-sm text-on-surface-variant italic">Exibidos quando uma operação falha ou requer intervenção corretiva.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Case 1: Não foi possível concluir -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant flex items-center gap-4 relative overflow-hidden group hover:border-danger-red transition-colors">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-danger-red"></div>
+<span class="material-symbols-outlined text-danger-red" style="font-variation-settings: 'FILL' 1;">warning</span>
+<div class="flex-1">
+<p class="font-label-caps text-label-caps text-danger-red">Erro de Sistema</p>
+<p class="text-on-surface font-mono-data">Não foi possível concluir a ação</p>
+</div>
+</div>
+<!-- Case 2: Sessão expirou -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant flex items-center gap-4 relative overflow-hidden group hover:border-danger-red transition-colors">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-danger-red"></div>
+<span class="material-symbols-outlined text-danger-red" style="font-variation-settings: 'FILL' 1;">timer_off</span>
+<div class="flex-1">
+<p class="font-label-caps text-label-caps text-danger-red">Segurança</p>
+<p class="text-on-surface font-mono-data">Sua sessão expirou</p>
+</div>
+</div>
+<!-- Case 3: Permissão -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant flex items-center gap-4 relative overflow-hidden group hover:border-danger-red transition-colors">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-danger-red"></div>
+<span class="material-symbols-outlined text-danger-red" style="font-variation-settings: 'FILL' 1;">block</span>
+<div class="flex-1">
+<p class="font-label-caps text-label-caps text-danger-red">Acesso Negado</p>
+<p class="text-on-surface font-mono-data">Você não possui permissão</p>
+</div>
+</div>
+</div>
+</div>
+<!-- WARNING MESSAGES -->
+<div class="space-y-6">
+<div class="flex items-center gap-3 border-b border-outline-variant pb-2">
+<span class="material-symbols-outlined text-warning-amber">report_problem</span>
+<h3 class="font-headline-md text-headline-md">Mensagens de Alerta</h3>
+</div>
+<p class="text-body-sm text-on-surface-variant italic">Utilizadas em formulários e fluxos que exigem atenção sem bloqueio imediato.</p>
+<div class="bg-surface-container p-5 rounded-xl border border-warning-amber/30 flex items-start gap-4">
+<div class="bg-warning-amber/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-warning-amber">feedback</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-caps text-label-caps text-warning-amber mb-1">Atenção Necessária</h4>
+<p class="text-on-surface mb-3">Verifique os campos informados antes de prosseguir com a operação de salvamento.</p>
+<div class="flex gap-4">
+<button class="text-warning-amber text-body-sm font-bold hover:underline">Revisar Campos</button>
+<button class="text-on-surface-variant text-body-sm hover:text-on-surface transition-colors">Ignorar</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Usage Guidelines (Right Column) -->
+<div class="lg:col-span-4 space-y-6">
+<div class="bg-surface-container-low p-6 rounded-2xl border border-outline-variant sticky top-24">
+<h4 class="font-headline-md text-headline-md text-primary mb-4">Boas Práticas</h4>
+<ul class="space-y-4">
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-info-cyan text-sm">info</span>
+<div>
+<p class="font-bold text-on-surface text-body-sm">Duração</p>
+<p class="text-on-surface-variant text-body-sm">Toasts devem durar entre 3 a 5 segundos antes de desaparecerem automaticamente.</p>
+</div>
+</li>
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-info-cyan text-sm">info</span>
+<div>
+<p class="font-bold text-on-surface text-body-sm">Posicionamento</p>
+<p class="text-on-surface-variant text-body-sm">No Desktop, aparecem no canto inferior direito. No Mobile, centralizados na base.</p>
+</div>
+</li>
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-info-cyan text-sm">info</span>
+<div>
+<p class="font-bold text-on-surface text-body-sm">Hierarquia Tonal</p>
+<p class="text-on-surface-variant text-body-sm">Evite cores saturadas em excesso. Use bordas acentuadas (L-accent) para distinguir o estado.</p>
+</div>
+</li>
+</ul>
+<div class="mt-8 pt-6 border-t border-outline-variant">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-4">Pré-visualização Interativa</p>
+<button class="w-full mb-3 bg-surface-container-highest text-on-surface border border-outline-variant py-2 rounded-lg hover:border-secondary transition-all flex items-center justify-center gap-2" onclick="triggerToast('success')">
+<span class="material-symbols-outlined text-secondary text-sm">send</span>
+                                Simular Sucesso
+                            </button>
+<button class="w-full bg-surface-container-highest text-on-surface border border-outline-variant py-2 rounded-lg hover:border-danger-red transition-all flex items-center justify-center gap-2" onclick="triggerToast('error')">
+<span class="material-symbols-outlined text-danger-red text-sm">emergency_home</span>
+                                Simular Erro
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bento Preview Section -->
+<section class="mt-16 space-y-6">
+<h3 class="font-headline-md text-headline-md border-b border-outline-variant pb-2">Contexto de Uso (Mockup)</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-[400px]">
+<div class="bg-surface-container rounded-2xl border border-outline-variant p-6 relative overflow-hidden col-span-2">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-headline-md text-headline-md">Configurações do Vault</h4>
+<p class="text-on-surface-variant text-body-sm">Gerencie as permissões globais de criptografia.</p>
+</div>
+<span class="material-symbols-outlined text-primary">security</span>
+</div>
+<div class="space-y-4 opacity-40">
+<div class="h-8 bg-surface-variant rounded-lg w-3/4"></div>
+<div class="h-8 bg-surface-variant rounded-lg w-1/2"></div>
+<div class="h-24 bg-surface-variant rounded-lg w-full"></div>
+</div>
+<!-- Floating Toast Example -->
+<div class="absolute bottom-6 right-6 toast-entrance">
+<div class="bg-surface-container-highest shadow-xl p-4 rounded-xl border-l-4 border-secondary flex items-center gap-4 min-w-[280px]">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+<div>
+<p class="font-bold text-on-surface text-body-sm">Sucesso</p>
+<p class="text-on-surface-variant text-body-sm">Vault atualizado com AES-256</p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-2xl border border-outline-variant p-6 flex flex-col justify-center items-center text-center space-y-4">
+<div class="w-16 h-16 rounded-full bg-danger-red/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-danger-red text-3xl">lock_reset</span>
+</div>
+<h4 class="font-headline-md text-headline-md">Estado de Bloqueio</h4>
+<p class="text-on-surface-variant text-body-sm px-4">Tentativas excessivas de login detectadas. Acesso temporário suspenso.</p>
+<button class="bg-primary text-on-primary-fixed px-6 py-2 rounded-lg font-label-caps text-label-caps">Recuperar Acesso</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Toast Container (Fixed for interactions) -->
+<div class="fixed bottom-8 right-8 z-[100] flex flex-col gap-4 pointer-events-none" id="toast-container">
+<!-- Dynamically injected toasts will appear here -->
+</div>
+<script>
+        function triggerToast(type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast-entrance pointer-events-auto bg-surface-container-highest shadow-2xl p-4 rounded-xl border-l-4 min-w-[320px] flex items-center gap-4 ${type === 'success' ? 'border-secondary' : 'border-danger-red'}`;
+            
+            const icon = type === 'success' ? 'check_circle' : 'error';
+            const title = type === 'success' ? 'Operação Realizada' : 'Falha Crítica';
+            const msg = type === 'success' ? 'As alterações foram salvas em nossa nuvem segura.' : 'Ocorreu um erro ao processar sua requisição.';
+            const iconColor = type === 'success' ? 'text-secondary' : 'text-danger-red';
+
+            toast.innerHTML = `
+                <span class="material-symbols-outlined ${iconColor}" style="font-variation-settings: 'FILL' 1;">${icon}</span>
+                <div class="flex-1">
+                    <p class="font-bold text-on-surface text-body-sm">${title}</p>
+                    <p class="text-on-surface-variant text-body-sm">${msg}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-on-surface-variant hover:text-on-surface">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
+                toast.style.transition = 'all 0.4s ease';
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+    </script>
+</body></html>

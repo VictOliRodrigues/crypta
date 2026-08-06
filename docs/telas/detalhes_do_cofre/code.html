@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Detalhes do Cofre</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface": "#0b1326",
+                      "secondary-fixed-dim": "#4edea3",
+                      "surface-container-highest": "#2d3449",
+                      "on-secondary-container": "#00311f",
+                      "on-tertiary": "#581e00",
+                      "on-surface": "#dae2fd",
+                      "outline-variant": "#434655",
+                      "tertiary-fixed-dim": "#ffb596",
+                      "surface-container": "#171f33",
+                      "graphite-deep": "#020617",
+                      "primary-fixed": "#dbe1ff",
+                      "primary-container": "#2563eb",
+                      "surface-tint": "#b4c5ff",
+                      "on-surface-variant": "#c3c6d7",
+                      "on-tertiary-fixed-variant": "#7d2d00",
+                      "surface-container-low": "#131b2e",
+                      "slate-surface": "#1E293B",
+                      "primary": "#b4c5ff",
+                      "inverse-primary": "#0053db",
+                      "background": "#0b1326",
+                      "tertiary-container": "#bc4800",
+                      "surface-container-lowest": "#060e20",
+                      "on-error-container": "#ffdad6",
+                      "on-tertiary-container": "#ffede6",
+                      "error-container": "#93000a",
+                      "on-primary": "#002a78",
+                      "on-primary-container": "#eeefff",
+                      "secondary-fixed": "#6ffbbe",
+                      "on-background": "#dae2fd",
+                      "secondary-container": "#00a572",
+                      "tertiary-fixed": "#ffdbcd",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary-fixed": "#360f00",
+                      "inverse-surface": "#dae2fd",
+                      "on-error": "#690005",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "surface-dim": "#0b1326",
+                      "secondary": "#4edea3",
+                      "danger-red": "#EF4444",
+                      "surface-bright": "#31394d",
+                      "on-secondary-fixed": "#002113",
+                      "on-primary-fixed": "#00174b",
+                      "tertiary": "#ffb596",
+                      "warning-amber": "#F59E0B",
+                      "outline": "#8d90a0",
+                      "info-cyan": "#06B6D4",
+                      "error": "#ffb4ab",
+                      "surface-container-high": "#222a3d",
+                      "on-secondary": "#003824",
+                      "surface-variant": "#2d3449",
+                      "on-secondary-fixed-variant": "#005236",
+                      "inverse-on-surface": "#283044"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px",
+                      "gutter": "16px",
+                      "base": "4px",
+                      "max-width": "1280px"
+              },
+              "fontFamily": {
+                      "headline-lg": ["Manrope"],
+                      "headline-md": ["Manrope"],
+                      "body-lg": ["Inter"],
+                      "mono-data": ["JetBrains Mono"],
+                      "label-caps": ["Inter"],
+                      "body-sm": ["Inter"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.5);
+        }
+    </style>
+</head>
+<body class="font-body-lg text-body-lg">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container flex flex-col py-8 z-50">
+<div class="px-8 mb-12">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 bg-primary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">shield</span>
+</div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">Sentinela</h1>
+</div>
+<p class="font-label-caps text-label-caps text-on-surface-variant opacity-70">Secure Vault</p>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="text-primary font-bold border-l-4 border-primary bg-surface-container-high px-8 py-3 flex items-center gap-4 transition-all" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<a class="text-on-surface-variant px-8 py-3 flex items-center gap-4 hover:text-on-surface hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<a class="text-on-surface-variant px-8 py-3 flex items-center gap-4 hover:text-on-surface hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined">upload_file</span>
+<span class="font-label-caps text-label-caps">Import CSV</span>
+</a>
+<a class="text-on-surface-variant px-8 py-3 flex items-center gap-4 hover:text-on-surface hover:bg-surface-container-highest transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full py-4 bg-error-container text-on-error-container rounded font-bold flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-95 mb-6">
+<span class="material-symbols-outlined">lock_reset</span>
+<span class="font-label-caps text-label-caps">Lock All Vaults</span>
+</button>
+<a class="text-on-surface-variant px-8 py-3 flex items-center gap-4 hover:text-on-surface hover:bg-surface-container-highest transition-all rounded" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-caps text-label-caps">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-[280px] min-h-screen relative">
+<!-- TopAppBar -->
+<header class="w-full h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-margin-desktop sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 w-64 focus:ring-2 focus:ring-primary text-body-sm transition-all" placeholder="Search secrets..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a software security engineer in a clean, modern studio setting. The lighting is sophisticated with soft shadows, highlighting a neutral expression. The background is a minimalist tech office with dark slate surfaces and subtle blue ambient lighting, matching a corporate dark-mode UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBe89BOShIQmnNgmpbfngAdvNQaIpfmomGPZRwivjPRKsCFUzPKkMcW8N9kMhU41irObtPo3mbleiCEkdhdj0VwtePkj56LiByIn5ORM-FnGXhRQevIsgyTdH5oTO3-xiWjIb454e2ORsV6S4PROHXDidIAgQrpdPTfO_WLedWrUyifLuBy5q2wr6-1OaaISu2T7r07xUpb6plhmqNDmDQ7VSsomtNwQ4maVcZxk0Zdq0P0Tk9s7L-jtA"/>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="max-w-[1280px] mx-auto p-margin-desktop">
+<!-- Vault Header Section -->
+<section class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="flex-1">
+<nav class="flex items-center gap-2 text-on-surface-variant mb-4 text-body-sm">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>Vaults</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-on-surface">Finanças Pessoais</span>
+</nav>
+<div class="flex items-center gap-4 mb-2">
+<h2 class="font-headline-lg text-headline-lg text-primary">Finanças Pessoais</h2>
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant rounded-full text-[10px] font-bold tracking-widest flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">visibility_off</span>
+                            PRIVADO
+                        </span>
+<span class="px-3 py-1 bg-secondary-container/20 text-secondary-fixed-dim rounded-full text-[10px] font-bold tracking-widest flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                            PROPRIETÁRIO
+                        </span>
+</div>
+<p class="text-on-surface-variant font-body-lg max-w-2xl">Gestão centralizada de credenciais bancárias, investimentos, cartões de crédito e plataformas de gestão financeira familiar.</p>
+</div>
+<button class="px-6 py-3 bg-primary-container text-on-primary-container rounded font-bold flex items-center gap-2 hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined">add_link</span>
+<span>Novo site</span>
+</button>
+</section>
+<!-- Sites List Section -->
+<div class="glass-card rounded-xl overflow-hidden">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<div class="flex items-center gap-4">
+<span class="font-label-caps text-label-caps text-on-surface-variant">SITES ARMAZENADOS (4)</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">sort</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high/50 text-on-surface-variant">
+<th class="px-6 py-4 font-label-caps text-label-caps">Nome do Site</th>
+<th class="px-6 py-4 font-label-caps text-label-caps">Link Direto</th>
+<th class="px-6 py-4 font-label-caps text-label-caps">Credenciais</th>
+<th class="px-6 py-4 font-label-caps text-label-caps">Última Atualização</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-right">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Site Row 1 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-white flex items-center justify-center p-1.5 shadow-sm">
+<img class="w-full h-full object-contain" data-alt="Official Google multicolored 'G' logo icon, crisp and high-resolution, on a clean white square background with soft rounded corners. Professional corporate iconography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiGl40ksXNlpnTVMhXSd3E1CBtIn3JiPtWlIX4ce_MVjBJCRIFMWVJ5scvygqjXxCVymV7UMpvlBmcXhuMA1u_8lXwg_WaJ6_ywelKuUplUNB9NClvxx-WpVgjspv0h2Lks67fOR1QnTkpfnNnvKC-Q6Yv2B3fJntNT9LFB527S0LYhCDIzkjtDhsrTLPRfZipDOmc6xgVmtx8MfagIqPDGqvgpmZHXXlbgbBcelUjwRsCjUUkxBnbbQ"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Google Workspace</div>
+<div class="text-[12px] text-on-surface-variant">Contas corporativas e drive</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<a class="text-primary hover:underline font-mono-data text-mono-data flex items-center gap-1" href="#">
+                                        accounts.google.com
+                                        <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</td>
+<td class="px-6 py-5">
+<span class="bg-surface-container-highest px-3 py-1 rounded-full text-mono-data">03</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant text-body-sm">
+                                    há 2 horas
+                                </td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-primary/20 text-primary transition-all" title="Abrir">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-highest text-on-surface-variant transition-all" title="Editar">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-error-container/20 text-danger-red transition-all" title="Excluir">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Site Row 2 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-[#ff0000] flex items-center justify-center p-1.5 shadow-sm">
+<img class="w-full h-full object-contain" data-alt="A stylized, modern red bank logo for 'Banco X', featuring a clean white geometric shape in the center. The icon is rendered with a slight glassmorphism effect to fit into a premium dark-themed fintech application interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrnetXLrbn6oe90MSJbKCDr5l4WPdxF4ZGbj9yp8Updz2tnl0g0Brh4hOoQCxKJWdUat2eSWRrqMSiwy6My85u1WVAoJbrtqlcC5u-sD9tSi3Te2y-H1AiRxNjfXVy1Pn8i-KlChe2elPPaAoheI1kkFMndq0lEzfJaQkJzar_HCRCjX38u6wO-n23NV5k0Cnl9XnkKbPjMBgmYiUuNJ_GymXQo_KlNp94cNWMGgQEd_JCO75pX7xaQw"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Banco X - Investimentos</div>
+<div class="text-[12px] text-on-surface-variant">Broker e Tesouro Direto</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<a class="text-primary hover:underline font-mono-data text-mono-data flex items-center gap-1" href="#">
+                                        banking.bancox.com.br
+                                        <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</td>
+<td class="px-6 py-5">
+<span class="bg-surface-container-highest px-3 py-1 rounded-full text-mono-data">01</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant text-body-sm">
+                                    Ontem, às 14:20
+                                </td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-primary/20 text-primary transition-all">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-highest text-on-surface-variant transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-error-container/20 text-danger-red transition-all">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Site Row 3 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-[#1DA1F2] flex items-center justify-center p-2 shadow-sm">
+<img class="w-full h-full object-contain" data-alt="Modern 'X' logo (formerly Twitter) in white on a deep black background, square with soft rounded corners. High fidelity branding element for a secure digital vault application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuACXBUzlzo08O9kCmjZnfLvMEekUzyFSf3CZjyAUq1LzHhtl3i8kTsHlORMgmah6sHCaFiolAXcQ4Um-1D_veTyxZmfSUtgSv8d5XS2lBDcJ26OjrwQBAvmvsRGKTivPwV6p0UiM05QyV9v7ISh_RqRp22y8WW1ShLDBtFM7GeCnBRcIaEFpz2flVBtHh2woHkajmZg_RL9bv3Gvq_wbdDl8LqOz1QFnLjmQJ1e6ETGIY-7l0RCDu8TIQ"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">X / Twitter</div>
+<div class="text-[12px] text-on-surface-variant">Social Media &amp; News</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<a class="text-primary hover:underline font-mono-data text-mono-data flex items-center gap-1" href="#">
+                                        x.com
+                                        <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</td>
+<td class="px-6 py-5">
+<span class="bg-surface-container-highest px-3 py-1 rounded-full text-mono-data">02</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant text-body-sm">
+                                    12 Out 2023
+                                </td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-primary/20 text-primary transition-all">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-highest text-on-surface-variant transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-error-container/20 text-danger-red transition-all">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-surface-container text-on-surface-variant flex justify-center text-body-sm">
+<button class="flex items-center gap-2 hover:text-primary transition-colors">
+                        Ver mais sites
+                        <span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Dashboard Stats Sidebar/Bento -->
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-secondary-fixed-dim mb-4" style="font-variation-settings: 'FILL' 1;">security</span>
+<h4 class="text-on-surface font-bold">Saúde do Cofre</h4>
+<p class="text-on-surface-variant text-body-sm mt-1">Todas as senhas deste cofre estão protegidas e são únicas.</p>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<span class="text-secondary-fixed-dim font-bold text-headline-md">100%</span>
+<div class="w-24 h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full w-full"></div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between border-l-4 border-l-warning-amber">
+<div>
+<span class="material-symbols-outlined text-warning-amber mb-4">history</span>
+<h4 class="text-on-surface font-bold">Último Acesso</h4>
+<p class="text-on-surface-variant text-body-sm mt-1">Acesso detectado de um novo dispositivo em São Paulo.</p>
+</div>
+<div class="mt-4">
+<span class="text-on-surface font-mono-data text-body-sm">IP: 187.32.114.9</span>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-primary mb-4">group</span>
+<h4 class="text-on-surface font-bold">Compartilhamento</h4>
+<p class="text-on-surface-variant text-body-sm mt-1">Este cofre é privado. Apenas você possui as chaves de acesso.</p>
+</div>
+<button class="mt-4 text-primary font-bold text-body-sm flex items-center gap-1 hover:underline">
+                        Convidar membro <span class="material-symbols-outlined text-[16px]">person_add</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB (Floating Action Button) - Contextual for adding a site -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary-container text-on-primary-container rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 md:hidden">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</button>
+<script>
+        // Micro-interaction for table rows
+        document.querySelectorAll('tr').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'translateX(4px)';
+                row.style.transition = 'transform 0.2s ease-out';
+            });
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'translateX(0)';
+            });
+        });
+
+        // Simple mock for "Novo Site" interaction
+        document.querySelector('button:has(span:contains("Novo site"))')?.addEventListener('click', () => {
+            console.log('Opening New Site Modal...');
+            // Logic for modal would go here
+        });
+    </script>
+</body></html>

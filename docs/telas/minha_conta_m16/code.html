@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#360f00",
+                    "inverse-surface": "#dae2fd",
+                    "inverse-on-surface": "#283044",
+                    "on-secondary-fixed-variant": "#005236",
+                    "primary-fixed": "#dbe1ff",
+                    "on-tertiary": "#581e00",
+                    "on-secondary-container": "#00311f",
+                    "surface-container-high": "#222a3d",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "surface-tint": "#b4c5ff",
+                    "on-error-container": "#ffdad6",
+                    "surface-variant": "#2d3449",
+                    "background": "#0b1326",
+                    "on-tertiary-container": "#ffede6",
+                    "surface-container-lowest": "#060e20",
+                    "tertiary": "#ffb596",
+                    "surface-container-highest": "#2d3449",
+                    "error": "#ffb4ab",
+                    "tertiary-fixed": "#ffdbcd",
+                    "secondary-fixed": "#6ffbbe",
+                    "secondary-container": "#00a572",
+                    "inverse-primary": "#0053db",
+                    "on-surface": "#dae2fd",
+                    "info-cyan": "#06B6D4",
+                    "on-surface-variant": "#c3c6d7",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "primary": "#b4c5ff",
+                    "warning-amber": "#F59E0B",
+                    "error-container": "#93000a",
+                    "outline-variant": "#434655",
+                    "tertiary-container": "#bc4800",
+                    "surface-dim": "#0b1326",
+                    "on-primary": "#002a78",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface": "#0b1326",
+                    "on-primary-container": "#eeefff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "graphite-deep": "#020617",
+                    "danger-red": "#EF4444",
+                    "surface-container-low": "#131b2e",
+                    "secondary": "#4edea3",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-error": "#690005",
+                    "surface-bright": "#31394d",
+                    "on-secondary-fixed": "#002113",
+                    "slate-surface": "#1E293B",
+                    "primary-container": "#2563eb",
+                    "on-secondary": "#003824",
+                    "on-primary-fixed": "#00174b",
+                    "on-background": "#dae2fd",
+                    "surface-container": "#171f33",
+                    "outline": "#8d90a0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "max-width": "1280px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "headline-md": ["Manrope"],
+                    "headline-lg-mobile": ["Manrope"],
+                    "headline-lg": ["Manrope"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scroll-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-lg text-body-lg overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky flex justify-between items-center px-margin-mobile h-16 w-full bg-background dark:bg-background z-50">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" data-icon="shield">shield</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Sentinela</h1>
+</div>
+<button class="material-symbols-outlined text-primary dark:text-primary-fixed-dim p-2 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors rounded-full active:scale-95 transition-transform" data-icon="settings">
+            settings
+        </button>
+</header>
+<main class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin-desktop pt-8 pb-32">
+<!-- Profile Header Section -->
+<section class="flex flex-col items-center mb-10">
+<div class="relative mb-4">
+<div class="w-24 h-24 rounded-full overflow-hidden border-2 border-primary-container" data-alt="A professional studio portrait of a technology executive in a dark navy blue background, lit with soft blue and teal highlights. The style is ultra-modern and corporate, featuring a clean minimalist aesthetic with high technical precision. The subject looks confident and stable, mirroring the brand's security-first mission." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCcneDTiE9MXZJgUNsf1upd5HRnSr54NmhVwzg43VNKA-7QJBF9SRhY3A9eAtez8S4qHg5zpVFEiSC0NkhE-tSKmd5zD0TW4f0mz2HUU-naIOQX-aVF4xIWBBGxmGquJH0x4lEllFPeqNqLtQ6M9W20dRZ0pSsaKyhGyML_LRcqQEFSrWod2ti7Dwx9I8rSJAxcK8NV6Hr8hTULAqlPQSipRqsnkxUghRzs1E69795xI0be_1dxrCwztw')">
+</div>
+<div class="absolute bottom-0 right-0 bg-secondary-container text-on-secondary-container p-1 rounded-full border-2 border-background">
+<span class="material-symbols-outlined text-[16px]" data-icon="verified">verified</span>
+</div>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Alexandre Silva</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">alexandre.silva@proton.me</p>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Security & Sessions Bento Grid -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- Security Card -->
+<div class="bg-surface-container p-6 rounded-xl border border-outline-variant hover:bg-surface-bright transition-colors group">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-4">
+<div class="bg-primary-container/20 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Segurança</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Proteja o acesso à sua conta</p>
+</div>
+</div>
+</div>
+<button class="w-full flex items-center justify-between p-4 bg-background rounded-lg border border-outline-variant hover:border-primary transition-all active:scale-[0.98]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="lock_reset">lock_reset</span>
+<span class="font-body-lg text-body-lg">Alterar Senha Mestra</span>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</button>
+<div class="mt-4 flex flex-col gap-2">
+<div class="flex items-center justify-between px-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant">AUTENTICAÇÃO EM 2 ETAPAS</span>
+<span class="text-secondary font-label-caps text-label-caps">ATIVADO</span>
+</div>
+<div class="h-1 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-full"></div>
+</div>
+</div>
+</div>
+<!-- Sessions Management -->
+<div class="bg-surface-container p-6 rounded-xl border border-outline-variant">
+<div class="flex items-center gap-4 mb-6">
+<div class="bg-secondary-container/20 p-3 rounded-lg text-secondary">
+<span class="material-symbols-outlined" data-icon="devices">devices</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Sessões Ativas</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Dispositivos conectados recentemente</p>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Session Row 1 -->
+<div class="flex items-center justify-between p-4 bg-background/50 rounded-lg border-l-4 border-secondary">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="laptop_mac">laptop_mac</span>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface">MacBook Pro 14"</p>
+<p class="font-mono-data text-mono-data text-on-surface-variant text-xs">São Paulo, BR • Atual</p>
+</div>
+</div>
+<span class="px-2 py-1 bg-secondary-container/30 text-secondary rounded text-[10px] font-bold">ESTE DISPOSITIVO</span>
+</div>
+<!-- Session Row 2 -->
+<div class="flex items-center justify-between p-4 bg-background/50 rounded-lg hover:bg-surface-variant transition-colors group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="smartphone">smartphone</span>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface">iPhone 15 Pro</p>
+<p class="font-mono-data text-mono-data text-on-surface-variant text-xs">Curitiba, BR • há 2 horas</p>
+</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity text-danger-red p-2 hover:bg-danger-red/10 rounded-full">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+</button>
+</div>
+<button class="w-full py-3 text-primary font-label-caps text-label-caps hover:bg-primary/10 rounded-lg transition-colors mt-2">
+                            ENCERRAR TODAS AS OUTRAS SESSÕES
+                        </button>
+</div>
+</div>
+</div>
+<!-- Stats & Info Sidebar -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<!-- Data Usage/Stats -->
+<div class="bg-surface-container p-6 rounded-xl border border-outline-variant flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary text-4xl mb-2" data-icon="cloud_done">cloud_done</span>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-4">SINCRONIZAÇÃO DE DADOS</h4>
+<div class="w-full space-y-4">
+<div class="flex justify-between items-end">
+<span class="text-3xl font-headline-lg text-on-surface">142</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant pb-1">itens salvos</span>
+</div>
+<div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%]"></div>
+</div>
+<p class="text-[10px] text-outline text-left">Último backup: Hoje, 14:23</p>
+</div>
+</div>
+<!-- Version Info -->
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/50">
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-4">SISTEMA</h4>
+<div class="space-y-3">
+<div class="flex justify-between">
+<span class="text-on-surface-variant font-body-sm text-body-sm">Versão</span>
+<span class="font-mono-data text-mono-data text-on-surface">v2.4.8-stable</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant font-body-sm text-body-sm">Plano</span>
+<span class="text-secondary font-label-caps text-label-caps">ENTERPRISE</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant font-body-sm text-body-sm">ID da Conta</span>
+<span class="font-mono-data text-mono-data text-on-surface text-[10px]">#SN-8821-XP</span>
+</div>
+</div>
+</div>
+<!-- Logout Button -->
+<button class="w-full mt-auto bg-danger-red text-white py-4 rounded-xl font-headline-md text-headline-md flex items-center justify-center gap-3 active:scale-95 transition-transform hover:shadow-lg hover:shadow-danger-red/20">
+<span class="material-symbols-outlined" data-icon="power_settings_new">power_settings_new</span>
+                    Sair
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center pb-safe bg-surface-container dark:bg-surface-container z-50 h-20">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-5 py-1 hover:bg-surface-bright dark:hover:bg-surface-bright transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="font-label-caps text-label-caps">Cofres</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-5 py-1 hover:bg-surface-bright dark:hover:bg-surface-bright transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+<span class="font-label-caps text-label-caps">Convites</span>
+</a>
+<!-- ACTIVE TAB: Conta -->
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container rounded-full px-5 py-1 transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-caps text-label-caps">Conta</span>
+</a>
+</nav>
+<script>
+        // Simple Micro-interactions
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('click', function(e) {
+                if(this.getAttribute('data-icon') === 'power_settings_new' || this.innerText.includes('Sair')) {
+                    if(!confirm('Deseja realmente encerrar sua sessão?')) {
+                        e.preventDefault();
+                    }
+                }
+            });
+        });
+
+        // Tonal depth effect on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-xl', 'bg-surface-container-lowest');
+                header.classList.remove('bg-background');
+            } else {
+                header.classList.remove('shadow-xl', 'bg-surface-container-lowest');
+                header.classList.add('bg-background');
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela | Configurações da Conta</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed": "#00174b",
+                    "surface-bright": "#31394d",
+                    "danger-red": "#EF4444",
+                    "on-primary": "#002a78",
+                    "slate-surface": "#1E293B",
+                    "on-tertiary-fixed": "#360f00",
+                    "on-tertiary": "#581e00",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "on-secondary-fixed-variant": "#005236",
+                    "tertiary-container": "#bc4800",
+                    "primary-fixed": "#dbe1ff",
+                    "inverse-primary": "#0053db",
+                    "on-primary-container": "#eeefff",
+                    "graphite-deep": "#020617",
+                    "on-secondary-fixed": "#002113",
+                    "surface-dim": "#0b1326",
+                    "error": "#ffb4ab",
+                    "on-tertiary-container": "#ffede6",
+                    "on-surface": "#dae2fd",
+                    "error-container": "#93000a",
+                    "surface-container-highest": "#2d3449",
+                    "on-background": "#dae2fd",
+                    "secondary": "#4edea3",
+                    "on-secondary-container": "#00311f",
+                    "primary-container": "#2563eb",
+                    "secondary-fixed": "#6ffbbe",
+                    "secondary-container": "#00a572",
+                    "on-surface-variant": "#c3c6d7",
+                    "on-error": "#690005",
+                    "surface-container-high": "#222a3d",
+                    "surface-container-low": "#131b2e",
+                    "on-secondary": "#003824",
+                    "outline": "#8d90a0",
+                    "surface-tint": "#b4c5ff",
+                    "warning-amber": "#F59E0B",
+                    "surface-variant": "#2d3449",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "tertiary-fixed": "#ffdbcd",
+                    "surface": "#0b1326",
+                    "inverse-on-surface": "#283044",
+                    "inverse-surface": "#dae2fd",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "primary": "#b4c5ff",
+                    "tertiary": "#ffb596",
+                    "background": "#0b1326",
+                    "surface-container-lowest": "#060e20",
+                    "surface-container": "#171f33",
+                    "outline-variant": "#434655",
+                    "info-cyan": "#06B6D4"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "base": "4px",
+                    "max-width": "1280px",
+                    "margin-desktop": "32px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-md": ["Manrope"],
+                    "headline-lg-mobile": ["Manrope"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Manrope"],
+                    "mono-data": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab {
+            border-bottom: 2px solid #b4c5ff;
+            color: #b4c5ff;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #171f33;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8d90a0;
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container flex flex-col py-8 z-50">
+<div class="px-8 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary leading-none">Sentinela</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1">SECURE VAULT</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col">
+<a class="text-on-surface-variant px-margin-desktop py-3 flex items-center gap-3 hover:bg-surface-container-highest transition-all group active:opacity-80" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<a class="text-on-surface-variant px-margin-desktop py-3 flex items-center gap-3 hover:bg-surface-container-highest transition-all group active:opacity-80" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<a class="text-on-surface-variant px-margin-desktop py-3 flex items-center gap-3 hover:bg-surface-container-highest transition-all group active:opacity-80" href="#">
+<span class="material-symbols-outlined">upload_file</span>
+<span class="font-label-caps text-label-caps">Import CSV</span>
+</a>
+<a class="text-primary font-bold border-l-4 border-primary bg-surface-container-high px-[28px] py-3 flex items-center gap-3 transition-all active:opacity-80" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full bg-danger-red/10 text-danger-red border border-danger-red/20 py-3 rounded-lg font-label-caps text-label-caps flex items-center justify-center gap-2 hover:bg-danger-red hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">lock_open</span>
+                Lock All Vaults
+            </button>
+<button class="w-full mt-4 text-on-surface-variant hover:text-on-surface py-3 flex items-center gap-3 transition-all px-4">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-caps text-label-caps">Logout</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Shell -->
+<div class="ml-[280px] min-h-screen flex flex-col relative">
+<!-- TopAppBar -->
+<header class="w-full h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-margin-desktop sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="bg-surface-container-low border border-outline-variant rounded-full py-2 pl-10 pr-4 text-body-sm w-80 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" placeholder="Pesquisar configurações..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="font-label-caps text-label-caps text-on-surface">Alex Santos</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Admin Account</p>
+</div>
+<img class="w-9 h-9 rounded-full border border-primary-container object-cover" data-alt="A professional headshot of a person in high-key lighting, wearing professional business attire with a neutral grey background. The image has a sharp, corporate aesthetic that matches the dark, technical theme of the password manager, emphasizing trust and professionalism in security management." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1vS4Dy8F09z-_DyhOdE1FatoJDkeAzEWwsVimH8XDWUJuQfsEFR3ohnFrMZ1XXRV9G7XrdUUiF_LRyismAAbjwn1vLgH71xzayuOGwUg2TD9-5fsVsdQeHLbjD18VEzcEyvIky_p5BVm8gl4G36soFVmbHTCa_tSVeqkDk7zd5UsnbHb95zYNP-rT6mujUaTgRdpxwrLI63SU6trhGse4xtt1EcELpztea13lCVZAvZlP0DCCG-Watw"/>
+</div>
+</div>
+</header>
+<!-- Main Scrollable Area -->
+<main class="flex-1 p-margin-desktop overflow-y-auto max-w-[1000px] mx-auto w-full">
+<header class="mb-8">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Configurações da Conta</h2>
+<p class="text-body-lg text-on-surface-variant mt-2">Gerencie suas informações pessoais, segurança e sessões ativas.</p>
+</header>
+<!-- Horizontal Tabs -->
+<div class="flex border-b border-outline-variant mb-8 gap-8">
+<button class="pb-4 font-label-caps text-label-caps active-tab transition-all" id="tab-profile" onclick="switchTab('profile')">Perfil</button>
+<button class="pb-4 font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-all" id="tab-security" onclick="switchTab('security')">Segurança</button>
+<button class="pb-4 font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-all" id="tab-sessions" onclick="switchTab('sessions')">Sessões</button>
+</div>
+<!-- Profile Tab Content -->
+<section class="space-y-6" id="content-profile">
+<div class="bg-slate-surface border border-outline-variant p-6 rounded-xl">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-6">Informações Pessoais</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Nome</label>
+<input class="bg-surface-container-low border border-outline-variant rounded-lg p-3 text-on-surface focus:ring-2 focus:ring-primary outline-none transition-all" type="text" value="Alex Santos"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">E-mail</label>
+<div class="relative">
+<input class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-on-surface-variant cursor-not-allowed" readonly="" type="email" value="alex.santos@sentinela.io"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-secondary-container/20 text-secondary px-2 py-1 rounded text-[10px] font-bold">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                    PRIMARY
+                                </div>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="bg-primary-container text-on-primary-container px-6 py-3 rounded-lg font-label-caps text-label-caps hover:brightness-110 active:scale-95 transition-all">
+                            Salvar alterações
+                        </button>
+</div>
+</div>
+</section>
+<!-- Security Tab Content (Hidden by Default) -->
+<section class="hidden space-y-6" id="content-security">
+<div class="bg-slate-surface border border-outline-variant p-6 rounded-xl">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Alterar Senha</h3>
+<p class="text-body-sm text-on-surface-variant mb-6">Mantenha sua conta segura alterando sua senha regularmente.</p>
+<div class="space-y-6 max-w-lg">
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Senha atual</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-3 text-on-surface font-mono-data focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="••••••••••••" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Nova senha</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-3 text-on-surface font-mono-data focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="••••••••••••" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Confirmar nova senha</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-3 text-on-surface font-mono-data focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="••••••••••••" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg border border-outline-variant">
+<h4 class="text-body-sm font-semibold mb-3">Requisitos de Segurança:</h4>
+<ul class="space-y-2">
+<li class="flex items-center gap-2 text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+                                    Mínimo de 8 caracteres
+                                </li>
+<li class="flex items-center gap-2 text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+                                    Pelo menos um caractere especial (!@#$%)
+                                </li>
+<li class="flex items-center gap-2 text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-outline text-[18px]">circle</span>
+                                    Pelo menos um número e uma letra maiúscula
+                                </li>
+</ul>
+</div>
+</div>
+<div class="mt-8 flex justify-start">
+<button class="bg-primary-container text-on-primary-container px-6 py-3 rounded-lg font-label-caps text-label-caps hover:brightness-110 active:scale-95 transition-all">
+                            Alterar senha
+                        </button>
+</div>
+</div>
+</section>
+<!-- Sessions Tab Content (Hidden by Default) -->
+<section class="hidden space-y-6" id="content-sessions">
+<div class="flex justify-between items-center mb-4">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Sessões Ativas</h3>
+<p class="text-body-sm text-on-surface-variant">Histórico de dispositivos que acessaram sua conta.</p>
+</div>
+<button class="text-danger-red border border-danger-red/20 hover:bg-danger-red/10 px-4 py-2 rounded-lg font-label-caps text-label-caps transition-all">
+                        Encerrar outras sessões
+                    </button>
+</div>
+<div class="bg-slate-surface border border-outline-variant rounded-xl divide-y divide-outline-variant">
+<!-- Session Item 1 (Current) -->
+<div class="p-6 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[28px]">desktop_windows</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<p class="font-body-lg text-body-lg font-bold">Chrome em Windows 11</p>
+<span class="bg-secondary/10 text-secondary text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider">Sessão Atual</span>
+</div>
+<div class="flex items-center gap-3 mt-1">
+<p class="text-body-sm text-on-surface-variant font-mono-data">189.120.44.21</p>
+<span class="w-1 h-1 bg-outline rounded-full"></span>
+<p class="text-body-sm text-on-surface-variant">São Paulo, Brasil</p>
+</div>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[11px] text-on-surface-variant uppercase font-bold mb-2">Visto pela última vez</p>
+<p class="text-body-sm font-semibold">Agora mesmo</p>
+</div>
+</div>
+<!-- Session Item 2 -->
+<div class="p-6 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[28px]">smartphone</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg font-bold">iPhone 14 Pro Max</p>
+<div class="flex items-center gap-3 mt-1">
+<p class="text-body-sm text-on-surface-variant font-mono-data">177.34.122.90</p>
+<span class="w-1 h-1 bg-outline rounded-full"></span>
+<p class="text-body-sm text-on-surface-variant">Rio de Janeiro, Brasil</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<p class="text-[11px] text-on-surface-variant uppercase font-bold mb-2">Visto pela última vez</p>
+<p class="text-body-sm font-semibold">Há 2 horas</p>
+</div>
+<button class="text-on-surface-variant hover:text-danger-red p-2 rounded-lg hover:bg-danger-red/10 transition-all active:scale-95">
+<span class="material-symbols-outlined">logout</span>
+</button>
+</div>
+</div>
+<!-- Session Item 3 -->
+<div class="p-6 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[28px]">laptop_mac</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg font-bold">Safari em macOS Sonoma</p>
+<div class="flex items-center gap-3 mt-1">
+<p class="text-body-sm text-on-surface-variant font-mono-data">191.56.201.44</p>
+<span class="w-1 h-1 bg-outline rounded-full"></span>
+<p class="text-body-sm text-on-surface-variant">Curitiba, Brasil</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<p class="text-[11px] text-on-surface-variant uppercase font-bold mb-2">Visto pela última vez</p>
+<p class="text-body-sm font-semibold">12 de Out, 2023</p>
+</div>
+<button class="text-on-surface-variant hover:text-danger-red p-2 rounded-lg hover:bg-danger-red/10 transition-all active:scale-95">
+<span class="material-symbols-outlined">logout</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- Script for Tab Switching -->
+<script>
+        function switchTab(tabId) {
+            // Hide all contents
+            document.getElementById('content-profile').classList.add('hidden');
+            document.getElementById('content-security').classList.add('hidden');
+            document.getElementById('content-sessions').classList.add('hidden');
+            
+            // Remove active style from all buttons
+            document.getElementById('tab-profile').classList.remove('active-tab', 'text-on-surface');
+            document.getElementById('tab-security').classList.remove('active-tab', 'text-on-surface');
+            document.getElementById('tab-sessions').classList.remove('active-tab', 'text-on-surface');
+            document.getElementById('tab-profile').classList.add('text-on-surface-variant');
+            document.getElementById('tab-security').classList.add('text-on-surface-variant');
+            document.getElementById('tab-sessions').classList.add('text-on-surface-variant');
+
+            // Show selected content and style selected button
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.add('active-tab', 'text-on-surface');
+            activeBtn.classList.remove('text-on-surface-variant');
+        }
+
+        // Initialize tooltips or simple UI logic if needed
+        document.querySelectorAll('input[type="password"]').forEach(input => {
+            const btn = input.nextElementSibling;
+            if (btn && btn.tagName === 'BUTTON') {
+                btn.addEventListener('click', () => {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    btn.querySelector('span').textContent = type === 'password' ? 'visibility' : 'visibility_off';
+                });
+            }
+        });
+    </script>
+</body></html>

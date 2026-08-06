@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Detalhes do Cofre</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Config Verbatim -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary": "#003824",
+                    "on-error": "#690005",
+                    "danger-red": "#EF4444",
+                    "secondary": "#4edea3",
+                    "secondary-fixed": "#6ffbbe",
+                    "surface-bright": "#31394d",
+                    "error-container": "#93000a",
+                    "surface-container-low": "#131b2e",
+                    "surface-variant": "#2d3449",
+                    "surface-container-highest": "#2d3449",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "tertiary-fixed": "#ffdbcd",
+                    "on-surface": "#dae2fd",
+                    "on-secondary-fixed": "#002113",
+                    "tertiary": "#ffb596",
+                    "info-cyan": "#06B6D4",
+                    "inverse-primary": "#0053db",
+                    "primary-fixed": "#dbe1ff",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-container-lowest": "#060e20",
+                    "warning-amber": "#F59E0B",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-fixed": "#360f00",
+                    "on-error-container": "#ffdad6",
+                    "slate-surface": "#1E293B",
+                    "primary": "#b4c5ff",
+                    "surface-container-high": "#222a3d",
+                    "outline": "#8d90a0",
+                    "surface-container": "#171f33",
+                    "on-primary-fixed": "#00174b",
+                    "secondary-container": "#00a572",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "surface-dim": "#0b1326",
+                    "on-primary-container": "#eeefff",
+                    "on-tertiary": "#581e00",
+                    "on-secondary-container": "#00311f",
+                    "tertiary-container": "#bc4800",
+                    "on-background": "#dae2fd",
+                    "error": "#ffb4ab",
+                    "inverse-surface": "#dae2fd",
+                    "surface-tint": "#b4c5ff",
+                    "on-surface-variant": "#c3c6d7",
+                    "background": "#0b1326",
+                    "inverse-on-surface": "#283044",
+                    "outline-variant": "#434655",
+                    "surface": "#0b1326",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-primary": "#002a78",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary-container": "#ffede6",
+                    "primary-container": "#2563eb",
+                    "graphite-deep": "#020617"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-desktop": "32px",
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px",
+                    "max-width": "1280px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Inter"],
+                    "headline-lg-mobile": ["Manrope"],
+                    "headline-lg": ["Manrope"],
+                    "mono-data": ["JetBrains Mono"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Manrope"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        /* Custom scrollbar for minimalist look */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0b1326; }
+        ::-webkit-scrollbar-thumb { background: #2d3449; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #434655; }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- SideNavBar (Mandatory from JSON) -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container dark:bg-surface-container flex flex-col py-8 z-50">
+<div class="px-8 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">Sentinela</h1>
+<p class="text-label-caps font-label-caps text-on-surface-variant uppercase opacity-70">Secure Vault</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active State Logic: Vaults is active for 'Detalhes do Cofre' -->
+<a class="flex items-center gap-4 text-primary font-bold border-l-4 border-primary bg-surface-container-high px-8 py-3 transition-all" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-8 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">mail</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-8 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">upload_file</span>
+<span class="font-label-caps text-label-caps">Import CSV</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-8 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="px-8 mt-auto">
+<button class="w-full py-3 px-4 bg-error-container text-on-error-container font-label-caps text-label-caps rounded-lg flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all mb-8">
+<span class="material-symbols-outlined text-[18px]">lock_reset</span>
+                Lock All Vaults
+            </button>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:text-danger-red transition-all group" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-caps text-label-caps">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="ml-[280px] min-h-screen flex flex-col bg-background">
+<!-- TopAppBar (Mandatory from JSON) -->
+<header class="w-full h-16 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant flex justify-between items-center px-margin-desktop sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 w-64 text-body-sm font-body-sm focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/50 transition-all" placeholder="Pesquisar no Sentinela..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant"></div>
+<div class="flex items-center gap-3 group cursor-pointer">
+<div class="text-right hidden xl:block">
+<p class="font-label-caps text-label-caps text-on-surface">Alexandre Costa</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Premium Plan</p>
+</div>
+<img class="w-10 h-10 rounded-full border border-outline-variant group-hover:border-primary transition-colors" data-alt="Close-up professional portrait of a tech executive with a confident expression, neutral background, cinematic studio lighting, shot on 85mm lens, corporate modern style with deep shadows and sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUOYSX_Lz6WGWEKDniwWHq6l7FrrKRnUiek3AJ70ZRJbvW6IC9WzY_LlDCxGH1uDkHr5JKGY1zMD3N64OYIkrfmf4B6pjZdVGkiEJx6fkgU16bVzr-0S-P0mICtxttRk6lReWvzTe2LrSEdptJivhJflKoIYsTeK50CNaUKsqfpBtJSkotDRuIpqBTyXjC7NGhGV2aw0UgCxvSTESgp1U4btwLsJuQTRH_EtKDVsIpl8Kvv8qw3bcB2Q"/>
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<main class="flex-1 p-margin-desktop overflow-y-auto">
+<div class="max-w-max-width mx-auto">
+<!-- Breadcrumbs & Header Section -->
+<nav class="mb-6">
+<ul class="flex items-center gap-2 text-on-surface-variant font-label-caps text-label-caps uppercase tracking-widest">
+<li><a class="hover:text-primary transition-colors" href="#">Vaults</a></li>
+<li><span class="material-symbols-outlined text-sm">chevron_right</span></li>
+<li class="text-on-surface">Trabalho Profissional</li>
+</ul>
+</nav>
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">folder_shared</span>
+                            Trabalho Profissional
+                        </h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant mt-1">Gerencie credenciais e acessos corporativos com criptografia de ponta a ponta.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 rounded border border-outline-variant text-on-surface font-label-caps text-label-caps flex items-center gap-2 hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined text-lg">settings</span>
+                            Configurar
+                        </button>
+</div>
+</div>
+<!-- Empty State (W09) -->
+<div class="mt-16 flex flex-col items-center justify-center text-center">
+<div class="relative mb-8 group">
+<!-- Glassmorphism Effect for the Illustration Base -->
+<div class="absolute -inset-10 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all duration-700"></div>
+<!-- Illustration: Web Browser with Plus Sign -->
+<div class="relative w-48 h-48 flex items-center justify-center">
+<div class="absolute inset-0 bg-surface-container-high rounded-2xl border border-outline-variant shadow-2xl transform -rotate-3 transition-transform group-hover:rotate-0 duration-500 overflow-hidden">
+<div class="h-6 w-full bg-surface-container-highest border-b border-outline-variant flex items-center px-3 gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-danger-red/40"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-warning-amber/40"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-secondary/40"></div>
+</div>
+</div>
+<div class="relative w-40 h-40 bg-slate-surface rounded-xl border border-primary/30 flex flex-col items-center justify-center shadow-xl transform translate-y-2 translate-x-2 transition-transform group-hover:translate-y-0 group-hover:translate-x-0 duration-500">
+<span class="material-symbols-outlined text-6xl text-primary/40 mb-2">language</span>
+<div class="absolute -top-3 -right-3 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg border-4 border-background animate-bounce-subtle">
+<span class="material-symbols-outlined text-on-primary font-bold">add</span>
+</div>
+<div class="flex gap-2 opacity-20">
+<div class="w-12 h-1 bg-outline rounded-full"></div>
+<div class="w-8 h-1 bg-outline rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3">Este cofre ainda não possui sites.</h3>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-md mb-10 leading-relaxed">
+                        Adicione os sites e aplicações que você deseja proteger neste espaço. Organizamos tudo para que você tenha acesso rápido e seguro.
+                    </p>
+<button class="bg-primary-container text-on-primary-container hover:brightness-110 active:scale-95 px-8 py-4 rounded-xl font-headline-md text-[18px] font-bold flex items-center gap-3 shadow-lg shadow-primary-container/20 transition-all">
+<span class="material-symbols-outlined">add_circle</span>
+                        Adicionar primeiro site
+                    </button>
+<div class="mt-12 flex items-center gap-8 text-on-surface-variant/40 font-label-caps text-label-caps">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">encrypted</span>
+                            AES-256 Enabled
+                        </div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">sync</span>
+                            Cloud Sync
+                        </div>
+</div>
+</div>
+<!-- Subtle Background Grid/Pattern -->
+<div class="fixed inset-0 pointer-events-none z-[-1] opacity-20" style="background-image: radial-gradient(#2d3449 0.5px, transparent 0.5px); background-size: 24px 24px;"></div>
+</div>
+</main>
+</div>
+<style>
+        @keyframes bounce-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-bounce-subtle {
+            animation: bounce-subtle 3s ease-in-out infinite;
+        }
+    </style>
+<script>
+        // Simple micro-interaction for buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                let ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+    </script>
+</body></html>

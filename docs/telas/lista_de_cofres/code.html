@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Vaults</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Manrope:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#6ffbbe",
+                    "inverse-on-surface": "#283044",
+                    "surface": "#0b1326",
+                    "secondary": "#4edea3",
+                    "surface-container-high": "#222a3d",
+                    "surface-bright": "#31394d",
+                    "info-cyan": "#06B6D4",
+                    "on-secondary": "#003824",
+                    "surface-container-lowest": "#060e20",
+                    "warning-amber": "#F59E0B",
+                    "on-tertiary": "#581e00",
+                    "background": "#0b1326",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-primary": "#002a78",
+                    "on-primary-fixed": "#00174b",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary-fixed": "#360f00",
+                    "on-surface-variant": "#c3c6d7",
+                    "secondary-fixed-dim": "#4edea3",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "on-primary-container": "#eeefff",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "tertiary-container": "#bc4800",
+                    "surface-variant": "#2d3449",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "inverse-primary": "#0053db",
+                    "tertiary": "#ffb596",
+                    "surface-tint": "#b4c5ff",
+                    "on-background": "#dae2fd",
+                    "slate-surface": "#1E293B",
+                    "surface-dim": "#0b1326",
+                    "outline": "#8d90a0",
+                    "outline-variant": "#434655",
+                    "on-secondary-container": "#00311f",
+                    "primary-fixed": "#dbe1ff",
+                    "graphite-deep": "#020617",
+                    "inverse-surface": "#dae2fd",
+                    "secondary-container": "#00a572",
+                    "on-error": "#690005",
+                    "error-container": "#93000a",
+                    "primary": "#b4c5ff",
+                    "on-error-container": "#ffdad6",
+                    "surface-container-highest": "#2d3449",
+                    "on-tertiary-container": "#ffede6",
+                    "danger-red": "#EF4444",
+                    "surface-container": "#171f33",
+                    "on-secondary-fixed": "#002113",
+                    "primary-container": "#2563eb",
+                    "on-surface": "#dae2fd",
+                    "error": "#ffb4ab",
+                    "tertiary-fixed": "#ffdbcd",
+                    "surface-container-low": "#131b2e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "max-width": "1280px",
+                    "margin-desktop": "32px",
+                    "base": "4px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Manrope"],
+                    "mono-data": ["JetBrains Mono"],
+                    "body-lg": ["Inter"],
+                    "headline-lg-mobile": ["Manrope"],
+                    "label-caps": ["Inter"],
+                    "headline-md": ["Manrope"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .vault-card-glow:active {
+            box-shadow: 0 0 15px rgba(180, 197, 255, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-lg text-body-lg-mobile selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar Execution -->
+<header class="bg-background border-b border-outline-variant full-width top-0 sticky z-50 flex justify-between items-center px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl">security</span>
+<h1 class="font-headline-md text-headline-md-mobile font-bold text-primary">Sentinela</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors active:scale-95 duration-100">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+</header>
+<main class="pb-32 px-margin-mobile pt-4">
+<!-- Search Bar -->
+<div class="relative w-full mb-6 group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
+</div>
+<input class="w-full h-14 bg-surface-container border border-outline-variant rounded-xl pl-12 pr-4 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-transparent transition-all placeholder:text-on-surface-variant" placeholder="Search vaults" type="text"/>
+</div>
+<!-- Section Title & Filters -->
+<section class="mb-6">
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-headline-md text-headline-md-mobile text-on-surface">Vaults</h2>
+<span class="text-label-caps font-label-caps text-on-surface-variant bg-surface-variant px-2 py-1 rounded">3 TOTAL</span>
+</div>
+<div class="flex gap-2 overflow-x-auto no-scrollbar">
+<button class="px-5 py-2 rounded-full bg-primary-container text-on-primary-container text-label-caps font-label-caps transition-all active:scale-95">All</button>
+<button class="px-5 py-2 rounded-full bg-surface-container border border-outline-variant text-on-surface-variant text-label-caps font-label-caps hover:bg-surface-variant transition-all active:scale-95">Private</button>
+<button class="px-5 py-2 rounded-full bg-surface-container border border-outline-variant text-on-surface-variant text-label-caps font-label-caps hover:bg-surface-variant transition-all active:scale-95">Shared</button>
+</div>
+</section>
+<!-- Vault List (Bento-style Cards) -->
+<div class="bento-grid">
+<!-- Vault Card 1 -->
+<div class="bg-surface-container border border-outline-variant rounded-xl p-5 hover:bg-surface-container-high transition-all active:scale-[0.98] vault-card-glow group">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl">shield_person</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface">Personal</h3>
+<p class="text-body-sm text-on-surface-variant">Primary vault for private accounts</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">more_vert</span>
+</div>
+<div class="grid grid-cols-2 gap-3 mt-4">
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/30">
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-1 uppercase">Role</p>
+<p class="text-body-sm font-semibold text-secondary">Owner</p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/30">
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-1 uppercase">Items</p>
+<p class="text-body-sm font-semibold text-on-surface">12 sites</p>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/50 flex justify-between items-center">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">lock</span>
+<span class="text-body-sm text-on-surface-variant">Private</span>
+</div>
+<span class="text-label-caps font-label-caps text-on-surface-variant opacity-60">Updated 2h ago</span>
+</div>
+</div>
+<!-- Vault Card 2 -->
+<div class="bg-surface-container border border-outline-variant rounded-xl p-5 hover:bg-surface-container-high transition-all active:scale-[0.98] group">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-3xl">work</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface">Work Project</h3>
+<p class="text-body-sm text-on-surface-variant">Credentials for Project Phoenix</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">more_vert</span>
+</div>
+<div class="grid grid-cols-2 gap-3 mt-4">
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/30">
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-1 uppercase">Role</p>
+<p class="text-body-sm font-semibold text-on-surface">Editor</p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/30">
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-1 uppercase">Items</p>
+<p class="text-body-sm font-semibold text-on-surface">45 sites</p>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/50 flex justify-between items-center">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-secondary">group</span>
+<span class="text-body-sm text-on-surface-variant">Shared (8 members)</span>
+</div>
+<span class="text-label-caps font-label-caps text-on-surface-variant opacity-60">Updated 5m ago</span>
+</div>
+</div>
+<!-- Vault Card 3 -->
+<div class="bg-surface-container border border-outline-variant rounded-xl p-5 hover:bg-surface-container-high transition-all active:scale-[0.98] group">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-tertiary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary text-3xl">family_restroom</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface">Family Share</h3>
+<p class="text-body-sm text-on-surface-variant">Netflix, Utilities, and Banking</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-tertiary transition-colors">more_vert</span>
+</div>
+<div class="grid grid-cols-2 gap-3 mt-4">
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/30">
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-1 uppercase">Role</p>
+<p class="text-body-sm font-semibold text-secondary">Owner</p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/30">
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-1 uppercase">Items</p>
+<p class="text-body-sm font-semibold text-on-surface">8 sites</p>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/50 flex justify-between items-center">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-tertiary">group</span>
+<span class="text-body-sm text-on-surface-variant">Shared (3 members)</span>
+</div>
+<span class="text-label-caps font-label-caps text-on-surface-variant opacity-60">Updated Yesterday</span>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for New Vault -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary text-on-primary rounded-2xl shadow-xl flex items-center justify-center active:scale-90 transition-all duration-150 z-40">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<!-- BottomNavBar Execution -->
+<nav class="fixed bottom-0 w-full z-50 h-20 bg-surface-container border-t border-outline-variant shadow-sm flex justify-around items-center px-4">
+<!-- Vaults (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1 active:scale-90 duration-150 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<!-- Invitations -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">group_add</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<!-- Account -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps">Account</span>
+</a>
+</nav>
+<!-- Micro-interaction script for ripple effect on vault cards -->
+<script>
+        document.querySelectorAll('.vault-card-glow').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('span');
+                ripple.style.position = 'absolute';
+                ripple.style.width = '100px';
+                ripple.style.height = '100px';
+                ripple.style.background = 'rgba(180, 197, 255, 0.2)';
+                ripple.style.borderRadius = '50%';
+                ripple.style.pointerEvents = 'none';
+                ripple.style.left = `${x - 50}px`;
+                ripple.style.top = `${y - 50}px`;
+                ripple.style.transform = 'scale(0)';
+                ripple.style.animation = 'ripple-effect 0.6s ease-out';
+                
+                card.style.position = 'relative';
+                card.style.overflow = 'hidden';
+                card.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes ripple-effect {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body></html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinela - Convites</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #0b1326;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-effect {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.5);
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary": "#003824",
+                      "on-error": "#690005",
+                      "danger-red": "#EF4444",
+                      "secondary": "#4edea3",
+                      "secondary-fixed": "#6ffbbe",
+                      "surface-bright": "#31394d",
+                      "error-container": "#93000a",
+                      "surface-container-low": "#131b2e",
+                      "surface-variant": "#2d3449",
+                      "surface-container-highest": "#2d3449",
+                      "tertiary-fixed-dim": "#ffb596",
+                      "tertiary-fixed": "#ffdbcd",
+                      "on-surface": "#dae2fd",
+                      "on-secondary-fixed": "#002113",
+                      "tertiary": "#ffb596",
+                      "info-cyan": "#06B6D4",
+                      "inverse-primary": "#0053db",
+                      "primary-fixed": "#dbe1ff",
+                      "on-secondary-fixed-variant": "#005236",
+                      "surface-container-lowest": "#060e20",
+                      "warning-amber": "#F59E0B",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-tertiary-fixed": "#360f00",
+                      "on-error-container": "#ffdad6",
+                      "slate-surface": "#1E293B",
+                      "primary": "#b4c5ff",
+                      "surface-container-high": "#222a3d",
+                      "outline": "#8d90a0",
+                      "surface-container": "#171f33",
+                      "on-primary-fixed": "#00174b",
+                      "secondary-container": "#00a572",
+                      "on-tertiary-fixed-variant": "#7d2d00",
+                      "surface-dim": "#0b1326",
+                      "on-primary-container": "#eeefff",
+                      "on-tertiary": "#581e00",
+                      "on-secondary-container": "#00311f",
+                      "tertiary-container": "#bc4800",
+                      "on-background": "#dae2fd",
+                      "error": "#ffb4ab",
+                      "inverse-surface": "#dae2fd",
+                      "surface-tint": "#b4c5ff",
+                      "on-surface-variant": "#c3c6d7",
+                      "background": "#0b1326",
+                      "inverse-on-surface": "#283044",
+                      "outline-variant": "#434655",
+                      "surface": "#0b1326",
+                      "secondary-fixed-dim": "#4edea3",
+                      "on-primary": "#002a78",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary-container": "#ffede6",
+                      "primary-container": "#2563eb",
+                      "graphite-deep": "#020617"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-desktop": "32px",
+                      "base": "4px",
+                      "margin-mobile": "16px",
+                      "gutter": "16px",
+                      "max-width": "1280px"
+              },
+              "fontFamily": {
+                      "label-caps": ["Inter"],
+                      "headline-lg": ["Manrope"],
+                      "mono-data": ["JetBrains Mono"],
+                      "body-lg": ["Inter"],
+                      "headline-md": ["Manrope"],
+                      "body-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-lg overflow-hidden">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container dark:bg-surface-container flex flex-col h-full py-8 z-50">
+<div class="px-8 mb-10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">Sentinela</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Secure Vault</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="font-label-caps text-label-caps">Vaults</span>
+</a>
+<!-- Active State for Invitations (Convites) -->
+<a class="flex items-center gap-3 text-primary font-bold border-l-4 border-primary bg-surface-container-high px-4 py-3 transition-all rounded-r-lg" href="#">
+<span class="material-symbols-outlined" data-icon="mail" style="font-variation-settings: 'FILL' 1;">mail</span>
+<span class="font-label-caps text-label-caps">Invitations</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="upload_file">upload_file</span>
+<span class="font-label-caps text-label-caps">Import CSV</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="px-8 mb-6">
+<button class="w-full py-3 bg-error-container text-on-error-container font-bold rounded-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-sm">lock_reset</span>
+<span class="text-xs uppercase tracking-tighter">Lock All Vaults</span>
+</button>
+</div>
+<div class="px-4 pt-4 border-t border-outline-variant">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:text-on-surface hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-caps text-label-caps">Logout</span>
+</a>
+</div>
+</aside>
+<!-- TopAppBar Anchor -->
+<header class="fixed top-0 right-0 left-[280px] h-16 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant flex justify-between items-center px-margin-desktop z-40">
+<div class="flex items-center">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 w-64 text-body-sm font-body-sm focus:ring-2 focus:ring-primary transition-all" placeholder="Search invitations..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant"></div>
+<div class="flex items-center gap-3 cursor-pointer hover:bg-surface-container-highest p-1 pr-3 rounded-full transition-colors">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border border-primary">
+<img class="w-full h-full object-cover" data-alt="A professional close-up headshot of a secure software engineer in a high-tech corporate office, soft blue rim lighting, minimalist dark background, cinematic style, sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB69_xpTnSG5DQVVcPBaXMp-RIksoqVv3ocH7Z7bhTt5dZzaQKBLoeChlAKruTHxf6H7DEkfsoeTauMer2BjBLj4wCBmnWpBkJkN_xhySujM7rwgWC2-yltnFvmR0JiYId8wiP_QzvuLAkyH7A2ke5V9qc6yyzF5kQyCQOP2enYT_fP7276iEGYhhK2eLzicMJ4QcJxQoqyF52KSzPX-NS0vTmeeB2lVUvtMq61NeHsKtIsHn3IKqyE5Q"/>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface hidden xl:block">Admin User</span>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-[280px] pt-16 h-screen flex flex-col items-center justify-center relative">
+<!-- Subtle Background Animation -->
+<div class="absolute inset-0 z-0 pointer-events-none opacity-20">
+
+</div>
+<!-- Empty State Container -->
+<div class="relative z-10 max-w-xl text-center px-margin-desktop">
+<!-- Hero Illustration with Bento-style card -->
+<div class="mb-12 relative flex justify-center">
+<div class="w-64 h-64 glass-effect rounded-[2rem] flex items-center justify-center shadow-2xl relative overflow-hidden animate-float">
+<!-- Decorative patterns inside the illustration card -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, #b4c5ff 1px, transparent 0); background-size: 24px 24px;"></div>
+<div class="relative">
+<!-- Main Icon Cluster -->
+<div class="relative z-10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[120px] text-primary transition-all transform hover:scale-110 duration-500" style="font-variation-settings: 'FILL' 0, 'wght' 200;">
+                                mark_as_unread
+                            </span>
+<div class="absolute -bottom-2 -right-2 w-16 h-16 bg-surface-container-highest rounded-full border-4 border-background flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-secondary text-3xl" style="font-variation-settings: 'FILL' 1;">
+                                    lock
+                                </span>
+</div>
+</div>
+</div>
+<!-- Ambient Glow -->
+<div class="absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-10 bg-primary/20 blur-3xl rounded-full"></div>
+</div>
+<!-- Floating Decorative Icons -->
+<div class="absolute -top-4 -left-8 glass-effect w-14 h-14 rounded-xl flex items-center justify-center text-on-surface-variant animate-bounce" style="animation-duration: 4s;">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<div class="absolute bottom-4 -right-10 glass-effect w-16 h-16 rounded-full flex items-center justify-center text-on-surface-variant animate-bounce" style="animation-duration: 5s;">
+<span class="material-symbols-outlined">group_add</span>
+</div>
+</div>
+<!-- Content -->
+<div class="space-y-4">
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+                    Você não possui convites pendentes.
+                </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto leading-relaxed">
+                    Quando alguém compartilhar um cofre com você, o convite aparecerá aqui para sua aprovação. Fique atento às suas notificações.
+                </p>
+</div>
+<!-- Action Area -->
+<div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+<button class="px-8 py-3 bg-primary text-on-primary font-bold rounded-lg flex items-center gap-2 hover:bg-primary-fixed-dim transition-colors active:scale-95">
+<span class="material-symbols-outlined">refresh</span>
+                    Verificar agora
+                </button>
+<button class="px-8 py-3 border border-outline-variant text-on-surface hover:bg-surface-container-highest transition-colors rounded-lg flex items-center gap-2 active:scale-95">
+<span class="material-symbols-outlined">help_outline</span>
+                    Saiba como funciona
+                </button>
+</div>
+</div>
+<!-- Footer / Security Note -->
+<div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 text-on-surface-variant/40">
+<span class="material-symbols-outlined text-sm">verified_user</span>
+<span class="text-[10px] uppercase tracking-widest font-bold">Protocolo de Criptografia de Ponta-a-Ponta Ativo</span>
+</div>
+</main>
+<!-- Toast Mockup (Interaction Feedback) -->
+<div class="fixed bottom-8 right-8 glass-effect border-l-4 border-secondary px-6 py-4 rounded-lg transform translate-y-20 transition-transform duration-300 z-50 flex items-center gap-4 shadow-xl opacity-0" id="toast">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<div>
+<p class="font-bold text-on-surface text-sm">Lista Atualizada</p>
+<p class="text-on-surface-variant text-xs">Nenhum novo convite encontrado.</p>
+</div>
+</div>
+<script>
+        // Simple Micro-interaction for the "Verificar agora" button
+        const verifyBtn = document.querySelector('button.bg-primary');
+        const toast = document.getElementById('toast');
+
+        verifyBtn.addEventListener('click', () => {
+            verifyBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Buscando...';
+            verifyBtn.classList.add('opacity-80', 'cursor-not-allowed');
+
+            setTimeout(() => {
+                verifyBtn.innerHTML = '<span class="material-symbols-outlined">refresh</span> Verificar agora';
+                verifyBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+                
+                // Show Toast
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 4000);
+            }, 1500);
+        });
+    </script>
+</body></html>
