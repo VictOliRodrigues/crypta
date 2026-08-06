@@ -26,6 +26,7 @@ Um ADR publicado não é reescrito. Quando uma decisão muda, cria-se um novo AD
 | [0010](0010-session-strategy.md)              | Sessões com refresh token rotacionado       | ACCEPTED |
 | [0011](0011-github-release-flow.md)           | Fluxo de branches, versões e releases       | ACCEPTED |
 | [0012](0012-immutable-artifact-promotion.md)  | Build único na RC e promoção por digest     | ACCEPTED |
+| [0013](0013-agpl-license.md)                  | Licença AGPL-3.0                            | ACCEPTED |
 
 ## Decisões ainda em aberto
 

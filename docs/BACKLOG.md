@@ -118,22 +118,22 @@ Uma tarefa somente poderá ser considerada `DONE` quando:
 
 > Atualizado em 5 de agosto de 2026.
 
-| Item     | Status  | Observação                                                                                                                                                                                            |
-| -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BLG-0001 | BACKLOG | Repositório ainda não criado no GitHub. Depende do proprietário.                                                                                                                                      |
-| BLG-0002 | DONE    | `.gitignore`, `.editorconfig`, `.env.example`, `VERSION`, `docs/decisions/`, a documentação reorganizada e os templates de `.github/` (PR, issues e `release.yml`). Falta `LICENSE` — ver `PEND-016`. |
-| BLG-0003 | BACKLOG | Configuração manual do GitHub. Depende do proprietário — ver `config_user.md`.                                                                                                                        |
-| BLG-0004 | BACKLOG | Rulesets. Depende de BLG-0003 e de os workflows terem rodado ao menos uma vez.                                                                                                                        |
-| BLG-0005 | DONE    | ADRs 0001 a 0012 em `docs/decisions/`, linkados no `README.md`, em `DECISIONS.md` e em `ARCHITECTURE.md` secao 51.                                                                                    |
-| BLG-0101 | DONE    | Workspaces criados. `apps/mobile` é apenas README: entra na R0.7.                                                                                                                                     |
-| BLG-0102 | DONE    | `@crypta/tsconfig` com `strict`, `noUncheckedIndexedAccess` e `exactOptionalPropertyTypes`; aliases configurados.                                                                                     |
-| BLG-0103 | DONE    | `@crypta/eslint-config` (flat config) com variantes React e Nest; Prettier na raiz.                                                                                                                   |
-| BLG-0104 | PARCIAL | Vitest nos packages e na Web, Jest e Supertest na API. Testes de integração com MySQL entram na R0.2.                                                                                                 |
-| BLG-0105 | BACKLOG | Hooks locais (Husky/lint-staged) ainda não avaliados.                                                                                                                                                 |
-| BLG-0201 | DONE    | `ci.yml` com format, lint, typecheck, test, build e validação do schema Prisma.                                                                                                                       |
-| BLG-0202 | PARCIAL | `pnpm audit --audit-level high` na CI e Dependabot configurado. Falta container scan (`PEND-019`).                                                                                                    |
+| Item     | Status  | Observação                                                                                                                                                                     |
+| -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| BLG-0001 | BACKLOG | Repositório ainda não criado no GitHub. Depende do proprietário.                                                                                                               |
+| BLG-0002 | DONE    | `.gitignore`, `.editorconfig`, `.env.example`, `VERSION`, `LICENSE`, `docs/decisions/`, a documentação reorganizada e os templates de `.github/` (PR, issues e `release.yml`). |
+| BLG-0003 | BACKLOG | Configuração manual do GitHub. Depende do proprietário — ver `config_user.md`.                                                                                                 |
+| BLG-0004 | BACKLOG | Rulesets. Depende de BLG-0003 e de os workflows terem rodado ao menos uma vez.                                                                                                 |
+| BLG-0005 | DONE    | ADRs 0001 a 0012 em `docs/decisions/`, linkados no `README.md`, em `DECISIONS.md` e em `ARCHITECTURE.md` secao 51.                                                             |
+| BLG-0101 | DONE    | Workspaces criados. `apps/mobile` é apenas README: entra na R0.7.                                                                                                              |
+| BLG-0102 | DONE    | `@crypta/tsconfig` com `strict`, `noUncheckedIndexedAccess` e `exactOptionalPropertyTypes`; aliases configurados.                                                              |
+| BLG-0103 | DONE    | `@crypta/eslint-config` (flat config) com variantes React e Nest; Prettier na raiz.                                                                                            |
+| BLG-0104 | PARCIAL | Vitest nos packages e na Web, Jest e Supertest na API. Testes de integração com MySQL entram na R0.2.                                                                          |
+| BLG-0105 | BACKLOG | Hooks locais (Husky/lint-staged) ainda não avaliados.                                                                                                                          |
+| BLG-0201 | DONE    | `ci.yml` com format, lint, typecheck, test, build e validação do schema Prisma.                                                                                                |
+| BLG-0202 | PARCIAL | `pnpm audit --audit-level high` na CI e Dependabot configurado. Falta container scan (`PEND-019`).                                                                             |
 
-Licença ainda não definida (`PEND-016`): `package.json` está com `UNLICENSED` até a decisão ser tomada.
+Licença definida em DEC-040 / [ADR 0013](decisions/0013-agpl-license.md): `AGPL-3.0-only`, com o `LICENSE` na raiz e o identificador SPDX no `package.json`.
 
 Nenhuma tarefa da R0.2 em diante foi iniciada.
 
@@ -153,7 +153,7 @@ Nenhuma tarefa da R0.2 em diante foi iniciada.
 ### Tarefas
 
 - [ ] Criar repositório no GitHub.
-- [ ] Definir licença inicial ou registrar a decisão pendente.
+- [x] Definir licença inicial ou registrar a decisão pendente. — `AGPL-3.0-only`, ADR 0013.
 - [ ] Adicionar descrição do projeto.
 - [ ] Configurar visibilidade pública.
 - [ ] Revisar o conteúdo antes do primeiro push.
@@ -179,7 +179,7 @@ Nenhuma tarefa da R0.2 em diante foi iniciada.
 - [ ] Criar `.gitignore`.
 - [ ] Criar `.editorconfig`.
 - [ ] Criar `.env.example`.
-- [ ] Criar `LICENSE` quando a decisão estiver fechada.
+- [x] Criar `LICENSE` quando a decisão estiver fechada. — texto literal da FSF.
 - [ ] Criar `README.md`.
 - [ ] Criar `CONTRIBUTING.md`.
 - [ ] Criar `CLAUDE.md`.
