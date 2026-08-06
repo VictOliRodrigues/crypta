@@ -21,6 +21,21 @@ jobs:
   build-and-deploy:
     name: Construir e implantar development
     runs-on: ubuntu-latest
+
+    # O ambiente de development só existe a partir da R0.1. Até as repository
+    # variables serem criadas, `WEB_IMAGE` e `API_IMAGE` ficam vazias, as tags
+    # viram referências Docker inválidas e o build falha — deixando a branch
+    # padrão com um run vermelho permanente desde o primeiro push.
+    #
+    # A condição faz o job ser pulado, e não falhar, enquanto a infraestrutura
+    # não existir. Assim que as variables forem configuradas, ele passa a rodar
+    # sozinho, sem precisar editar este arquivo.
+    #
+    # Só `vars` pode ser consultada aqui: o contexto `secrets` não está
+    # disponível em `if` no nível do job. Os secrets do Coolify são criados
+    # junto com as variables, na mesma etapa da R0.1.
+    if: vars.WEB_IMAGE != '' && vars.API_IMAGE != ''
+
     environment:
       name: development
       url: ${{ vars.APP_URL }}

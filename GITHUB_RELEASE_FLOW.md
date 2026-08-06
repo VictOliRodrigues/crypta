@@ -1011,6 +1011,11 @@ jobs:
   build-and-deploy:
     name: Construir e implantar development
     runs-on: ubuntu-latest
+
+    # Pulado enquanto as repository variables não existirem, para não deixar a
+    # branch padrão com um run vermelho permanente antes da R0.1.
+    if: vars.WEB_IMAGE != '' && vars.API_IMAGE != ''
+
     environment:
       name: development
       url: ${{ vars.APP_URL }}
