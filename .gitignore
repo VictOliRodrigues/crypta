@@ -1,0 +1,119 @@
+# =============================================================================
+# Cofre de Senhas — .gitignore
+#
+# O repositório é público. Qualquer segredo commitado deve ser tratado como
+# comprometido e rotacionado (SECURITY.md, PROJECT_SCOPE.md secao 14).
+# =============================================================================
+
+# --- Dependências --------------------------------------------------------
+node_modules/
+.pnpm-store/
+.yarn/
+jspm_packages/
+
+# --- Build e artefatos ---------------------------------------------------
+dist/
+build/
+out/
+.next/
+.turbo/
+*.tsbuildinfo
+coverage/
+.nyc_output/
+apps/web/dist/
+apps/api/dist/
+packages/*/dist/
+
+# --- Segredos e configuração local ---------------------------------------
+# Somente .env.example pode ser versionado.
+.env
+.env.*
+!.env.example
+*.env
+!example.env
+.envrc
+secrets/
+.secrets/
+
+# --- Material criptográfico ----------------------------------------------
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+*.cer
+*.der
+*.asc
+*.gpg
+id_rsa*
+id_ed25519*
+
+# --- Assinatura do APK (nunca versionar) ---------------------------------
+*.apk
+*.aab
+apps/mobile/android/app/*.jks
+apps/mobile/android/keystore.properties
+apps/mobile/android/app/google-services.json
+
+# --- Banco de dados, dumps e backups -------------------------------------
+*.sql
+*.sql.gz
+*.dump
+*.bak
+*.sqlite
+*.sqlite3
+*.db
+backups/
+dumps/
+
+# --- Dados reais de importação -------------------------------------------
+# CSV real jamais pode entrar no repositório. Fixtures ficticias devem usar
+# a extensao .example.csv.
+*.csv
+!*.example.csv
+
+# --- Logs ----------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+lerna-debug.log*
+report.[0-9]*.json
+
+# --- Ferramentas e caches ------------------------------------------------
+.eslintcache
+.prettiercache
+.cache/
+.vite/
+.vitest/
+.jest/
+
+# --- Editores e sistema operacional --------------------------------------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Mobile (Expo / React Native) ----------------------------------------
+.expo/
+.expo-shared/
+apps/mobile/android/
+apps/mobile/ios/
+
+# --- Prisma --------------------------------------------------------------
+# O client é gerado no build.
+apps/api/prisma/generated/
+apps/api/src/generated/
+
+# --- Temporários locais --------------------------------------------------
+tmp/
+temp/
+scratch/

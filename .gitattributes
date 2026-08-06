@@ -1,0 +1,30 @@
+# Normalização de fim de linha.
+#
+# O repositório é editado no Windows e construído em Linux (CI e imagens
+# Docker). Sem esta normalização, o checkout no Windows gravaria CRLF, o
+# Prettier está configurado com `endOfLine: 'lf'` e o `pnpm format:check`
+# falharia na CI por diferença de fim de linha.
+* text=auto eol=lf
+
+# Arquivos que precisam de LF mesmo em ferramentas que decidiriam diferente.
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binários: nunca normalizar.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.apk binary
+
+# Gerado: reduz ruído em diff e review.
+pnpm-lock.yaml linguist-generated=true -diff
+
+# Mockups de design: contam como documentação, não como código do produto.
+docs/telas/** linguist-documentation
