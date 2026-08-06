@@ -45,6 +45,13 @@ jobs:
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
 
+      # Precisa vir antes de typecheck e testes: as aplicações consomem os
+      # packages compartilhados pelo `dist` publicado no workspace, não pelo
+      # código-fonte. Em um clone limpo esse `dist` não existe, e tanto o
+      # typecheck quanto os testes da API falhariam por módulo não encontrado.
+      - name: Construir packages compartilhados
+        run: pnpm build:packages
+
       - name: Validar formatação
         run: pnpm format:check
 
