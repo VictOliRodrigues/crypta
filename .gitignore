@@ -74,6 +74,13 @@ dumps/
 *.csv
 !*.example.csv
 
+# --- Diretórios de conteúdo enviado --------------------------------------
+# A V1 não possui upload: o CSV é processado no navegador e a API recebe
+# apenas lotes criptografados (ADR 0006). As regras existem para o caso de
+# alguém introduzir um diretório desses sem revisar o modelo de segurança.
+uploads/
+storage/
+
 # --- Logs ----------------------------------------------------------------
 logs/
 *.log
