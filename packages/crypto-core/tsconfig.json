@@ -1,0 +1,12 @@
+{
+  "extends": "@vault/tsconfig/node.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    // crypto-core não pode depender de APIs de plataforma (ARCHITECTURE.md
+    // secao 8.2). `types: []` remove @types/node do escopo global e faz o
+    // typecheck falhar caso alguém use Buffer, process ou require.
+    "types": []
+  },
+  "include": ["src/**/*.ts"]
+}
