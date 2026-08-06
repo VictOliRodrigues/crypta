@@ -1069,9 +1069,15 @@ Nunca inclua credenciais reais no reporte.
 
 ## Licença
 
-A licença open source ainda deverá ser formalmente definida em ADR.
+[GNU Affero General Public License v3.0](LICENSE) (`AGPL-3.0-only`).
 
-Até essa decisão, consulte o arquivo `LICENSE` do repositório quando ele existir.
+A escolha está registrada em [ADR 0013](docs/decisions/0013-agpl-license.md). O ponto decisivo é a
+secao 13 da licença: **quem modificar o Crypta e oferecê-lo por rede precisa disponibilizar o
+código-fonte correspondente aos usuários desse serviço.**
+
+Para um cofre de senhas isso é proteção ao usuário. Uma versão hospedada com a criptografia
+enfraquecida não pode ser oferecida como se fosse este projeto sem que o código fique disponível
+para auditoria.
 
 ---
 

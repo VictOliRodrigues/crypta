@@ -7,3 +7,7 @@ pnpm-lock.yaml
 
 # Mockups gerados por ferramenta de design. Não são código do produto.
 docs/telas/
+
+# Texto legal, cópia literal da FSF. Reformatar alteraria um documento
+# juridicamente operativo.
+LICENSE

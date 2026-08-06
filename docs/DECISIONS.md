@@ -181,6 +181,7 @@ Uma decisão deverá gerar ADR quando:
 | DEC-037 | Hotfix nasce de `main` e retorna às linhas ativas   | ACCEPTED | ADR 0011   |
 | DEC-038 | Branch `release/*` permanece durante a homologação  | ACCEPTED | ADR 0011   |
 | DEC-039 | Correções de staging passam por `fix/* → release/*` | ACCEPTED | ADR 0011   |
+| DEC-040 | Licença AGPL-3.0                                    | ACCEPTED | ADR 0013   |
 
 ---
 
@@ -1529,6 +1530,48 @@ durante a correção da versão homologada.
 
 ---
 
+## DEC-040 — Licença AGPL-3.0
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+O projeto é licenciado sob `AGPL-3.0-only`. O arquivo `LICENSE` na raiz contém a cópia literal do texto da FSF.
+
+Fecha a pendência PEND-016.
+
+### Motivos
+
+O produto é um cofre de senhas self-hosted: o usuário confia que o código em execução é o código que ele consegue auditar.
+
+A secao 13 da AGPL, _Remote Network Interaction_, obriga quem modificar o projeto e oferecê-lo por rede a disponibilizar o fonte correspondente aos usuários daquele serviço. Nenhuma licença permissiva impõe isso, e a GPL-3.0 também não — oferecer software como serviço não é distribuição.
+
+### Rejeitado
+
+```text
+MIT
+Apache-2.0
+GPL-3.0
+nenhuma licença
+```
+
+MIT e Apache-2.0 permitem um fork fechado hospedado como serviço. GPL-3.0 tem copyleft, mas a obrigação depende de distribuição, e é exatamente por rede que um cofre alterado chegaria ao usuário. Ausência de licença equivale a todos os direitos reservados e esvazia o `CONTRIBUTING.md`.
+
+### Consequências
+
+- contribuições passam a ter base jurídica;
+- adoção corporativa reduzida: várias empresas proíbem AGPL por política;
+- relicenciamento futuro exigiria concordância de todos os contribuidores;
+- dependências com licença incompatível não podem ser incorporadas.
+
+### ADR
+
+[`docs/decisions/0013-agpl-license.md`](decisions/0013-agpl-license.md)
+
+---
+
 # DECISÕES REJEITADAS
 
 ---
@@ -1709,33 +1752,33 @@ Aumenta o risco de vazamento, perda de dados e execução acidental em produçã
 
 ## 7. Lista de pendências
 
-| ID       | Tema                                          | Status          | Bloqueia         |
-| -------- | --------------------------------------------- | --------------- | ---------------- |
-| PEND-001 | Biblioteca Argon2id Web                       | REVIEW_REQUIRED | Crypto           |
-| PEND-002 | Biblioteca libsodium Web                      | REVIEW_REQUIRED | Crypto           |
-| PEND-003 | Biblioteca libsodium Mobile                   | REVIEW_REQUIRED | Mobile           |
-| PEND-004 | Parâmetros Argon2id                           | REVIEW_REQUIRED | Login            |
-| PEND-005 | UUIDv4 ou UUIDv7                              | REVIEW_REQUIRED | Banco            |
-| PEND-006 | `CHAR(36)` ou `BINARY(16)`                    | REVIEW_REQUIRED | Banco            |
-| PEND-007 | Duração do access token                       | REVIEW_REQUIRED | Auth             |
-| PEND-008 | Duração do refresh token                      | REVIEW_REQUIRED | Auth             |
-| PEND-009 | SameSite e domínio do cookie                  | REVIEW_REQUIRED | Deploy           |
-| PEND-010 | Limites de CSV                                | REVIEW_REQUIRED | Importação       |
-| PEND-011 | Expiração de convite                          | REVIEW_REQUIRED | Compartilhamento |
-| PEND-012 | Estratégia de envio do convite                | REVIEW_REQUIRED | Compartilhamento |
-| PEND-013 | Bloqueio de screenshot Android                | REVIEW_REQUIRED | Mobile           |
-| PEND-014 | Política de hard/soft delete                  | REVIEW_REQUIRED | Banco            |
-| PEND-015 | Retenção de auditoria                         | REVIEW_REQUIRED | Operação         |
-| PEND-016 | Licença open source                           | REVIEW_REQUIRED | Repositório      |
-| PEND-017 | Estratégia de recuperação                     | REVIEW_REQUIRED | Pós-V1           |
-| PEND-018 | Biblioteca de CSV                             | REVIEW_REQUIRED | Importação       |
-| PEND-019 | Ferramenta de container scan                  | REVIEW_REQUIRED | CI               |
-| PEND-020 | Estratégia de autolock                        | REVIEW_REQUIRED | V1.1             |
-| PEND-021 | Autenticação GitHub Actions → Coolify         | REVIEW_REQUIRED | Deploy           |
-| PEND-022 | Visibilidade dos packages no GHCR             | REVIEW_REQUIRED | Deploy           |
-| PEND-023 | Reviewers do Environment `production`         | REVIEW_REQUIRED | Release          |
-| PEND-024 | Retenção de manifests e artefatos de RC       | REVIEW_REQUIRED | Operação         |
-| PEND-025 | Política final de proteção e retenção de tags | REVIEW_REQUIRED | Release          |
+| ID           | Tema                                          | Status               | Bloqueia         |
+| ------------ | --------------------------------------------- | -------------------- | ---------------- |
+| PEND-001     | Biblioteca Argon2id Web                       | REVIEW_REQUIRED      | Crypto           |
+| PEND-002     | Biblioteca libsodium Web                      | REVIEW_REQUIRED      | Crypto           |
+| PEND-003     | Biblioteca libsodium Mobile                   | REVIEW_REQUIRED      | Mobile           |
+| PEND-004     | Parâmetros Argon2id                           | REVIEW_REQUIRED      | Login            |
+| PEND-005     | UUIDv4 ou UUIDv7                              | REVIEW_REQUIRED      | Banco            |
+| PEND-006     | `CHAR(36)` ou `BINARY(16)`                    | REVIEW_REQUIRED      | Banco            |
+| PEND-007     | Duração do access token                       | REVIEW_REQUIRED      | Auth             |
+| PEND-008     | Duração do refresh token                      | REVIEW_REQUIRED      | Auth             |
+| PEND-009     | SameSite e domínio do cookie                  | REVIEW_REQUIRED      | Deploy           |
+| PEND-010     | Limites de CSV                                | REVIEW_REQUIRED      | Importação       |
+| PEND-011     | Expiração de convite                          | REVIEW_REQUIRED      | Compartilhamento |
+| PEND-012     | Estratégia de envio do convite                | REVIEW_REQUIRED      | Compartilhamento |
+| PEND-013     | Bloqueio de screenshot Android                | REVIEW_REQUIRED      | Mobile           |
+| PEND-014     | Política de hard/soft delete                  | REVIEW_REQUIRED      | Banco            |
+| PEND-015     | Retenção de auditoria                         | REVIEW_REQUIRED      | Operação         |
+| ~~PEND-016~~ | ~~Licença open source~~                       | RESOLVIDA em DEC-040 | —                |
+| PEND-017     | Estratégia de recuperação                     | REVIEW_REQUIRED      | Pós-V1           |
+| PEND-018     | Biblioteca de CSV                             | REVIEW_REQUIRED      | Importação       |
+| PEND-019     | Ferramenta de container scan                  | REVIEW_REQUIRED      | CI               |
+| PEND-020     | Estratégia de autolock                        | REVIEW_REQUIRED      | V1.1             |
+| PEND-021     | Autenticação GitHub Actions → Coolify         | REVIEW_REQUIRED      | Deploy           |
+| PEND-022     | Visibilidade dos packages no GHCR             | REVIEW_REQUIRED      | Deploy           |
+| PEND-023     | Reviewers do Environment `production`         | REVIEW_REQUIRED      | Release          |
+| PEND-024     | Retenção de manifests e artefatos de RC       | REVIEW_REQUIRED      | Operação         |
+| PEND-025     | Política final de proteção e retenção de tags | REVIEW_REQUIRED      | Release          |
 
 ---
 
