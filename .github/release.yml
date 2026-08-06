@@ -1,0 +1,32 @@
+# Geração automática das notas de release.
+# As labels correspondem às definidas em GITHUB_RELEASE_FLOW.md secao 14.
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+  categories:
+    - title: Mudanças incompatíveis
+      labels:
+        - breaking-change
+    - title: Segurança
+      labels:
+        - security
+    - title: Funcionalidades
+      labels:
+        - feature
+    - title: Correções
+      labels:
+        - bug
+        - fix
+    - title: Desempenho
+      labels:
+        - performance
+    - title: Documentação
+      labels:
+        - documentation
+    - title: Dependências
+      labels:
+        - dependencies
+    - title: Outras mudanças
+      labels:
+        - '*'
