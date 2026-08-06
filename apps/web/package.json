@@ -1,0 +1,47 @@
+{
+  "name": "@vault/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Aplicação Web do cofre de senhas.",
+  "scripts": {
+    "build": "tsc --noEmit && vite build",
+    "clean": "node ../../scripts/clean-dist.mjs",
+    "dev": "vite",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.2",
+    "@vault/contracts": "workspace:*",
+    "@vault/validation": "workspace:*",
+    "axios": "^1.12.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router": "^7.9.3",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^24.7.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vault/eslint-config": "workspace:*",
+    "@vault/tsconfig": "workspace:*",
+    "@vitejs/plugin-react": "^5.0.4",
+    "eslint": "^9.38.0",
+    "jsdom": "^27.0.0",
+    "tailwindcss": "^4.1.14",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.9",
+    "vitest": "^3.2.4"
+  }
+}

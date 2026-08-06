@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+
+/*
+ * Direção visual definida em docs/TELAS.md secao 3: paleta neutra com uma cor
+ * principal de destaque, tipografia sem serifa e bom contraste.
+ *
+ * A paleta definitiva do design system entra junto com as telas reais, a
+ * partir da R0.2.
+ */
+@theme {
+  --font-sans:
+    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+  }
+
+  body {
+    @apply bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  }
+
+  /* Foco sempre visível: a interface precisa ser operável só pelo teclado. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-sky-600 dark:outline-sky-400;
+  }
+}
