@@ -336,12 +336,13 @@ Tudo de que esse run depende precisa existir antes:
 
 ```text
 1. Coolify provisionado           secoes 14 a 19
-2. Token read:packages no Coolify secao 21
-3. Webhooks copiados              secao 20
-4. Environment development        secao 11
+2. Webhooks copiados              secao 20
+3. Environment development        secao 11
    variables APP_URL e API_BASE_URL
    secrets COOLIFY_TOKEN, COOLIFY_WEBHOOK_WEB, COOLIFY_WEBHOOK_API
-5. WEB_IMAGE e API_IMAGE          esta secao
+4. WEB_IMAGE e API_IMAGE          esta secao
+
+O primeiro run cria os packages e falha no passo de confirmação, porque eles nascem privados. A visibilidade é alterada nessa janela — a sequência está na secao 10.
 ```
 
 Inverter essa ordem produz exatamente a falha registrada acima.
@@ -371,28 +372,58 @@ GitHub profile ou organization
 
 Faça o mesmo para API.
 
-### Visibilidade escolhida na R0.1: privados
+### Visibilidade escolhida na R0.1: públicos
 
-Os packages permanecem **privados**, e o Coolify autentica com um token `read:packages` configurado na secao 21.
+Os packages são tornados **públicos**, e o Coolify baixa as imagens sem credencial nenhuma.
 
-O motivo é de ordem de operações, não de conteúdo. Packages nascem privados; tornar públicos exige que já existam, e eles só passam a existir depois do primeiro `docker push` do workflow. Como esse mesmo run dispara o webhook do Coolify em seguida, optar por público custaria um primeiro deploy vermelho para só então poder alterar a visibilidade.
+A decisão inicial foi o oposto — privados, com um token `read:packages` guardado no Coolify — partindo da suposição de que o Coolify tivesse uma tela para credencial de registry. Ele não tem. A [documentação](https://coolify.io/docs/knowledge-base/docker/registry) define o mecanismo como `docker login` no host, e o Coolify reaproveita o `config.json` do daemon.
 
-As imagens **poderiam** ser públicas do ponto de vista de conteúdo — verificado nesta data:
+Isso muda o custo da alternativa privada:
+
+- exige acesso SSH ao servidor;
+- exige que o login seja feito com o **mesmo usuário** que o Coolify usa como destino de deploy, senão o pull falha com `unauthorized` ([issue #6398](https://github.com/coollabsio/coolify/issues/6398));
+- a credencial não aparece em lugar nenhum da UI, então a falha não tem pista;
+- cria um token a rotacionar.
+
+Nada disso existe com packages públicos.
+
+O conteúdo permite — verificado nesta data:
 
 - `.dockerignore` exclui `.env`, `.env.*`, `*.pem`, `*.key`, `*.p12`, `*.jks` e `secrets`;
 - `vite.config.ts` define `build.sourcemap: false`;
 - a imagem da API contém apenas `dist`, `prisma` e dependências de produção;
 - nenhum `VITE_*` do build carrega segredo — todos são metadados de versão e a URL pública da API.
 
-Se mais adiante houver motivo para torná-las públicas, a alteração é segura e o token do Coolify pode ser removido depois.
+O repositório é público e AGPL-3.0; as imagens declaram `org.opencontainers.image.source` e `org.opencontainers.image.licenses`.
+
+### Sequência, porque a ordem importa
+
+Packages nascem privados e só passam a existir depois do primeiro `docker push`. Quem os cria é o workflow, na Etapa 4 — e isso é deliberado: um package publicado pelo workflow fica vinculado ao repositório, e um package vinculado herda as permissões dele, o que preserva o acesso de push das publicações seguintes. Criá-los à mão, sem vínculo, arriscaria o contrário.
+
+Então o primeiro run vai falhar, e o ponto exato é previsível:
+
+```text
+build Web e API      ok
+push no GHCR         ok — os packages passam a existir, privados
+webhook do Coolify   ok — o webhook só enfileira, devolve 200
+confirmar versão     FALHA — o Coolify não conseguiu puxar a imagem
+```
+
+O passo `Confirmar versão implantada` tenta 20 vezes com 15 s de intervalo, então demora cerca de 5 minutos até falhar. Nessa janela:
+
+1. tornar os dois packages públicos;
+2. no Coolify, **Redeploy** nos dois recursos;
+3. se o passo já tiver falhado, **Re-run failed jobs** no GitHub.
+
+Um run vermelho no histórico é o custo aceito, e ele tem causa registrada aqui.
 
 Checklist:
 
-- [ ] Package Web criado.
-- [ ] Package API criado.
-- [ ] Visibilidade confirmada como privada.
-- [ ] Token `read:packages` configurado no Coolify (secao 21).
-- [ ] Coolify consegue baixar as imagens.
+- [ ] Package Web criado pelo workflow.
+- [ ] Package API criado pelo workflow.
+- [ ] Visibilidade dos dois alterada para pública.
+- [ ] Packages vinculados ao repositório `crypta`.
+- [ ] Coolify consegue baixar as imagens sem credencial.
 - [ ] Imagens não possuem segredos.
 
 ---
@@ -836,47 +867,28 @@ Checklist por ambiente:
 
 ## 21. Autenticar GHCR no servidor
 
-**Decisão da R0.1: os packages permanecem privados e o Coolify autentica com um token de leitura.**
+**Não é necessário.** Os packages são públicos (secao 10), e o Coolify baixa as imagens sem credencial.
 
-Packages criados por workflow nascem privados. Sem credencial no servidor, a sequência do primeiro deploy seria: o workflow publica as imagens, dispara o webhook, e o Coolify falha ao puxar — deixando `develop` com um run vermelho por um motivo puramente de configuração.
+Registrado aqui porque a conclusão não é óbvia e custou uma tentativa errada: **o Coolify não tem UI para credencial de pull de registry privado**. A [documentação](https://coolify.io/docs/knowledge-base/docker/registry) define o mecanismo como `docker login` executado no host, com o Coolify reaproveitando o `config.json` do daemon Docker.
 
-Configurar o token **antes** de criar as variables `WEB_IMAGE` e `API_IMAGE` evita isso. A alternativa, tornar os packages públicos, exigiria um primeiro deploy vermelho para que os packages passassem a existir e pudessem ter a visibilidade alterada.
-
-Crie um token GitHub com **somente**:
-
-```text
-read:packages
-```
-
-Não adicione `write:packages` nem `repo`: quem publica é o `GITHUB_TOKEN` do workflow, e este token só precisa baixar.
-
-No Coolify:
-
-```text
-Keys & Tokens
-→ Docker Registries (ou Private Registry no recurso)
-→ ghcr.io
-→ usuário: <seu usuário do GitHub>
-→ senha: <o token read:packages>
-```
-
-### Como confirmar que funcionou
-
-Só é verificável depois que as imagens existirem no GHCR. No servidor do Coolify:
+Se algum dia for necessário voltar a packages privados, o caminho é:
 
 ```bash
-docker pull ghcr.io/<owner>/<repository>-api:development
+ssh <usuário>@<servidor-coolify>
+docker login ghcr.io -u <usuário do GitHub>
+# senha: token com somente read:packages
+
+cat ~/.docker/config.json   # precisa conter a entrada ghcr.io
 ```
 
-Um `denied` ou `unauthorized` indica token ausente, expirado ou sem `read:packages`.
+O login precisa ser feito com o **mesmo usuário que o Coolify usa como destino de deploy**. Logar como outro usuário grava a credencial no `~/.docker/config.json` errado e o pull falha com `unauthorized`, sem nenhuma indicação na interface ([issue #6398](https://github.com/coollabsio/coolify/issues/6398)).
+
+O webhook de deploy **não** resolve isso: ele apenas dispara o deploy. A autenticação do `docker pull` é etapa separada e posterior.
 
 Checklist:
 
-- [ ] Token apenas de leitura (`read:packages`, nada além).
-- [ ] Token guardado no Coolify.
-- [ ] Token não commitado.
-- [ ] Token configurado ANTES de criar `WEB_IMAGE` e `API_IMAGE`.
-- [ ] Pull de imagem validado.
+- [x] Decidido: packages públicos, sem credencial no servidor.
+- [ ] Pull de imagem validado na Etapa 4.
 
 ---
 
