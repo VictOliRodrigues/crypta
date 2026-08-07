@@ -616,6 +616,35 @@ Checklist:
 
 ---
 
+### A instância precisa de FQDN com TLS
+
+Por padrão o Coolify só se expõe em `http://<ip>:8000`. Isso **não serve** para o disparo por GitHub Actions, por dois motivos independentes:
+
+- o runner do GitHub não alcança essa porta quando há filtro de origem, e a falha aparece como timeout de mais de dois minutos, sem mensagem que indique a causa;
+- a chamada leva o token do Coolify no cabeçalho `Authorization`, e sem TLS ele trafega em texto aberto pela internet.
+
+Configure antes de copiar qualquer webhook:
+
+```text
+1. DNS: registro A do subdomínio do painel → IP do servidor
+2. Coolify → Settings → Configuration → Instance Settings
+     Instance's Domain (FQDN): https://<subdominio>
+```
+
+Com `https://`. O Coolify passa a se servir pelo próprio proxy na 443 e pede o certificado sozinho.
+
+Confirmar:
+
+```bash
+curl -sI https://<subdominio> | head -1
+```
+
+Só depois disso copie os Deploy Webhooks: as URLs são geradas a partir do FQDN, e recopiá-las é obrigatório se o FQDN for definido depois.
+
+Se o painel já esteve exposto em HTTP antes dessa mudança, rotacione o token do Coolify — ele trafegou em claro.
+
+---
+
 ## 15. Criar token de deploy
 
 No Coolify:
@@ -1536,6 +1565,18 @@ curl -i "https://<host-do-coolify>/api/v1/teams" -H "Authorization: Bearer $TOKE
 ```
 
 `200` ou `403` provam que o token é válido; `401` não.
+
+### Webhook apontando para `http://<ip>:8000`
+
+O Coolify gera as URLs de webhook a partir do endereço da instância. Se o painel ainda não tiver FQDN, as URLs saem com IP e porta, e o passo de deploy falha assim:
+
+```text
+curl: (28) Failed to connect to <ip> port 8000 after 135135 ms
+```
+
+Timeout, não recusa — a porta responde de outras origens, mas não do runner. E a chamada leva o token em texto aberto.
+
+Resolvido definindo o FQDN da instância (secao 14) **antes** de copiar os webhooks. Definir depois exige recopiar as duas URLs e atualizar os secrets.
 
 ### Duas coisas que não deram problema
 
