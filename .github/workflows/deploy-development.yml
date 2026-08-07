@@ -63,13 +63,16 @@ jobs:
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
 
+      # `pnpm verify` em vez da lista de passos. O script começa por
+      # `build:packages`, e lint e typecheck dependem das declarações de tipo
+      # que ele gera: sem elas, os imports de `@crypta/contracts` resolvem
+      # como `any` e as regras type-aware do ESLint reprovam código correto.
+      #
+      # Enumerar os passos aqui já custou um deploy — a lista foi copiada do
+      # `verify` sem o primeiro item, e o run reportou 23 erros de tipo não
+      # resolvido. Chamar o script mantém uma única definição do que é validar.
       - name: Validar projeto
-        run: |
-          pnpm format:check
-          pnpm lint
-          pnpm typecheck
-          pnpm test
-          pnpm build
+        run: pnpm verify
 
       - name: Calcular metadados do build
         id: meta
