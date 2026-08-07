@@ -70,6 +70,12 @@ jobs:
       # O schema é a fonte das migrations; um schema inválido só apareceria no
       # deploy, quando `prisma migrate deploy` roda.
       - name: Validar schema do Prisma
+        env:
+          # `prisma validate` resolve o datasource antes de validar o schema e
+          # falha com P1012 se a variável não existir. Nenhuma conexão é aberta
+          # neste passo: o valor é um placeholder descartável, não configuração
+          # de ambiente, e não deve ser reaproveitado em lugar nenhum.
+          DATABASE_URL: mysql://placeholder:placeholder@127.0.0.1:3306/placeholder
         run: pnpm --filter @crypta/api run prisma:validate
 
   audit:
