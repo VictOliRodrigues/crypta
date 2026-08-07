@@ -182,20 +182,22 @@ API   https://crypta-api-dev.vorodrigues.com.br
 
 ### Gate de saída da R0.1
 
-Conforme `ROADMAP.md` secao 12. Verificado contra o ambiente implantado no commit `115920c`.
+Conforme `ROADMAP.md` secao 12. Verificado contra o ambiente implantado, no commit `b286bbe`.
 
-| Item do gate                                | Estado                                                               |
-| ------------------------------------------- | -------------------------------------------------------------------- |
-| Web acessível por HTTPS                     | OK — certificado Let's Encrypt, redirect `http → https`              |
-| API acessível por HTTPS                     | OK — certificado Let's Encrypt, redirect `http → https`              |
-| Web consulta API                            | PENDENTE — CORS validado no servidor; falta confirmar no navegador   |
-| API consulta MySQL                          | OK — `/health/ready` responde `{"status":"ready","database":"ok"}`   |
-| MySQL sem porta pública                     | OK — 3306 fechada a partir da internet                               |
-| Imagem identificada por commit              | OK — `X-App-Commit: 115920c` e tag `dev-<sha>` no GHCR               |
-| `/api/v1/version` corresponde ao deployment | OK — `commit: 115920c`, `environment: development`                   |
-| Deploy automático por `develop`             | PENDENTE — falta o run de `deploy-development.yml` fechar verde      |
-| Rollback para um `dev-<sha>` anterior       | PENDENTE — depende de um segundo `dev-<sha>`, gerado por este commit |
-| Nenhum Docker Compose usado                 | OK — nenhum arquivo compose versionado                               |
+| Item do gate                                | Estado                                                                                |
+| ------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Web acessível por HTTPS                     | OK — certificado Let's Encrypt, redirect `http → https`                               |
+| API acessível por HTTPS                     | OK — certificado Let's Encrypt, redirect `http → https`                               |
+| Web consulta API                            | OK — CORS validado no servidor e chamada confirmada no navegador, sem bloqueio de CSP |
+| API consulta MySQL                          | OK — `/health/ready` responde `{"status":"ready","database":"ok"}`                    |
+| MySQL sem porta pública                     | OK — 3306 fechada a partir da internet                                                |
+| Imagem identificada por commit              | OK — `X-App-Commit: b286bbe` e tag `dev-<sha>` no GHCR                                |
+| `/api/v1/version` corresponde ao deployment | OK — `commit: b286bbe`, `environment: development`                                    |
+| Deploy automático por `develop`             | OK — `deploy-development.yml` concluído com sucesso em `115920c` e `b286bbe`          |
+| Rollback para um `dev-<sha>` anterior       | OK — `dev-b286bbe…` revertido para `dev-115920c…` e restaurado, sem rebuild           |
+| Nenhum Docker Compose usado                 | OK — nenhum arquivo compose versionado                                                |
+
+**O gate de saída da R0.1 está cumprido.**
 
 Também verificado, fora do gate: preflight `OPTIONS` devolve `204`; origem não autorizada não recebe `Access-Control-Allow-Origin`; a Web serve os sete cabeçalhos de segurança em todas as rotas; SPA fallback responde `200` em rota profunda; `index.html` com `Cache-Control: no-store`.
 
@@ -207,7 +209,7 @@ Também verificado, fora do gate: preflight `OPTIONS` devolve `204`; origem não
 | ------------------------- | --------------------------------------------------------------------------------------------------- |
 | Build context do monorepo | Resolvido — as duas imagens constroem com a raiz como contexto                                      |
 | Autenticação no GHCR      | Resolvido — packages públicos, sem credencial no servidor (DEC em `config_user.md` secao 10)        |
-| Disparo do Coolify        | Resolvido — webhook por token de API                                                                |
+| Disparo do Coolify        | Resolvido — webhook por token de API, sobre o FQDN do painel (`config_user.md` secao 14)            |
 | CORS                      | Resolvido — origem única por ambiente, sem curinga                                                  |
 | DNS                       | Resolvido                                                                                           |
 | HTTPS                     | Resolvido — Let's Encrypt nos dois domínios                                                         |
