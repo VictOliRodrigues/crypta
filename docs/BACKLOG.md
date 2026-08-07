@@ -169,6 +169,68 @@ Nenhuma tarefa da R0.2 em diante foi iniciada.
 
 ---
 
+## 6. Estado da R0.1
+
+> Atualizado em 7 de agosto de 2026.
+
+O ambiente de development está no ar:
+
+```text
+Web   https://crypta-dev.vorodrigues.com.br
+API   https://crypta-api-dev.vorodrigues.com.br
+```
+
+### Gate de saída da R0.1
+
+Conforme `ROADMAP.md` secao 12. Verificado contra o ambiente implantado no commit `115920c`.
+
+| Item do gate                                | Estado                                                               |
+| ------------------------------------------- | -------------------------------------------------------------------- |
+| Web acessível por HTTPS                     | OK — certificado Let's Encrypt, redirect `http → https`              |
+| API acessível por HTTPS                     | OK — certificado Let's Encrypt, redirect `http → https`              |
+| Web consulta API                            | PENDENTE — CORS validado no servidor; falta confirmar no navegador   |
+| API consulta MySQL                          | OK — `/health/ready` responde `{"status":"ready","database":"ok"}`   |
+| MySQL sem porta pública                     | OK — 3306 fechada a partir da internet                               |
+| Imagem identificada por commit              | OK — `X-App-Commit: 115920c` e tag `dev-<sha>` no GHCR               |
+| `/api/v1/version` corresponde ao deployment | OK — `commit: 115920c`, `environment: development`                   |
+| Deploy automático por `develop`             | PENDENTE — falta o run de `deploy-development.yml` fechar verde      |
+| Rollback para um `dev-<sha>` anterior       | PENDENTE — depende de um segundo `dev-<sha>`, gerado por este commit |
+| Nenhum Docker Compose usado                 | OK — nenhum arquivo compose versionado                               |
+
+Também verificado, fora do gate: preflight `OPTIONS` devolve `204`; origem não autorizada não recebe `Access-Control-Allow-Origin`; a Web serve os sete cabeçalhos de segurança em todas as rotas; SPA fallback responde `200` em rota profunda; `index.html` com `Cache-Control: no-store`.
+
+### Riscos que a fase existia para medir
+
+`ROADMAP.md` secao 11. Todos exercitados contra infraestrutura real:
+
+| Risco                     | Resultado                                                                                           |
+| ------------------------- | --------------------------------------------------------------------------------------------------- |
+| Build context do monorepo | Resolvido — as duas imagens constroem com a raiz como contexto                                      |
+| Autenticação no GHCR      | Resolvido — packages públicos, sem credencial no servidor (DEC em `config_user.md` secao 10)        |
+| Disparo do Coolify        | Resolvido — webhook por token de API                                                                |
+| CORS                      | Resolvido — origem única por ambiente, sem curinga                                                  |
+| DNS                       | Resolvido                                                                                           |
+| HTTPS                     | Resolvido — Let's Encrypt nos dois domínios                                                         |
+| Proxy                     | Resolvido — Traefik do Coolify roteando os dois recursos                                            |
+| Conexão com MySQL         | Resolvido — rede privada, sem porta pública                                                         |
+| Migrations                | Parcial — o caminho executa a cada partida (ADR 0015), mas não há migration com conteúdo até a R0.2 |
+| Env vars                  | Resolvido — validação de startup falha fechado                                                      |
+| Rede                      | Resolvido                                                                                           |
+| Nginx SPA fallback        | Resolvido                                                                                           |
+| Metadata de versão        | Resolvido — `/version` e cabeçalhos `X-App-*`                                                       |
+
+### Defeitos encontrados e corrigidos durante a fase
+
+| Defeito                                                                                                     | Correção                          |
+| ----------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| A Web servia **zero** cabeçalhos de segurança: `add_header` num `location` descarta os herdados do `server` | PR #10, com teste de regressão    |
+| `deploy-development.yml` validava sem `build:packages`, reprovando código correto com 23 erros de tipo      | PR #12                            |
+| Migrations não tinham lugar definido para rodar                                                             | ADR 0015, entrypoint do container |
+
+As armadilhas de configuração manual encontradas nesta fase estão registradas em `config_user.md` secao 41.1.
+
+---
+
 # ÉPICO 00 — GOVERNANÇA DO PROJETO
 
 ---
