@@ -3,8 +3,8 @@
 # Crypta — Configurações Manuais do GitHub e Coolify
 
 > **Responsável:** Proprietário do repositório e da infraestrutura  
-> **Status:** Fases 1 a 4 e 7 executadas; Coolify pendente na R0.1  
-> **Versão:** 0.2.0  
+> **Status:** configuração da R0 concluída; Coolify e variables de imagem na R0.1  
+> **Versão:** 0.3.0  
 > **Última atualização:** 7 de agosto de 2026
 
 ---
@@ -326,12 +326,14 @@ Isso deixa a branch padrão com um workflow vermelho de forma permanente, o que 
 
 Elas não fazem parte do gate de saída da R0.
 
+Foi o que aconteceu aqui: as duas foram criadas durante a R0, o `deploy-development.yml` passou a rodar e falhou em `Instalar dependências` e depois no webhook do Coolify, deixando `develop` com um vermelho permanente. Foram removidas e voltam na R0.1, junto dos secrets.
+
 Checklist:
 
-- [x] `WEB_IMAGE` criada.
-- [x] `API_IMAGE` criada.
-- [x] Nomes em minúsculas.
-- [x] Nenhum secret colocado em variável pública.
+- [ ] `WEB_IMAGE` criada. — adiada para a R0.1.
+- [ ] `API_IMAGE` criada. — adiada para a R0.1.
+- [ ] Nomes em minúsculas.
+- [ ] Nenhum secret colocado em variável pública.
 
 ---
 
@@ -947,7 +949,7 @@ Checklist:
 - [x] Conversation resolution exigida.
 - [x] Os três checks obrigatórios, e somente eles.
 - [x] Linear history desabilitado.
-- [ ] `Allowed merge methods` reduzido a `Merge, Squash`.
+- [x] `Allowed merge methods` reduzido a `Merge, Squash`.
 
 ---
 
@@ -1156,8 +1158,16 @@ git push -u origin feature/test-invalid-flow
 
 Validar:
 
-- [ ] `Validar origem e destino` falha com `Fluxo inválido: feature/test-invalid-flow:main`.
-- [ ] Merge fica bloqueado pelo ruleset da secao 25.
+- [x] `Validar origem e destino` falha com `Fluxo inválido: feature/test-invalid-flow:main`.
+- [x] Merge fica bloqueado pelo ruleset da secao 25.
+
+Validado pelo pull request #8. O job `Validar origem e destino` reprovou no passo `Verificar
+combinação de branches`, o merge ficou bloqueado, o PR foi fechado sem integrar e a branch foi
+removida à mão. O `Excluir branch temporária` registrou `skipped`, que é o comportamento correto
+para pull request não mergeado.
+
+O `Lint, tipos, testes e builds` passou no mesmo PR: o conteúdo estava íntegro e só o destino era
+inválido, que é exatamente o que este teste precisa demonstrar.
 
 Este teste não depende de a CI estar verde: o check de fluxo não instala dependências e falha antes
 de qualquer outro job terminar.
@@ -1274,7 +1284,6 @@ Os nomes finais dos secrets deverão ser definidos em ADR e documentação de re
 - [x] Rebase desabilitado.
 - [x] Auto delete desabilitado.
 - [x] Actions configuradas.
-- [x] Variables de imagens criadas.
 - [x] Environments criados.
 - [x] Labels criadas.
 - [x] Milestone criado.
@@ -1283,6 +1292,7 @@ Os nomes finais dos secrets deverão ser definidos em ADR e documentação de re
 - [x] Dependabot ativo.
 - [x] Secret scanning ativo.
 - [x] Reporte privado ativo.
+- [ ] Variables de imagens criadas. — adiadas para a R0.1; ver secao 9.
 - [ ] Secrets por Environment criados. — dependem do Coolify, R0.1.
 - [ ] Apps de terceiros revisados. — `railway-app` e `vercel` removidos; resta apenas o app do
       Coolify, que precisa ficar com `Auto deploy` desabilitado para não duplicar o deploy feito
@@ -1303,15 +1313,15 @@ Os nomes finais dos secrets deverão ser definidos em ADR e documentação de re
 
 ## 40. Validação
 
-- [ ] PR válido testado.
-- [ ] PR inválido bloqueado.
-- [ ] Development deploy testado.
-- [ ] Release RC testada.
-- [ ] Correção de homologação testada.
-- [ ] Produção testada.
-- [ ] Mesmo digest promovido.
-- [ ] Sincronização `main → develop` testada.
-- [ ] Rollback testado.
+- [x] PR válido testado. — pull requests #5, #6 e #7, com exclusão automática da branch.
+- [x] PR inválido bloqueado. — pull request #8, `feature/* → main`.
+- [ ] Development deploy testado. — R0.1.
+- [ ] Release RC testada. — R0.8.
+- [ ] Correção de homologação testada. — R0.8.
+- [ ] Produção testada. — R0.8.
+- [ ] Mesmo digest promovido. — R0.8.
+- [ ] Sincronização `main → develop` testada. — R0.8.
+- [ ] Rollback testado. — R0.8.
 
 ---
 
