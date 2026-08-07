@@ -89,7 +89,9 @@ ENV NODE_ENV=production \
 LABEL org.opencontainers.image.title="crypta-api" \
       org.opencontainers.image.version="${APP_VERSION}" \
       org.opencontainers.image.revision="${APP_COMMIT}" \
-      org.opencontainers.image.created="${APP_BUILT_AT}"
+      org.opencontainers.image.created="${APP_BUILT_AT}" \
+      org.opencontainers.image.source="https://github.com/VictOliRodrigues/crypta" \
+      org.opencontainers.image.licenses="AGPL-3.0-only"
 
 WORKDIR /app
 
