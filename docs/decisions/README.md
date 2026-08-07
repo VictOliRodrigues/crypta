@@ -12,21 +12,22 @@ Um ADR publicado não é reescrito. Quando uma decisão muda, cria-se um novo AD
 
 ## Índice
 
-| ADR                                           | Título                                      | Status   |
-| --------------------------------------------- | ------------------------------------------- | -------- |
-| [0001](0001-monorepo.md)                      | Monorepo com pnpm workspaces                | ACCEPTED |
-| [0002](0002-modular-monolith.md)              | Monólito modular no backend                 | ACCEPTED |
-| [0003](0003-client-side-encryption.md)        | Criptografia no cliente                     | ACCEPTED |
-| [0004](0004-auth-secret-domain-separation.md) | Separação entre autenticação e criptografia | ACCEPTED |
-| [0005](0005-shared-vault-key-envelopes.md)    | VaultKey por cofre e envelope por membro    | ACCEPTED |
-| [0006](0006-client-side-csv-import.md)        | Importação CSV processada no navegador      | ACCEPTED |
-| [0007](0007-rest-api.md)                      | API REST versionada                         | ACCEPTED |
-| [0008](0008-mysql-prisma.md)                  | MySQL com Prisma                            | ACCEPTED |
-| [0009](0009-coolify-deployment.md)            | Deploy no Coolify sem Docker Compose        | ACCEPTED |
-| [0010](0010-session-strategy.md)              | Sessões com refresh token rotacionado       | ACCEPTED |
-| [0011](0011-github-release-flow.md)           | Fluxo de branches, versões e releases       | ACCEPTED |
-| [0012](0012-immutable-artifact-promotion.md)  | Build único na RC e promoção por digest     | ACCEPTED |
-| [0013](0013-agpl-license.md)                  | Licença AGPL-3.0                            | ACCEPTED |
+| ADR                                           | Título                                        | Status   |
+| --------------------------------------------- | --------------------------------------------- | -------- |
+| [0001](0001-monorepo.md)                      | Monorepo com pnpm workspaces                  | ACCEPTED |
+| [0002](0002-modular-monolith.md)              | Monólito modular no backend                   | ACCEPTED |
+| [0003](0003-client-side-encryption.md)        | Criptografia no cliente                       | ACCEPTED |
+| [0004](0004-auth-secret-domain-separation.md) | Separação entre autenticação e criptografia   | ACCEPTED |
+| [0005](0005-shared-vault-key-envelopes.md)    | VaultKey por cofre e envelope por membro      | ACCEPTED |
+| [0006](0006-client-side-csv-import.md)        | Importação CSV processada no navegador        | ACCEPTED |
+| [0007](0007-rest-api.md)                      | API REST versionada                           | ACCEPTED |
+| [0008](0008-mysql-prisma.md)                  | MySQL com Prisma                              | ACCEPTED |
+| [0009](0009-coolify-deployment.md)            | Deploy no Coolify sem Docker Compose          | ACCEPTED |
+| [0010](0010-session-strategy.md)              | Sessões com refresh token rotacionado         | ACCEPTED |
+| [0011](0011-github-release-flow.md)           | Fluxo de branches, versões e releases         | ACCEPTED |
+| [0012](0012-immutable-artifact-promotion.md)  | Build único na RC e promoção por digest       | ACCEPTED |
+| [0013](0013-agpl-license.md)                  | Licença AGPL-3.0                              | ACCEPTED |
+| [0014](0014-js-yaml-override.md)              | Override de `js-yaml` para a versão corrigida | ACCEPTED |
 
 ## Decisões ainda em aberto
 

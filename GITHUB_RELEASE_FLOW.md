@@ -898,6 +898,31 @@ release/*
 
 A exclusão automática nativa de branches do GitHub deve permanecer desabilitada.
 
+As branches `dependabot/*` também não entram na lista: o próprio Dependabot as apaga depois do merge.
+
+### Proteção de `release/*` pelos rulesets
+
+O workflow acima é apenas metade da proteção — ele deixa de apagar, mas não impede que alguém apague. A outra metade é o ruleset `Release branches`, com target `release/*`:
+
+```text
+Restrict deletions
+Block force pushes
+Require status checks           os mesmos três das branches permanentes
+Do not require status checks on creation
+```
+
+**`Require a pull request` não é ativado neste alvo, deliberadamente.**
+
+`start-release.yml` cria a branch `release/x.y.z` e empurra nela o commit do `VERSION` usando o `GITHUB_TOKEN`. Exigir pull request bloquearia esse push, e não existe forma limpa de liberar a automação: a bypass list de um ruleset aceita administradores, papéis `maintain` e `write`, times, GitHub Apps e o Dependabot, mas o `GITHUB_TOKEN` executa como `github-actions[bot]`, que não é ator elegível. Um bypass por papel de administrador não alcança o token do workflow.
+
+As saídas restantes seriam guardar um PAT ou um GitHub App em secret — superfície de ataque adicional num repositório de cofre de senhas — ou reescrever o workflow para não empurrar direto, o que não é possível, já que criar uma branch é um push por definição.
+
+O que a secao 3 e o `CLAUDE.md` secao 64 exigem de `release/*` é que ela sobreviva à homologação inteira e que a RC não seja reescrita. `Restrict deletions` e `Block force pushes` entregam as duas coisas. A disciplina de que correções entrem por `fix/* → release/*` continua garantida pelo `validate-pr-flow.yml` da secao 17, que reprova qualquer outra origem.
+
+`Do not require status checks on creation` acompanha obrigatoriamente o `Require status checks`: o commit do `VERSION` nasce sem check algum, e sem essa opção a criação da branch pode ser barrada.
+
+O ruleset precisa ser criado em `New branch ruleset`. Criado como ruleset de tag com o mesmo padrão, ele fica ativo, aparece verde na interface e não protege coisa alguma.
+
 ---
 
 ## 19. Iniciar release

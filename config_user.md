@@ -3,9 +3,9 @@
 # Crypta — Configurações Manuais do GitHub e Coolify
 
 > **Responsável:** Proprietário do repositório e da infraestrutura  
-> **Status:** Checklist inicial para execução  
-> **Versão:** 0.1.0  
-> **Última atualização:** 31 de julho de 2026
+> **Status:** Fases 1 a 4 e 7 executadas; Coolify pendente na R0.1  
+> **Versão:** 0.2.0  
+> **Última atualização:** 7 de agosto de 2026
 
 ---
 
@@ -152,8 +152,8 @@ O caminho visual pode mudar no GitHub. Procure por `Default branch` nas configur
 
 Checklist:
 
-- [ ] Default branch alterada para `develop`.
-- [ ] Novos PRs sugerem `develop` como destino.
+- [x] Default branch alterada para `develop`.
+- [x] Novos PRs sugerem `develop` como destino.
 
 Não apague `main`.
 
@@ -171,12 +171,12 @@ Settings
 
 Habilitar:
 
-- [ ] Allow squash merging.
-- [ ] Allow merge commits.
+- [x] Allow squash merging.
+- [x] Allow merge commits.
 
 Desabilitar inicialmente:
 
-- [ ] Allow rebase merging.
+- [x] Allow rebase merging.
 
 Motivo:
 
@@ -194,7 +194,7 @@ Automatically delete head branches
 
 Checklist:
 
-- [ ] Exclusão automática nativa desabilitada.
+- [x] Exclusão automática nativa desabilitada.
 
 O projeto utilizará workflow seletivo para apagar somente branches temporárias. Isso evita apagar `release/*` durante homologação.
 
@@ -223,10 +223,14 @@ Recomendação inicial:
 
 ### Workflow permissions
 
-Os workflows declaram permissões mínimas em YAML. Para permitir as automações de release:
+Os workflows declaram permissões mínimas em YAML.
 
-- [ ] Selecionar `Read and write permissions`, se a política do repositório exigir essa concessão global.
-- [ ] Habilitar `Allow GitHub Actions to create and approve pull requests`.
+- [x] Manter `Read repository contents and packages permissions`.
+- [x] Habilitar `Allow GitHub Actions to create and approve pull requests`.
+
+**Não selecione `Read and write permissions`.** Ela concede escrita global ao `GITHUB_TOKEN` em todos os escopos, para todos os workflows, e não é necessária: um workflow pode declarar permissão maior no próprio YAML, mesmo com o default restrito.
+
+Isto está confirmado neste repositório. O `cleanup-temporary-branches.yml` declara `permissions: contents: write` e apagou a branch `chore/restore-green-ci` com sucesso, com o default em `Read repository contents and packages permissions`.
 
 A automação deverá apenas criar PRs; aprovação automática não deve ser utilizada.
 
@@ -234,11 +238,11 @@ Se o repositório estiver em uma organização, confirme se a política da organ
 
 Checklist:
 
-- [ ] Actions habilitadas.
-- [ ] Workflows podem criar tags.
-- [ ] Workflows podem criar releases.
-- [ ] Workflows podem publicar packages.
-- [ ] Workflows podem criar PR de sincronização.
+- [x] Actions habilitadas.
+- [x] Workflows podem criar PR de sincronização.
+- [ ] Workflows podem criar tags — confirmar na primeira RC.
+- [ ] Workflows podem criar releases — confirmar na primeira RC.
+- [ ] Workflows podem publicar packages — R0.1.
 
 ---
 
@@ -261,12 +265,14 @@ esperados aqui.
 
 Checklist:
 
-- [ ] Workflows commitados em `develop`.
-- [ ] `ci.yml` executado pelo menos uma vez.
-- [ ] `validate-pr-flow.yml` executado pelo menos uma vez.
-- [ ] Nomes reais dos checks anotados.
+- [x] Workflows commitados em `develop`.
+- [x] `ci.yml` executado pelo menos uma vez.
+- [x] `validate-pr-flow.yml` executado pelo menos uma vez.
+- [x] Nomes reais dos checks anotados — os três estão na secao 25.
 
 Não configure um required check antes de ele aparecer pelo menos uma vez no GitHub.
+
+O GitHub oferece na lista os checks que já viu executar, independentemente do resultado. Ter rodado é o que registra o nome; ter passado é o que você precisa confirmar antes de tornar o check obrigatório, para não travar a branch padrão com uma exigência que ninguém consegue cumprir.
 
 ---
 
@@ -312,12 +318,20 @@ ghcr.io/VictOliRodrigues/crypta-web
 ghcr.io/VictOliRodrigues/crypta-api
 ```
 
+### Consequência de criar estas variables
+
+`deploy-development.yml` tem `if: vars.WEB_IMAGE != '' && vars.API_IMAGE != ''`. Enquanto as duas não existirem, o workflow é pulado. No instante em que existirem, ele passa a rodar a cada push em `develop` — e falha até a R0.1, porque os secrets do Coolify ainda não existem.
+
+Isso deixa a branch padrão com um workflow vermelho de forma permanente, o que atrapalha distinguir regressão real de ruído esperado. Se você ainda não vai configurar o Coolify, crie as duas variables só na R0.1.
+
+Elas não fazem parte do gate de saída da R0.
+
 Checklist:
 
-- [ ] `WEB_IMAGE` criada.
-- [ ] `API_IMAGE` criada.
-- [ ] Nomes em minúsculas.
-- [ ] Nenhum secret colocado em variável pública.
+- [x] `WEB_IMAGE` criada.
+- [x] `API_IMAGE` criada.
+- [x] Nomes em minúsculas.
+- [x] Nenhum secret colocado em variável pública.
 
 ---
 
@@ -409,10 +423,10 @@ COOLIFY_WEBHOOK_API
 
 Checklist:
 
-- [ ] Environment criado.
-- [ ] Branch `develop` autorizada.
-- [ ] URLs configuradas.
-- [ ] Secrets configurados.
+- [x] Environment criado.
+- [x] Branch `develop` autorizada.
+- [ ] URLs configuradas. — vazias até a R0.1.
+- [ ] Secrets configurados. — dependem do Coolify, R0.1.
 
 ---
 
@@ -459,10 +473,10 @@ COOLIFY_WEBHOOK_API
 
 Checklist:
 
-- [ ] Environment criado.
-- [ ] Branch/tag autorizada.
-- [ ] URLs configuradas.
-- [ ] Secrets de staging configurados.
+- [x] Environment criado.
+- [x] Branch/tag autorizada. — `staging` e `v*-rc.*`.
+- [ ] URLs configuradas. — R0.8.
+- [ ] Secrets de staging configurados. — R0.8.
 
 ---
 
@@ -512,11 +526,11 @@ Se você for o único usuário com acesso ao repositório, não configure uma ap
 
 Checklist:
 
-- [ ] Environment criado.
-- [ ] Branch/tag autorizada.
-- [ ] URLs configuradas.
-- [ ] Secrets de produção configurados.
-- [ ] Proteção compatível com a quantidade de revisores.
+- [x] Environment criado.
+- [x] Branch/tag autorizada. — `main` e `v*`.
+- [ ] URLs configuradas. — R0.8.
+- [ ] Secrets de produção configurados. — R0.8.
+- [x] Proteção compatível com a quantidade de revisores. — sem required reviewers enquanto houver um único mantenedor.
 
 ---
 
@@ -779,8 +793,8 @@ Sugestão de uso:
 
 Checklist:
 
-- [ ] Labels criadas.
-- [ ] Nomes iguais ao `.github/release.yml`.
+- [x] Labels criadas.
+- [x] Nomes iguais ao `.github/release.yml`.
 
 ---
 
@@ -806,7 +820,7 @@ Depois crie novos milestones conforme o roadmap.
 
 Checklist:
 
-- [ ] Milestone inicial criado.
+- [x] Milestone inicial criado.
 - [ ] Issues da versão associadas.
 - [ ] PRs da versão associados.
 
@@ -902,21 +916,44 @@ aceita `dependabot/*:develop`. Sem essa entrada o check reprova todo PR do Depen
 immergeável no momento em que a regra passa a valer — inclusive as atualizações de segurança, que
 são justamente as que não podem esperar.
 
+Cuidado com o que a lista oferece além desses três. O check chamado `Dependabot` aparece ali, mas
+vem do workflow dinâmico `dynamic/dependabot/dependabot-updates` e só reporta nas execuções do
+próprio Dependabot. Marcado como obrigatório, ele nunca reporta num pull request comum, fica
+_pending_ para sempre e **bloqueia todo merge**.
+
+### Configuração aplicada
+
+```text
+Permanent branches   target=branch   refs/heads/{develop,staging,main}
+  Restrict deletions
+  Block force pushes
+  Require a pull request        aprovações = 0, conversation resolution = on
+  Require status checks         Auditoria de dependências
+                                Lint, tipos, testes e builds
+                                Validar origem e destino
+```
+
+`Allowed merge methods` deve ficar em `Merge, Squash` — o rebase já está desabilitado no
+repositório pela secao 6, e deixá-lo no ruleset reintroduz a terceira estratégia caso alguém
+reabilite a opção global.
+
 Checklist:
 
-- [ ] Ruleset ativo.
-- [ ] Targets corretos.
-- [ ] Force push bloqueado.
-- [ ] Exclusão bloqueada.
-- [ ] PR obrigatório.
-- [ ] Checks obrigatórios.
-- [ ] Linear history desabilitado.
+- [x] Ruleset ativo.
+- [x] Targets corretos.
+- [x] Force push bloqueado.
+- [x] Exclusão bloqueada.
+- [x] PR obrigatório, com zero aprovações exigidas.
+- [x] Conversation resolution exigida.
+- [x] Os três checks obrigatórios, e somente eles.
+- [x] Linear history desabilitado.
+- [ ] `Allowed merge methods` reduzido a `Merge, Squash`.
 
 ---
 
 ## 26. Ruleset de `release/*`
 
-Criar novo branch ruleset.
+Criar em `New branch ruleset`. **Não** use `New tag ruleset`: o alvo é a branch `release/x.y.z`, e um ruleset de tag com o mesmo padrão fica ativo, aparece verde na tela e não protege nada.
 
 Nome:
 
@@ -932,11 +969,26 @@ release/*
 
 Ativar:
 
-- [ ] Restrict deletions.
-- [ ] Block force pushes.
-- [ ] Require pull request.
-- [ ] Require status checks.
-- [ ] Require conversation resolution.
+- [x] Restrict deletions.
+- [x] Block force pushes.
+- [x] Require status checks — os mesmos três da secao 25.
+- [x] Do not require status checks on creation.
+
+Não ativar:
+
+- [ ] Require a pull request before merging.
+
+### Por que sem exigência de pull request
+
+`start-release.yml` cria a branch `release/x.y.z` e empurra nela o commit que atualiza o `VERSION`, usando o `GITHUB_TOKEN`. Exigir pull request nesse alvo bloquearia esse push.
+
+A saída natural seria colocar a automação na bypass list, mas ela não existe: os atores elegíveis são administradores do repositório, da organização e da empresa, papéis `maintain` e `write`, times, GitHub Apps e o Dependabot. O `GITHUB_TOKEN` executa como `github-actions[bot]`, que **não** é um ator elegível, e um bypass por papel de administrador não cobre o token do workflow.
+
+As alternativas seriam trocar o `GITHUB_TOKEN` por um PAT ou GitHub App guardado em secret, o que amplia a superfície de ataque de um repositório de cofre de senhas, ou reescrever o workflow para não empurrar direto — sem ganho real, porque a criação da branch é um push por definição.
+
+O que o `CLAUDE.md` secao 64 exige de `release/*` é que ela não seja apagada durante a homologação e que a RC não seja reescrita. `Restrict deletions` e `Block force pushes` entregam exatamente isso. A disciplina de `fix/* → release/*` continua garantida pelo `validate-pr-flow.yml`, que reprova qualquer outra origem.
+
+`Do not require status checks on creation` é obrigatório junto de `Require status checks`: o commit do `VERSION` nasce sem check algum, e sem essa opção a criação da branch pode ser barrada.
 
 A branch será excluída manualmente apenas depois de:
 
@@ -948,9 +1000,14 @@ main sincronizada com develop
 
 Checklist:
 
-- [ ] Pattern correto.
-- [ ] Exclusão bloqueada durante homologação.
-- [ ] Correções entram por PR.
+- [x] Criado como **branch** ruleset, não tag.
+- [x] Pattern correto.
+- [x] Exclusão bloqueada durante homologação.
+- [x] Force push bloqueado.
+- [x] `Do not require status checks on creation` marcado.
+- [ ] Comportamento confirmado na primeira release real — ver secao 33.
+
+`Applies to 0 targets` é o resultado esperado enquanto nenhuma branch `release/*` existir.
 
 ---
 
@@ -972,19 +1029,27 @@ v*
 
 Regras recomendadas:
 
-- [ ] Restringir exclusão.
-- [ ] Restringir atualização.
-- [ ] Permitir criação pela automação de release.
+- [x] Restrict deletions.
+- [x] Restrict updates.
+- [x] Block force pushes.
 
-Teste com uma tag fictícia antes de ativar em modo estrito.
+Não marque `Restrict creations`: a automação de release precisa criar a tag, e o `GITHUB_TOKEN` não pode entrar na bypass list — o motivo está na secao 26.
 
-Não configure um ruleset que bloqueie o `GITHUB_TOKEN` sem fornecer bypass seguro à automação.
+### Não teste com uma tag fictícia
+
+Com `Restrict deletions` e `Restrict updates` ativos e a bypass list vazia, uma tag `v*` criada para teste fica **permanentemente impossível de apagar** — nem o proprietário do repositório consegue, porque administrador só ganha bypass se estiver explicitamente na lista.
+
+A validação correta é a primeira release candidate real, na secao 33. Até lá, confira a configuração pela tela do ruleset em vez de exercitá-la.
+
+Isto também não faz parte do gate de saída da R0: `ROADMAP.md` secao 8 não exige imutabilidade de tag para fechar a fase.
 
 Checklist:
 
-- [ ] Tags publicadas são imutáveis.
-- [ ] Workflow consegue criar nova tag.
-- [ ] Workflow não consegue mover tag existente.
+- [x] Ruleset criado com target `v*`.
+- [x] Exclusão e atualização restritas.
+- [x] `Restrict creations` **não** marcado.
+- [ ] Tags publicadas são imutáveis — confirmar na primeira RC.
+- [ ] Workflow consegue criar nova tag — confirmar na primeira RC.
 
 ---
 
@@ -998,18 +1063,20 @@ No repositório:
 
 ```text
 Settings
-→ Code security
+→ Advanced Security
 ```
 
-Ativar quando disponível:
+O menu já se chamou `Code security`. Se a interface mudar de novo, procure por `Dependabot` e `Secret scanning` nas configurações.
 
-- [ ] Dependabot alerts.
-- [ ] Dependabot security updates.
-- [ ] Secret scanning.
-- [ ] Push protection.
-- [ ] Code scanning, quando o workflow estiver configurado.
+Repositório público já vem com secret scanning, push protection, dependency graph e Dependabot habilitados:
 
-Como o repositório será público, revise qualquer alerta antes de publicar credenciais reais.
+- [x] Dependabot alerts.
+- [x] Dependabot security updates.
+- [x] Secret scanning.
+- [x] Push protection.
+- [ ] Code scanning, quando o workflow estiver configurado — R0.8.
+
+Como o repositório é público, revise qualquer alerta antes de publicar credenciais reais.
 
 ---
 
@@ -1019,9 +1086,9 @@ No GitHub, habilite Private vulnerability reporting quando disponível.
 
 Checklist:
 
-- [ ] Reporte privado habilitado.
-- [ ] `SECURITY.md` aponta o canal correto.
-- [ ] Issues públicas não são usadas para segredos.
+- [x] Reporte privado habilitado.
+- [x] `SECURITY.md` aponta o canal correto.
+- [x] Issues públicas não são usadas para segredos.
 
 ---
 
@@ -1060,10 +1127,14 @@ feature/test-flow → develop
 
 Validar:
 
-- [ ] Workflow aceita.
-- [ ] CI executa.
-- [ ] Merge por squash disponível.
-- [ ] Branch temporária é excluída pelo workflow.
+- [x] Workflow aceita.
+- [x] CI executa.
+- [x] Merge por squash disponível.
+- [x] Branch temporária é excluída pelo workflow.
+
+Validado pelos pull requests #5 e #6, ambos `chore/* → develop`. O `Validar origem e destino`
+aprovou, o `cleanup-temporary-branches.yml` apagou a branch integrada sozinho e o registro está no
+run `Excluir branch integrada`.
 
 ---
 
@@ -1072,15 +1143,27 @@ Validar:
 Tentar, sem fazer merge:
 
 ```text
-feature/test-flow → main
+feature/test-invalid-flow → main
+```
+
+Crie a branch a partir de `develop` com um commit vazio; não é preciso alterar arquivo nenhum:
+
+```bash
+git switch -c feature/test-invalid-flow develop
+git commit --allow-empty -m "test: check that the flow gate blocks feature to main"
+git push -u origin feature/test-invalid-flow
 ```
 
 Validar:
 
-- [ ] `Validar origem e destino` falha.
-- [ ] Merge fica bloqueado.
+- [ ] `Validar origem e destino` falha com `Fluxo inválido: feature/test-invalid-flow:main`.
+- [ ] Merge fica bloqueado pelo ruleset da secao 25.
 
-Fechar o PR.
+Este teste não depende de a CI estar verde: o check de fluxo não instala dependências e falha antes
+de qualquer outro job terminar.
+
+Fechar o PR sem mergear e **apagar a branch manualmente** — o `cleanup-temporary-branches.yml` só
+roda em pull request mergeado.
 
 ---
 
@@ -1184,23 +1267,26 @@ Os nomes finais dos secrets deverão ser definidos em ADR e documentação de re
 
 ## 38. GitHub
 
-- [ ] Repositório criado.
-- [ ] `develop`, `staging`, `main` criadas.
-- [ ] `develop` como default.
-- [ ] Squash e merge commit habilitados.
-- [ ] Rebase desabilitado.
-- [ ] Auto delete desabilitado.
-- [ ] Actions configuradas.
-- [ ] Variables de imagens criadas.
-- [ ] Environments criados.
-- [ ] Secrets por Environment criados.
-- [ ] Labels criadas.
-- [ ] Milestone criado.
-- [ ] Rulesets ativos.
-- [ ] Tag ruleset ativo.
-- [ ] Dependabot ativo.
-- [ ] Secret scanning ativo.
-- [ ] Reporte privado ativo.
+- [x] Repositório criado.
+- [x] `develop`, `staging`, `main` criadas.
+- [x] `develop` como default.
+- [x] Squash e merge commit habilitados.
+- [x] Rebase desabilitado.
+- [x] Auto delete desabilitado.
+- [x] Actions configuradas.
+- [x] Variables de imagens criadas.
+- [x] Environments criados.
+- [x] Labels criadas.
+- [x] Milestone criado.
+- [x] Rulesets ativos.
+- [x] Tag ruleset ativo.
+- [x] Dependabot ativo.
+- [x] Secret scanning ativo.
+- [x] Reporte privado ativo.
+- [ ] Secrets por Environment criados. — dependem do Coolify, R0.1.
+- [ ] Apps de terceiros revisados. — `railway-app` e `vercel` removidos; resta apenas o app do
+      Coolify, que precisa ficar com `Auto deploy` desabilitado para não duplicar o deploy feito
+      pelas Actions (secao 17 e secao 41).
 
 ## 39. Coolify
 

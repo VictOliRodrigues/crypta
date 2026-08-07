@@ -1572,6 +1572,53 @@ MIT e Apache-2.0 permitem um fork fechado hospedado como serviço. GPL-3.0 tem c
 
 ---
 
+## DEC-041 — Override de `js-yaml` para a versão corrigida
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+`pnpm-workspace.yaml` força a resolução vulnerável de `js-yaml` para a versão corrigida:
+
+```yaml
+overrides:
+  'js-yaml@5.2.1': '^5.2.3'
+```
+
+O seletor inclui a versão. `js-yaml` 3.15.1 e 4.3.1, fora da faixa do advisory, permanecem intactas.
+
+### Motivos
+
+[GHSA-pm4m-ph32-ghv5](https://github.com/advisories/GHSA-pm4m-ph32-ghv5) afeta `js-yaml` de `5.0.0` a `5.2.1`: análise de _flow collections_ em tempo exponencial, com negação de serviço. A cópia vulnerável entra por `@nestjs/swagger`, que crava `"5.2.1"` em versão exata. A `11.4.6` é a última versão publicada do pacote pai — não existe atualização que corrija.
+
+O job `Auditoria de dependências` bloqueia o merge diante de vulnerabilidade alta, conforme `ROADMAP.md` secao 42. Sem o override, a R0 não fecha.
+
+### Rejeitado
+
+```text
+atualizar @nestjs/swagger
+trocar a biblioteca de OpenAPI
+baixar o --audit-level ou excetuar o advisory
+override pelo nome do pacote
+```
+
+Não há versão do pai que corrija. Swagger é stack fixa em `CLAUDE.md` secao 4. Afrouxar o portão o esvaziaria para toda vulnerabilidade alta futura, não só esta. Override pelo nome arrastaria `js-yaml` 3.x e 4.x para a linha 5.x sem ganho de segurança.
+
+### Consequências
+
+- `pnpm audit --audit-level high` volta a reportar ausência de vulnerabilidades conhecidas;
+- alteração de uma linha no `pnpm-lock.yaml`;
+- a entrada congela a resolução e precisa ser removida quando o upstream corrigir o pin;
+- nenhuma automação vigia overrides obsoletos.
+
+### ADR
+
+[`docs/decisions/0014-js-yaml-override.md`](decisions/0014-js-yaml-override.md)
+
+---
+
 # DECISÕES REJEITADAS
 
 ---
