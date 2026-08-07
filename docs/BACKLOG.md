@@ -118,20 +118,20 @@ Uma tarefa somente poderá ser considerada `DONE` quando:
 
 > Atualizado em 7 de agosto de 2026.
 
-| Item     | Status  | Observação                                                                                                                                                                                  |
-| -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BLG-0001 | DONE    | Repositório público em `VictOliRodrigues/crypta`, com `develop`, `staging` e `main` criadas e `develop` como padrão.                                                                        |
-| BLG-0002 | DONE    | `.gitignore`, `.editorconfig`, `.env.example`, `VERSION`, `LICENSE`, `docs/decisions/`, a documentação reorganizada e os templates de `.github/` (PR, issues e `release.yml`).              |
-| BLG-0003 | PARCIAL | Fases 1 a 4 e 7 do `config_user.md` executadas: merge methods, permissões das Actions, variables, três Environments, labels, milestone `0.1.0` e reporte privado. Coolify pendente na R0.1. |
-| BLG-0004 | PARCIAL | `Permanent branches`, `Release branches` e `Release tags` ativos. Falta reduzir `Allowed merge methods` a `Merge, Squash` e validar o PR inválido da secao 32 do `config_user.md`.          |
-| BLG-0005 | DONE    | ADRs 0001 a 0014 em `docs/decisions/`, linkados no `README.md`, em `DECISIONS.md` e em `ARCHITECTURE.md` secao 51.                                                                          |
-| BLG-0101 | DONE    | Workspaces criados. `apps/mobile` é apenas README: entra na R0.7.                                                                                                                           |
-| BLG-0102 | DONE    | `@crypta/tsconfig` com `strict`, `noUncheckedIndexedAccess` e `exactOptionalPropertyTypes`; aliases configurados.                                                                           |
-| BLG-0103 | DONE    | `@crypta/eslint-config` (flat config) com variantes React e Nest; Prettier na raiz.                                                                                                         |
-| BLG-0104 | PARCIAL | Vitest nos packages e na Web, Jest e Supertest na API. Testes de integração com MySQL entram na R0.2.                                                                                       |
-| BLG-0105 | BACKLOG | Hooks locais (Husky/lint-staged) ainda não avaliados.                                                                                                                                       |
-| BLG-0201 | DONE    | `ci.yml` com format, lint, typecheck, test, build e validação do schema Prisma. Os três checks estão registrados como obrigatórios nas branches permanentes.                                |
-| BLG-0202 | PARCIAL | `pnpm audit --audit-level high` na CI e Dependabot configurado. Falta container scan (`PEND-019`).                                                                                          |
+| Item     | Status  | Observação                                                                                                                                                                                                  |
+| -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BLG-0001 | DONE    | Repositório público em `VictOliRodrigues/crypta`, com `develop`, `staging` e `main` criadas e `develop` como padrão.                                                                                        |
+| BLG-0002 | DONE    | `.gitignore`, `.editorconfig`, `.env.example`, `VERSION`, `LICENSE`, `docs/decisions/`, a documentação reorganizada e os templates de `.github/` (PR, issues e `release.yml`).                              |
+| BLG-0003 | DONE    | Configuração manual do GitHub concluída para a R0: merge methods, permissões das Actions, três Environments, labels, milestone `0.1.0` e reporte privado. Coolify e variables de imagem são escopo da R0.1. |
+| BLG-0004 | DONE    | `Permanent branches`, `Release branches` e `Release tags` ativos, com os três checks obrigatórios. Fluxo inválido validado no PR #8.                                                                        |
+| BLG-0005 | DONE    | ADRs 0001 a 0014 em `docs/decisions/`, linkados no `README.md`, em `DECISIONS.md` e em `ARCHITECTURE.md` secao 51.                                                                                          |
+| BLG-0101 | DONE    | Workspaces criados. `apps/mobile` é apenas README: entra na R0.7.                                                                                                                                           |
+| BLG-0102 | DONE    | `@crypta/tsconfig` com `strict`, `noUncheckedIndexedAccess` e `exactOptionalPropertyTypes`; aliases configurados.                                                                                           |
+| BLG-0103 | DONE    | `@crypta/eslint-config` (flat config) com variantes React e Nest; Prettier na raiz.                                                                                                                         |
+| BLG-0104 | PARCIAL | Vitest nos packages e na Web, Jest e Supertest na API. Testes de integração com MySQL entram na R0.2.                                                                                                       |
+| BLG-0105 | BACKLOG | Hooks locais (Husky/lint-staged) ainda não avaliados.                                                                                                                                                       |
+| BLG-0201 | DONE    | `ci.yml` com format, lint, typecheck, test, build e validação do schema Prisma. Os três checks estão registrados como obrigatórios nas branches permanentes.                                                |
+| BLG-0202 | PARCIAL | `pnpm audit --audit-level high` na CI e Dependabot configurado. Falta container scan (`PEND-019`).                                                                                                          |
 
 Licença definida em DEC-040 / [ADR 0013](decisions/0013-agpl-license.md): `AGPL-3.0-only`, com o `LICENSE` na raiz e o identificador SPDX no `package.json`.
 
@@ -141,18 +141,29 @@ Override de `js-yaml` definido em DEC-041 / [ADR 0014](decisions/0014-js-yaml-ov
 
 Conforme `ROADMAP.md` secao 8:
 
-| Item do gate                                    | Estado                                                             |
-| ----------------------------------------------- | ------------------------------------------------------------------ |
-| Branches permanentes criadas                    | OK                                                                 |
-| `develop` definido como padrão                  | OK                                                                 |
-| Branch temporária correta pode ser apagada      | OK — validado nos PRs #5 e #6                                      |
-| `release/*` não é apagada automaticamente       | OK por configuração; comportamento se confirma na primeira release |
-| `VERSION` validado                              | OK — `0.1.0`, sem prefixo `v`                                      |
-| Documentação principal versionada               | OK                                                                 |
-| Nenhum segredo no repositório                   | OK — secret scanning e push protection ativos                      |
-| Configuração do `config_user.md`                | PARCIAL — ver BLG-0003                                             |
-| PR inválido bloqueado                           | PENDENTE — secao 32 do `config_user.md`                            |
-| `pnpm install`, lint, typecheck, testes, builds | PENDENTE — passam localmente; falta a confirmação em CI verde      |
+| Item do gate                                 | Estado                                                                     |
+| -------------------------------------------- | -------------------------------------------------------------------------- |
+| Configuração do `config_user.md` para a fase | OK — fases 1 a 4 e 7 a 9; Coolify e variables de imagem são escopo da R0.1 |
+| Branches permanentes criadas                 | OK — `develop`, `staging` e `main`, com ruleset ativo nas três             |
+| `develop` definido como padrão               | OK                                                                         |
+| PR inválido bloqueado                        | OK — PR #8, `feature/* → main`, reprovado por `Validar origem e destino`   |
+| Branch temporária correta pode ser apagada   | OK — validado nos PRs #5, #6 e #7                                          |
+| `release/*` não é apagada automaticamente    | OK — fora do `cleanup-temporary-branches.yml` e sob `Restrict deletions`   |
+| `VERSION` validado                           | OK — `0.1.0`, sem prefixo `v`                                              |
+| `pnpm install` funcional                     | OK — `--frozen-lockfile` passa na política de supply chain                 |
+| Lint passa                                   | OK — CI verde em `develop`                                                 |
+| Typecheck passa                              | OK — CI verde em `develop`                                                 |
+| Testes de exemplo passam                     | OK — 106 testes                                                            |
+| Web builda                                   | OK — CI verde em `develop`                                                 |
+| API builda                                   | OK — CI verde em `develop`                                                 |
+| Documentação principal versionada            | OK                                                                         |
+| Nenhum segredo no repositório                | OK — secret scanning e push protection ativos                              |
+
+**O gate de saída da R0 está cumprido.**
+
+Fora do gate, herdado para a R0.1: `staging` e `main` continuam no baseline anterior às correções
+de CI e recebem esse conteúdo na promoção da `release/0.1.0`; as variables `WEB_IMAGE` e
+`API_IMAGE` e os secrets do Coolify entram junto do primeiro deploy real.
 
 Nenhuma tarefa da R0.2 em diante foi iniciada.
 
