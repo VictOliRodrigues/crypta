@@ -897,6 +897,11 @@ O check `Validar origem e destino` só aparece nesta lista **depois** que existi
 que o tenha executado, porque `validate-pr-flow.yml` dispara apenas em `pull_request`. Faça o PR
 de teste da secao 31 antes de criar este ruleset.
 
+Antes de marcar `Validar origem e destino` como obrigatório, confirme que o `validate-pr-flow.yml`
+aceita `dependabot/*:develop`. Sem essa entrada o check reprova todo PR do Dependabot, e o PR fica
+immergeável no momento em que a regra passa a valer — inclusive as atualizações de segurança, que
+são justamente as que não podem esperar.
+
 Checklist:
 
 - [ ] Ruleset ativo.
