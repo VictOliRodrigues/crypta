@@ -425,11 +425,15 @@ develop
 Criar:
 
 ```text
-APP_URL=<URL Web development>
-API_BASE_URL=<URL API development>/api/v1
+APP_URL=https://crypta-dev.vorodrigues.com.br
+API_BASE_URL=https://crypta-api-dev.vorodrigues.com.br/api/v1
 ```
 
-`API_BASE_URL` **inclui o prefixo `/api/v1`**. O workflow usa esse valor em dois lugares: como `VITE_API_BASE_URL` no build da imagem Web e para confirmar, depois do deploy, que `GET /version` reporta o commit esperado.
+`API_BASE_URL` **inclui o prefixo `/api/v1`**. O workflow usa esse valor em dois lugares: como `VITE_API_BASE_URL` no build da imagem Web e para confirmar, depois do deploy, que `GET /version` reporta o commit esperado — o passo concatena `"${API_URL}/version"`, então uma barra no final produz `//version`.
+
+Ambos com `https://`. O gate de saída exige HTTPS nos dois (`ROADMAP.md` secao 12), o cookie de refresh da R0.2 exige `Secure`, e o host da API fica embutido no bundle da Web em tempo de build: trocar o esquema depois obriga a reconstruir a imagem, não basta mexer no DNS.
+
+Os domínios de staging e production precisam ser distintos destes (`CLAUDE.md` secao 65).
 
 ### Secrets
 
@@ -691,6 +695,14 @@ CORS_ORIGINS=<URL da Web daquele ambiente>
 LOG_LEVEL=info
 ```
 
+Em development:
+
+```text
+CORS_ORIGINS=https://crypta-dev.vorodrigues.com.br
+```
+
+Idêntico ao `APP_URL` da secao 11, caractere por caractere.
+
 Regras que a validação aplica:
 
 - `DATABASE_URL` precisa começar com `mysql://` e usar o host interno da rede privada, nunca um endereço público;
@@ -748,11 +760,33 @@ Para cada ambiente:
 
 ## 19. Configurar domínios e HTTPS
 
+### Development
+
+```text
+recurso Web  → Domains → https://crypta-dev.vorodrigues.com.br
+recurso API  → Domains → https://crypta-api-dev.vorodrigues.com.br
+```
+
+Declare o domínio **com `https://`**: é isso que faz o Coolify emitir o certificado Let's Encrypt. Declarar com `http://` deixa o recurso sem certificado e reprova o gate de saída (`ROADMAP.md` secao 12).
+
+Estado verificado em 7 de agosto de 2026, antes de criar os recursos: os dois nomes resolvem para o host do Coolify, HTTPS ainda não responde e HTTP devolve 404. Isso é o esperado — DNS e proxy prontos, sem recurso configurado para esses hostnames.
+
+### Como confirmar depois
+
+```bash
+curl -s https://crypta-api-dev.vorodrigues.com.br/api/v1/version
+
+curl -si https://crypta-api-dev.vorodrigues.com.br/api/v1/version \n  -H "Origin: https://crypta-dev.vorodrigues.com.br" | grep -i access-control-allow-origin
+```
+
+A segunda precisa devolver exatamente a origem da Web. Resposta vazia significa `CORS_ORIGINS` diferente do que o navegador envia — uma barra no final basta para quebrar.
+
 Para cada ambiente:
 
 - [ ] Domínio Web.
 - [ ] Domínio API.
 - [ ] DNS apontado.
+- [ ] Domínio declarado com `https://` no Coolify.
 - [ ] HTTPS válido.
 - [ ] Redirect HTTP para HTTPS.
 - [ ] CORS da API restrito à Web correta.
