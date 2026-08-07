@@ -70,6 +70,11 @@ LABEL org.opencontainers.image.title="crypta-web" \
       org.opencontainers.image.created="${APP_BUILT_AT}"
 
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
+
+# O snippet de cabeçalhos fica em snippets/, e não em conf.d/: o nginx.conf
+# principal inclui /etc/nginx/conf.d/*.conf automaticamente no bloco http, o
+# que carregaria estes add_header duas vezes e no contexto errado.
+COPY apps/web/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY --from=build /repo/apps/web/dist /usr/share/nginx/html
 
 EXPOSE 8080
