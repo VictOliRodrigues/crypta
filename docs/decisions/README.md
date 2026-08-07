@@ -28,6 +28,7 @@ Um ADR publicado não é reescrito. Quando uma decisão muda, cria-se um novo AD
 | [0012](0012-immutable-artifact-promotion.md)  | Build único na RC e promoção por digest       | ACCEPTED |
 | [0013](0013-agpl-license.md)                  | Licença AGPL-3.0                              | ACCEPTED |
 | [0014](0014-js-yaml-override.md)              | Override de `js-yaml` para a versão corrigida | ACCEPTED |
+| [0015](0015-migrations-on-container-start.md) | Migrations aplicadas no start do container    | ACCEPTED |
 
 ## Decisões ainda em aberto
 

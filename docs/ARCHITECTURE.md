@@ -2249,6 +2249,12 @@ Migrations devem:
 - possuir backup e rollback para mudança destrutiva;
 - ser executadas antes do tráfego da versão dependente.
 
+O comando roda no entrypoint do container da API, antes de o processo aceitar tráfego (ADR 0015). O Coolify implanta uma imagem pronta e recebe apenas o sinal de deploy: não existe etapa intermediária onde o comando pudesse rodar, e o banco fica em rede privada, fora do alcance do runner da GitHub Actions.
+
+Falha de migration derruba o container antes da aplicação subir, e o orquestrador mantém a versão anterior no ar.
+
+Rollback de imagem não desfaz migration aplicada: voltar para um artefato anterior devolve o código, não o schema. A compatibilidade temporária descrita em 46.1 é a proteção nesse caso.
+
 ### 39.10 Rollback
 
 Rollback usa:
@@ -2721,7 +2727,7 @@ docs/decisions/
 
 ## 51. ADRs registrados
 
-Os doze ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
+Os quinze ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
 arquitetura depende. As decisões ainda em aberto estão listadas como pendências em
 [`DECISIONS.md`](DECISIONS.md).
 
@@ -2737,6 +2743,9 @@ arquitetura depende. As decisões ainda em aberto estão listadas como pendênci
 - [`0010-session-strategy.md`](decisions/0010-session-strategy.md)
 - [`0011-github-release-flow.md`](decisions/0011-github-release-flow.md)
 - [`0012-immutable-artifact-promotion.md`](decisions/0012-immutable-artifact-promotion.md)
+- [`0013-agpl-license.md`](decisions/0013-agpl-license.md)
+- [`0014-js-yaml-override.md`](decisions/0014-js-yaml-override.md)
+- [`0015-migrations-on-container-start.md`](decisions/0015-migrations-on-container-start.md)
 
 ---
 

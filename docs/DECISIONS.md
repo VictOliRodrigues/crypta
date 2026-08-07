@@ -1619,6 +1619,59 @@ Não há versão do pai que corrija. Swagger é stack fixa em `CLAUDE.md` secao 
 
 ---
 
+## DEC-042 — Migrations aplicadas no start do container da API
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+A imagem da API tem um entrypoint que executa `prisma migrate deploy` e só então entrega o controle ao `CMD`:
+
+```sh
+set -eu
+
+./node_modules/.bin/prisma migrate deploy
+
+exec "$@"
+```
+
+Migration que falha derruba o container antes da aplicação subir. O `exec` mantém o Node como PID 1, para que o SIGTERM chegue ao processo.
+
+### Motivos
+
+`ARCHITECTURE.md` secao 39.9 exige `prisma migrate deploy` antes do tráfego da versão dependente, mas não definia onde o comando roda. O Coolify implanta uma imagem pronta e recebe apenas o sinal de deploy (DEC-032, DEC-033): não existe etapa intermediária disponível.
+
+Com o `schema.prisma` ainda sem models, `prisma migrate deploy` conecta, reporta `No pending migrations to apply` e encerra com 0. Isso permite exercitar conectividade, credenciais e permissões desde a R0.1, antes de existir a primeira tabela — em vez de estrear o mecanismo junto da primeira migration com conteúdo.
+
+### Rejeitado
+
+```text
+migration no job da GitHub Actions
+recurso separado no Coolify
+comando manual antes de cada deploy
+adiar para a R0.2
+flag de ambiente para desligar
+```
+
+O runner não alcança o banco sem expor a rede privada (`CLAUDE.md` secao 65). Um recurso separado adiciona artefato a promover e versionar. Comando manual depende de disciplina num passo que não pode falhar, e `ROADMAP.md` secao 12 exige deploy automático.
+
+### Consequências
+
+- conectividade e permissões do banco validadas a cada deploy desde a R0.1;
+- migration e código sobem no mesmo artefato, sem janela de divergência;
+- subida do container fica acoplada ao banco: MySQL indisponível vira crashloop;
+- migration destrutiva passa a ser aplicada por deploy automático, e a exigência de backup de `CLAUDE.md` secao 68.4 passa a depender de processo;
+- rollback de imagem devolve o código, não o schema;
+- comportamento sob múltiplas réplicas não testado; a R0.1 roda com réplica única.
+
+### ADR
+
+[`docs/decisions/0015-migrations-on-container-start.md`](decisions/0015-migrations-on-container-start.md)
+
+---
+
 # DECISÕES REJEITADAS
 
 ---
