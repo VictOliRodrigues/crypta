@@ -1482,6 +1482,68 @@ Não crie antes da necessidade:
 
 ---
 
+## 41.1 Armadilhas encontradas na R0.1
+
+Quatro erros de configuração custaram runs e depuração durante o primeiro deploy real. Nenhum deles produz mensagem que aponte a causa. Registrados aqui porque staging e production repetem os mesmos passos.
+
+### Campo de imagem e campo de tag são separados no Coolify
+
+O recurso Docker Image tem **dois** campos. Colocar a referência completa no primeiro deixa o segundo com o valor padrão, e o Coolify concatena os dois:
+
+```text
+ERRADO   Docker Image: ghcr.io/<owner>/<repo>-api:development
+         Docker Image Tag: latest
+         → ghcr.io/<owner>/<repo>-api:development:latest
+         → "invalid reference format"
+
+CERTO    Docker Image: ghcr.io/<owner>/<repo>-api
+         Docker Image Tag: development
+```
+
+### A tag `latest` não existe
+
+O pipeline publica `development`, `staging`, `vX.Y.Z-rc.N`, `vX.Y.Z` e `production` — nunca `latest`. Deixar o campo de tag no padrão produz:
+
+```text
+failed to resolve reference "...:latest": not found
+```
+
+Cada ambiente precisa da sua tag preenchida explicitamente.
+
+### Repository variable com quebra de linha
+
+O campo de variable é uma textarea e aceita `Enter` sem avisar. Uma quebra de linha no fim de `WEB_IMAGE` faz `${IMAGE}:development` virar duas linhas, e o `tags:` do `build-push-action`, que separa por linha, produz a tag inválida `:development`:
+
+```text
+ERROR: failed to build: invalid tag ":development": invalid reference format
+```
+
+Ao criar ou editar, digite sem tocar em `Enter` e sem espaço no fim.
+
+### `COOLIFY_TOKEN` incompleto
+
+O token tem o formato `<id>|<secret>` e **as duas partes são obrigatórias**. Perder o `<id>|` ao copiar devolve:
+
+```text
+401 {"message":"Unauthenticated."}
+```
+
+Distinção que economiza tempo: **401 é token não reconhecido; 403 é token válido sem permissão.** Diante de um 401, não recrie o token com outro escopo — confira o valor. O teste que separa os casos:
+
+```bash
+TOKEN='<id>|<secret>'   # aspas simples: o shell interpreta | como pipe
+curl -i "https://<host-do-coolify>/api/v1/teams" -H "Authorization: Bearer $TOKEN"
+```
+
+`200` ou `403` provam que o token é válido; `401` não.
+
+### Duas coisas que não deram problema
+
+- **Senha do MySQL:** o Coolify gera senhas sem caractere especial, então o `DATABASE_URL` não precisou de percent-encoding. Se a senha for definida à mão com `@`, `:`, `/`, `?` ou `#`, o encoding volta a ser necessário — a falha aparece como erro de parsing do Prisma, não como credencial inválida.
+- **Rede entre API e MySQL:** funcionou sem ajuste adicional; `/health/ready` respondeu `database: ok` na primeira partida do container.
+
+---
+
 ## 42. Referências
 
 - GitHub Rulesets: <https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets>
