@@ -18,3 +18,16 @@ allowBuilds:
 
   # Negados:
   '@scarf/scarf': false # telemetria de instalação (via swagger-ui-dist); envia dados para terceiro
+
+# Correções de segurança em dependências transitivas.
+#
+# Cada entrada existe porque o pacote pai crava uma versão vulnerável e não há
+# release do pai que corrija. Remover a entrada assim que o upstream atualizar
+# o pin: um override esquecido congela a dependência e esconde correções
+# futuras.
+overrides:
+  # GHSA-pm4m-ph32-ghv5 — parsing exponencial em flow collections, DoS.
+  # @nestjs/swagger@11.4.6 (a última publicada) crava js-yaml 5.2.1. O seletor
+  # com versão limita o override a essa resolução: js-yaml 3.x e 4.x, fora do
+  # alcance do advisory, continuam como estão.
+  'js-yaml@5.2.1': '^5.2.3'
