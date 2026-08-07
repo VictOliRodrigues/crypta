@@ -328,10 +328,29 @@ Elas não fazem parte do gate de saída da R0.
 
 Foi o que aconteceu aqui: as duas foram criadas durante a R0, o `deploy-development.yml` passou a rodar e falhou em `Instalar dependências` e depois no webhook do Coolify, deixando `develop` com um vermelho permanente. Foram removidas e voltam na R0.1, junto dos secrets.
 
+### Ordem obrigatória na R0.1
+
+Criar estas duas variables é o **último** passo da R0.1. No instante em que existirem, o próximo push em `develop` executa o pipeline inteiro — build, push no GHCR, webhook do Coolify e verificação de `/api/v1/version`.
+
+Tudo de que esse run depende precisa existir antes:
+
+```text
+1. Coolify provisionado           secoes 14 a 19
+2. Token read:packages no Coolify secao 21
+3. Webhooks copiados              secao 20
+4. Environment development        secao 11
+   variables APP_URL e API_BASE_URL
+   secrets COOLIFY_TOKEN, COOLIFY_WEBHOOK_WEB, COOLIFY_WEBHOOK_API
+5. WEB_IMAGE e API_IMAGE          esta secao
+```
+
+Inverter essa ordem produz exatamente a falha registrada acima.
+
 Checklist:
 
-- [ ] `WEB_IMAGE` criada. — adiada para a R0.1.
-- [ ] `API_IMAGE` criada. — adiada para a R0.1.
+- [ ] Passos 1 a 4 concluídos antes desta secao.
+- [ ] `WEB_IMAGE` criada.
+- [ ] `API_IMAGE` criada.
 - [ ] Nomes em minúsculas.
 - [ ] Nenhum secret colocado em variável pública.
 
@@ -352,24 +371,29 @@ GitHub profile ou organization
 
 Faça o mesmo para API.
 
-### Opção recomendada para este repositório público
+### Visibilidade escolhida na R0.1: privados
 
-Tornar as imagens públicas, desde que:
+Os packages permanecem **privados**, e o Coolify autentica com um token `read:packages` configurado na secao 21.
 
-- não contenham `.env`;
-- não contenham segredos;
-- não contenham source maps sensíveis;
-- não contenham arquivos de desenvolvimento.
+O motivo é de ordem de operações, não de conteúdo. Packages nascem privados; tornar públicos exige que já existam, e eles só passam a existir depois do primeiro `docker push` do workflow. Como esse mesmo run dispara o webhook do Coolify em seguida, optar por público custaria um primeiro deploy vermelho para só então poder alterar a visibilidade.
+
+As imagens **poderiam** ser públicas do ponto de vista de conteúdo — verificado nesta data:
+
+- `.dockerignore` exclui `.env`, `.env.*`, `*.pem`, `*.key`, `*.p12`, `*.jks` e `secrets`;
+- `vite.config.ts` define `build.sourcemap: false`;
+- a imagem da API contém apenas `dist`, `prisma` e dependências de produção;
+- nenhum `VITE_*` do build carrega segredo — todos são metadados de versão e a URL pública da API.
+
+Se mais adiante houver motivo para torná-las públicas, a alteração é segura e o token do Coolify pode ser removido depois.
 
 Checklist:
 
 - [ ] Package Web criado.
 - [ ] Package API criado.
-- [ ] Visibilidade revisada.
+- [ ] Visibilidade confirmada como privada.
+- [ ] Token `read:packages` configurado no Coolify (secao 21).
 - [ ] Coolify consegue baixar as imagens.
 - [ ] Imagens não possuem segredos.
-
-Se optar por packages privados, configure autenticação do GHCR no servidor do Coolify com token de leitura de packages.
 
 ---
 
@@ -646,12 +670,61 @@ Web image: <WEB_IMAGE>:production
 API image: <API_IMAGE>:production
 ```
 
+### Portas internas
+
+Valores fixos nas imagens, verificados em execução local:
+
+```text
+Web  8080
+API  3000
+```
+
+A Web roda como `nginx-unprivileged`; por isso 8080 e não 80.
+
+### Variáveis de ambiente da API
+
+A API valida a configuração no startup e **recusa subir** se faltar algo (`env.schema.ts`). Configure antes do primeiro deploy, senão o container entra em crashloop:
+
+```text
+DATABASE_URL=mysql://<usuário>:<senha>@<host interno do MySQL>:3306/<banco>
+CORS_ORIGINS=<URL da Web daquele ambiente>
+LOG_LEVEL=info
+```
+
+Regras que a validação aplica:
+
+- `DATABASE_URL` precisa começar com `mysql://` e usar o host interno da rede privada, nunca um endereço público;
+- `CORS_ORIGINS` precisa listar ao menos uma URL absoluta e **não aceita `*`** — a API usa cookie de refresh e um curinga tornaria qualquer site capaz de originar requisição autenticada;
+- múltiplas origens são separadas por vírgula.
+
+`APP_ENVIRONMENT`, `APP_VERSION`, `APP_COMMIT` e `APP_BUILT_AT` **não** devem ser configuradas no Coolify: já vêm embutidas na imagem pelos build args do workflow. Defini-las manualmente faria `/api/v1/version` mentir sobre o que está implantado.
+
+### Migrations
+
+O container da API executa `prisma migrate deploy` no entrypoint, antes de aceitar tráfego (ADR 0015). Nenhuma configuração adicional é necessária no Coolify.
+
+Duas consequências operacionais:
+
+- o usuário do MySQL precisa de permissão de DDL no banco daquele ambiente, não só de leitura e escrita;
+- migration que falha derruba o container, e o Coolify mantém a versão anterior no ar. Isso é o comportamento desejado — verifique os logs do recurso antes de concluir que o deploy "não rodou".
+
+### Health checks
+
+```text
+Web  GET /            → 200
+API  GET /api/v1/health/live   → processo vivo
+API  GET /api/v1/health/ready  → processo vivo E MySQL alcançável
+```
+
+Use `/health/ready` como health check do recurso da API no Coolify: é ele que confirma a rede privada até o banco.
+
 Checklist:
 
 - [ ] Recursos Web configurados.
 - [ ] Recursos API configurados.
-- [ ] Portas internas configuradas.
+- [ ] Portas internas configuradas — Web 8080, API 3000.
 - [ ] Health checks configurados.
+- [ ] Variáveis de ambiente da API configuradas antes do primeiro deploy.
 - [ ] Imagens acessíveis.
 - [ ] Auto deploy por Git push desabilitado para evitar deploy duplicado.
 
@@ -727,26 +800,49 @@ Checklist por ambiente:
 
 ---
 
-## 21. Autenticar GHCR no servidor, se necessário
+## 21. Autenticar GHCR no servidor
 
-Se as imagens forem privadas, o servidor precisa conseguir baixar do GHCR.
+**Decisão da R0.1: os packages permanecem privados e o Coolify autentica com um token de leitura.**
 
-Crie um token GitHub com somente:
+Packages criados por workflow nascem privados. Sem credencial no servidor, a sequência do primeiro deploy seria: o workflow publica as imagens, dispara o webhook, e o Coolify falha ao puxar — deixando `develop` com um run vermelho por um motivo puramente de configuração.
+
+Configurar o token **antes** de criar as variables `WEB_IMAGE` e `API_IMAGE` evita isso. A alternativa, tornar os packages públicos, exigiria um primeiro deploy vermelho para que os packages passassem a existir e pudessem ter a visibilidade alterada.
+
+Crie um token GitHub com **somente**:
 
 ```text
 read:packages
 ```
 
-Configure o registry no Coolify ou faça login no host conforme a estratégia adotada.
+Não adicione `write:packages` nem `repo`: quem publica é o `GITHUB_TOKEN` do workflow, e este token só precisa baixar.
+
+No Coolify:
+
+```text
+Keys & Tokens
+→ Docker Registries (ou Private Registry no recurso)
+→ ghcr.io
+→ usuário: <seu usuário do GitHub>
+→ senha: <o token read:packages>
+```
+
+### Como confirmar que funcionou
+
+Só é verificável depois que as imagens existirem no GHCR. No servidor do Coolify:
+
+```bash
+docker pull ghcr.io/<owner>/<repository>-api:development
+```
+
+Um `denied` ou `unauthorized` indica token ausente, expirado ou sem `read:packages`.
 
 Checklist:
 
-- [ ] Token apenas de leitura.
+- [ ] Token apenas de leitura (`read:packages`, nada além).
 - [ ] Token guardado no Coolify.
 - [ ] Token não commitado.
+- [ ] Token configurado ANTES de criar `WEB_IMAGE` e `API_IMAGE`.
 - [ ] Pull de imagem validado.
-
-Se as imagens forem públicas, esta etapa pode não ser necessária.
 
 ---
 
