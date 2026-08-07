@@ -89,13 +89,20 @@ ENV NODE_ENV=production \
 LABEL org.opencontainers.image.title="crypta-api" \
       org.opencontainers.image.version="${APP_VERSION}" \
       org.opencontainers.image.revision="${APP_COMMIT}" \
-      org.opencontainers.image.created="${APP_BUILT_AT}"
+      org.opencontainers.image.created="${APP_BUILT_AT}" \
+      org.opencontainers.image.source="https://github.com/VictOliRodrigues/crypta" \
+      org.opencontainers.image.licenses="AGPL-3.0-only"
 
 WORKDIR /app
 
 RUN addgroup -S vault && adduser -S -G vault vault
 
 COPY --from=build --chown=vault:vault /prod/api ./
+
+# O entrypoint aplica as migrations antes de liberar tráfego. Fica fora da
+# árvore do pnpm deploy para não ser sobrescrito por um deploy futuro.
+COPY apps/api/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 USER vault
 
@@ -105,4 +112,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.API_PORT||3000)+'/api/v1/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["node", "dist/main.js"]

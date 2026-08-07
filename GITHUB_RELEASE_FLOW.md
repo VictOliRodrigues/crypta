@@ -1695,6 +1695,14 @@ Regras:
 - rollback documentado;
 - produção não deve executar `prisma db push`.
 
+`prisma migrate deploy` roda no entrypoint do container da API, a cada partida, antes de o processo aceitar tráfego (ADR 0015). Nenhum passo de workflow executa migration: o banco de cada ambiente fica em rede privada e o runner não o alcança.
+
+Consequências para a release:
+
+- migration e código sobem no mesmo artefato, e a promoção por digest carrega os dois juntos;
+- migration que falha impede a subida da versão nova, e o ambiente permanece na anterior;
+- rollback por digest devolve o código, não o schema.
+
 A aprovação da RC deve incluir a validação da migration no banco de staging.
 
 ---

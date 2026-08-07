@@ -328,10 +328,30 @@ Elas não fazem parte do gate de saída da R0.
 
 Foi o que aconteceu aqui: as duas foram criadas durante a R0, o `deploy-development.yml` passou a rodar e falhou em `Instalar dependências` e depois no webhook do Coolify, deixando `develop` com um vermelho permanente. Foram removidas e voltam na R0.1, junto dos secrets.
 
+### Ordem obrigatória na R0.1
+
+Criar estas duas variables é o **último** passo da R0.1. No instante em que existirem, o próximo push em `develop` executa o pipeline inteiro — build, push no GHCR, webhook do Coolify e verificação de `/api/v1/version`.
+
+Tudo de que esse run depende precisa existir antes:
+
+```text
+1. Coolify provisionado           secoes 14 a 19
+2. Webhooks copiados              secao 20
+3. Environment development        secao 11
+   variables APP_URL e API_BASE_URL
+   secrets COOLIFY_TOKEN, COOLIFY_WEBHOOK_WEB, COOLIFY_WEBHOOK_API
+4. WEB_IMAGE e API_IMAGE          esta secao
+
+O primeiro run cria os packages e falha no passo de confirmação, porque eles nascem privados. A visibilidade é alterada nessa janela — a sequência está na secao 10.
+```
+
+Inverter essa ordem produz exatamente a falha registrada acima.
+
 Checklist:
 
-- [ ] `WEB_IMAGE` criada. — adiada para a R0.1.
-- [ ] `API_IMAGE` criada. — adiada para a R0.1.
+- [ ] Passos 1 a 4 concluídos antes desta secao.
+- [ ] `WEB_IMAGE` criada.
+- [ ] `API_IMAGE` criada.
 - [ ] Nomes em minúsculas.
 - [ ] Nenhum secret colocado em variável pública.
 
@@ -352,24 +372,59 @@ GitHub profile ou organization
 
 Faça o mesmo para API.
 
-### Opção recomendada para este repositório público
+### Visibilidade escolhida na R0.1: públicos
 
-Tornar as imagens públicas, desde que:
+Os packages são tornados **públicos**, e o Coolify baixa as imagens sem credencial nenhuma.
 
-- não contenham `.env`;
-- não contenham segredos;
-- não contenham source maps sensíveis;
-- não contenham arquivos de desenvolvimento.
+A decisão inicial foi o oposto — privados, com um token `read:packages` guardado no Coolify — partindo da suposição de que o Coolify tivesse uma tela para credencial de registry. Ele não tem. A [documentação](https://coolify.io/docs/knowledge-base/docker/registry) define o mecanismo como `docker login` no host, e o Coolify reaproveita o `config.json` do daemon.
+
+Isso muda o custo da alternativa privada:
+
+- exige acesso SSH ao servidor;
+- exige que o login seja feito com o **mesmo usuário** que o Coolify usa como destino de deploy, senão o pull falha com `unauthorized` ([issue #6398](https://github.com/coollabsio/coolify/issues/6398));
+- a credencial não aparece em lugar nenhum da UI, então a falha não tem pista;
+- cria um token a rotacionar.
+
+Nada disso existe com packages públicos.
+
+O conteúdo permite — verificado nesta data:
+
+- `.dockerignore` exclui `.env`, `.env.*`, `*.pem`, `*.key`, `*.p12`, `*.jks` e `secrets`;
+- `vite.config.ts` define `build.sourcemap: false`;
+- a imagem da API contém apenas `dist`, `prisma` e dependências de produção;
+- nenhum `VITE_*` do build carrega segredo — todos são metadados de versão e a URL pública da API.
+
+O repositório é público e AGPL-3.0; as imagens declaram `org.opencontainers.image.source` e `org.opencontainers.image.licenses`.
+
+### Sequência, porque a ordem importa
+
+Packages nascem privados e só passam a existir depois do primeiro `docker push`. Quem os cria é o workflow, na Etapa 4 — e isso é deliberado: um package publicado pelo workflow fica vinculado ao repositório, e um package vinculado herda as permissões dele, o que preserva o acesso de push das publicações seguintes. Criá-los à mão, sem vínculo, arriscaria o contrário.
+
+Então o primeiro run vai falhar, e o ponto exato é previsível:
+
+```text
+build Web e API      ok
+push no GHCR         ok — os packages passam a existir, privados
+webhook do Coolify   ok — o webhook só enfileira, devolve 200
+confirmar versão     FALHA — o Coolify não conseguiu puxar a imagem
+```
+
+O passo `Confirmar versão implantada` tenta 20 vezes com 15 s de intervalo, então demora cerca de 5 minutos até falhar. Nessa janela:
+
+1. tornar os dois packages públicos;
+2. no Coolify, **Redeploy** nos dois recursos;
+3. se o passo já tiver falhado, **Re-run failed jobs** no GitHub.
+
+Um run vermelho no histórico é o custo aceito, e ele tem causa registrada aqui.
 
 Checklist:
 
-- [ ] Package Web criado.
-- [ ] Package API criado.
-- [ ] Visibilidade revisada.
-- [ ] Coolify consegue baixar as imagens.
+- [ ] Package Web criado pelo workflow.
+- [ ] Package API criado pelo workflow.
+- [ ] Visibilidade dos dois alterada para pública.
+- [ ] Packages vinculados ao repositório `crypta`.
+- [ ] Coolify consegue baixar as imagens sem credencial.
 - [ ] Imagens não possuem segredos.
-
-Se optar por packages privados, configure autenticação do GHCR no servidor do Coolify com token de leitura de packages.
 
 ---
 
@@ -401,11 +456,15 @@ develop
 Criar:
 
 ```text
-APP_URL=<URL Web development>
-API_BASE_URL=<URL API development>/api/v1
+APP_URL=https://crypta-dev.vorodrigues.com.br
+API_BASE_URL=https://crypta-api-dev.vorodrigues.com.br/api/v1
 ```
 
-`API_BASE_URL` **inclui o prefixo `/api/v1`**. O workflow usa esse valor em dois lugares: como `VITE_API_BASE_URL` no build da imagem Web e para confirmar, depois do deploy, que `GET /version` reporta o commit esperado.
+`API_BASE_URL` **inclui o prefixo `/api/v1`**. O workflow usa esse valor em dois lugares: como `VITE_API_BASE_URL` no build da imagem Web e para confirmar, depois do deploy, que `GET /version` reporta o commit esperado — o passo concatena `"${API_URL}/version"`, então uma barra no final produz `//version`.
+
+Ambos com `https://`. O gate de saída exige HTTPS nos dois (`ROADMAP.md` secao 12), o cookie de refresh da R0.2 exige `Secure`, e o host da API fica embutido no bundle da Web em tempo de build: trocar o esquema depois obriga a reconstruir a imagem, não basta mexer no DNS.
+
+Os domínios de staging e production precisam ser distintos destes (`CLAUDE.md` secao 65).
 
 ### Secrets
 
@@ -646,12 +705,69 @@ Web image: <WEB_IMAGE>:production
 API image: <API_IMAGE>:production
 ```
 
+### Portas internas
+
+Valores fixos nas imagens, verificados em execução local:
+
+```text
+Web  8080
+API  3000
+```
+
+A Web roda como `nginx-unprivileged`; por isso 8080 e não 80.
+
+### Variáveis de ambiente da API
+
+A API valida a configuração no startup e **recusa subir** se faltar algo (`env.schema.ts`). Configure antes do primeiro deploy, senão o container entra em crashloop:
+
+```text
+DATABASE_URL=mysql://<usuário>:<senha>@<host interno do MySQL>:3306/<banco>
+CORS_ORIGINS=<URL da Web daquele ambiente>
+LOG_LEVEL=info
+```
+
+Em development:
+
+```text
+CORS_ORIGINS=https://crypta-dev.vorodrigues.com.br
+```
+
+Idêntico ao `APP_URL` da secao 11, caractere por caractere.
+
+Regras que a validação aplica:
+
+- `DATABASE_URL` precisa começar com `mysql://` e usar o host interno da rede privada, nunca um endereço público;
+- `CORS_ORIGINS` precisa listar ao menos uma URL absoluta e **não aceita `*`** — a API usa cookie de refresh e um curinga tornaria qualquer site capaz de originar requisição autenticada;
+- múltiplas origens são separadas por vírgula.
+
+`APP_ENVIRONMENT`, `APP_VERSION`, `APP_COMMIT` e `APP_BUILT_AT` **não** devem ser configuradas no Coolify: já vêm embutidas na imagem pelos build args do workflow. Defini-las manualmente faria `/api/v1/version` mentir sobre o que está implantado.
+
+### Migrations
+
+O container da API executa `prisma migrate deploy` no entrypoint, antes de aceitar tráfego (ADR 0015). Nenhuma configuração adicional é necessária no Coolify.
+
+Duas consequências operacionais:
+
+- o usuário do MySQL precisa de permissão de DDL no banco daquele ambiente, não só de leitura e escrita;
+- migration que falha derruba o container, e o Coolify mantém a versão anterior no ar. Isso é o comportamento desejado — verifique os logs do recurso antes de concluir que o deploy "não rodou".
+
+### Health checks
+
+```text
+Web  GET /            → 200
+API  GET /api/v1/health/live   → processo vivo
+API  GET /api/v1/health/ready  → processo vivo E MySQL alcançável
+```
+
+Use `/health/ready` como health check do recurso da API no Coolify: é ele que confirma a rede privada até o banco.
+
 Checklist:
 
 - [ ] Recursos Web configurados.
 - [ ] Recursos API configurados.
-- [ ] Portas internas configuradas.
+- [ ] Portas internas configuradas — Web 8080, API 3000.
 - [ ] Health checks configurados.
+- [ ] Variáveis de ambiente da API configuradas antes do primeiro deploy.
 - [ ] Imagens acessíveis.
 - [ ] Auto deploy por Git push desabilitado para evitar deploy duplicado.
 
@@ -675,11 +791,33 @@ Para cada ambiente:
 
 ## 19. Configurar domínios e HTTPS
 
+### Development
+
+```text
+recurso Web  → Domains → https://crypta-dev.vorodrigues.com.br
+recurso API  → Domains → https://crypta-api-dev.vorodrigues.com.br
+```
+
+Declare o domínio **com `https://`**: é isso que faz o Coolify emitir o certificado Let's Encrypt. Declarar com `http://` deixa o recurso sem certificado e reprova o gate de saída (`ROADMAP.md` secao 12).
+
+Estado verificado em 7 de agosto de 2026, antes de criar os recursos: os dois nomes resolvem para o host do Coolify, HTTPS ainda não responde e HTTP devolve 404. Isso é o esperado — DNS e proxy prontos, sem recurso configurado para esses hostnames.
+
+### Como confirmar depois
+
+```bash
+curl -s https://crypta-api-dev.vorodrigues.com.br/api/v1/version
+
+curl -si https://crypta-api-dev.vorodrigues.com.br/api/v1/version \n  -H "Origin: https://crypta-dev.vorodrigues.com.br" | grep -i access-control-allow-origin
+```
+
+A segunda precisa devolver exatamente a origem da Web. Resposta vazia significa `CORS_ORIGINS` diferente do que o navegador envia — uma barra no final basta para quebrar.
+
 Para cada ambiente:
 
 - [ ] Domínio Web.
 - [ ] Domínio API.
 - [ ] DNS apontado.
+- [ ] Domínio declarado com `https://` no Coolify.
 - [ ] HTTPS válido.
 - [ ] Redirect HTTP para HTTPS.
 - [ ] CORS da API restrito à Web correta.
@@ -727,26 +865,30 @@ Checklist por ambiente:
 
 ---
 
-## 21. Autenticar GHCR no servidor, se necessário
+## 21. Autenticar GHCR no servidor
 
-Se as imagens forem privadas, o servidor precisa conseguir baixar do GHCR.
+**Não é necessário.** Os packages são públicos (secao 10), e o Coolify baixa as imagens sem credencial.
 
-Crie um token GitHub com somente:
+Registrado aqui porque a conclusão não é óbvia e custou uma tentativa errada: **o Coolify não tem UI para credencial de pull de registry privado**. A [documentação](https://coolify.io/docs/knowledge-base/docker/registry) define o mecanismo como `docker login` executado no host, com o Coolify reaproveitando o `config.json` do daemon Docker.
 
-```text
-read:packages
+Se algum dia for necessário voltar a packages privados, o caminho é:
+
+```bash
+ssh <usuário>@<servidor-coolify>
+docker login ghcr.io -u <usuário do GitHub>
+# senha: token com somente read:packages
+
+cat ~/.docker/config.json   # precisa conter a entrada ghcr.io
 ```
 
-Configure o registry no Coolify ou faça login no host conforme a estratégia adotada.
+O login precisa ser feito com o **mesmo usuário que o Coolify usa como destino de deploy**. Logar como outro usuário grava a credencial no `~/.docker/config.json` errado e o pull falha com `unauthorized`, sem nenhuma indicação na interface ([issue #6398](https://github.com/coollabsio/coolify/issues/6398)).
+
+O webhook de deploy **não** resolve isso: ele apenas dispara o deploy. A autenticação do `docker pull` é etapa separada e posterior.
 
 Checklist:
 
-- [ ] Token apenas de leitura.
-- [ ] Token guardado no Coolify.
-- [ ] Token não commitado.
-- [ ] Pull de imagem validado.
-
-Se as imagens forem públicas, esta etapa pode não ser necessária.
+- [x] Decidido: packages públicos, sem credencial no servidor.
+- [ ] Pull de imagem validado na Etapa 4.
 
 ---
 

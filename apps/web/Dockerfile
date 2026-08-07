@@ -67,7 +67,9 @@ ARG APP_BUILT_AT=1970-01-01T00:00:00.000Z
 LABEL org.opencontainers.image.title="crypta-web" \
       org.opencontainers.image.version="${VITE_APP_VERSION}" \
       org.opencontainers.image.revision="${VITE_APP_COMMIT}" \
-      org.opencontainers.image.created="${APP_BUILT_AT}"
+      org.opencontainers.image.created="${APP_BUILT_AT}" \
+      org.opencontainers.image.source="https://github.com/VictOliRodrigues/crypta" \
+      org.opencontainers.image.licenses="AGPL-3.0-only"
 
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 
