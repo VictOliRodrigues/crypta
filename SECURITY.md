@@ -1345,6 +1345,18 @@ Evitar:
 - inline script sem nonce;
 - CDN não revisada.
 
+### Entrega da CSP
+
+A CSP é servida pelo Nginx da imagem da Web, junto dos demais cabeçalhos de segurança, em `apps/web/security-headers.conf`.
+
+**Invariante: esse arquivo precisa ser incluído em todo bloco `location` de `apps/web/nginx.conf`.**
+
+O Nginx só herda `add_header` de um nível para o outro quando o nível atual não declara nenhum `add_header` próprio. Um único `add_header Cache-Control` dentro de um `location` descarta, em silêncio, a CSP e todos os outros cabeçalhos definidos no `server`.
+
+A regressão já ocorreu: `location = /index.html` e `location /assets/` definiam `Cache-Control`, e com isso a SPA e todo o bundle eram servidos sem CSP, sem `X-Frame-Options` e sem `X-Content-Type-Options`. Como todo carregamento real é o index ou um asset, nenhum cabeçalho de segurança chegava ao navegador. O Nginx não emite aviso e o build passa: só a inspeção da resposta HTTP de um container em execução revela o problema.
+
+A invariante é verificada por `apps/web/src/test/nginx-config.test.ts`, que falha quando um `location` não inclui o arquivo ou quando um cabeçalho de segurança é declarado fora dele.
+
 ---
 
 ## 51. XSS
