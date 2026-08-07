@@ -364,6 +364,7 @@ main
 | Refatoração                   | `refactor/*`    | `develop`       | `develop`       |
 | Documentação                  | `docs/*`        | `develop`       | `develop`       |
 | Segurança ainda não publicada | `security/*`    | `develop`       | `develop`       |
+| Atualização de dependência    | `dependabot/*`  | `develop`       | `develop`       |
 | Release                       | `release/x.y.z` | `develop`       | `staging`       |
 | Correção de homologação       | `fix/*`         | `release/x.y.z` | `release/x.y.z` |
 | Hotfix de produção            | `hotfix/*`      | `main`          | `main`          |
@@ -399,6 +400,8 @@ staging
 main
 release/*
 ```
+
+As branches `dependabot/*` não entram em nenhuma das duas listas: o próprio Dependabot as apaga depois do merge.
 
 A branch `release/*` permanece ativa até a publicação, sincronização `main → develop` e confirmação de que não existem correções exclusivas pendentes.
 

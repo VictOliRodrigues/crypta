@@ -160,6 +160,22 @@ Fluxo:
 develop → branch temporária → develop
 ```
 
+### Atualizações de dependência
+
+```text
+dependabot/*
+```
+
+Fluxo:
+
+```text
+develop → dependabot/* → develop
+```
+
+A branch é criada pelo Dependabot, com prefixo fixo e não configurável. O destino é `develop`, definido por `target-branch` em `.github/dependabot.yml`.
+
+O Dependabot apaga a própria branch depois do merge. Ela não entra no `cleanup-temporary-branches.yml`.
+
 ### Release em homologação
 
 ```text
@@ -231,6 +247,7 @@ chore/*    ─────────► develop
 refactor/* ─────────► develop
 docs/*     ─────────► develop
 security/* ─────────► develop
+dependabot/* ───────► develop
 
 fix/*      ─────────► release/*
 release/*  ─────────► staging

@@ -33,6 +33,14 @@ jobs:
               echo "Fluxo de desenvolvimento válido: $FLOW"
               ;;
 
+            # O Dependabot nomeia as próprias branches e o prefixo não é
+            # configurável. Sem esta entrada, todo PR de atualização de
+            # dependência é reprovado — inclusive os de segurança — e fica
+            # immergeável assim que este check virar obrigatório.
+            dependabot/*:develop)
+              echo "Atualização de dependência válida: $FLOW"
+              ;;
+
             fix/*:release/*)
               echo "Correção válida para release: $FLOW"
               ;;
