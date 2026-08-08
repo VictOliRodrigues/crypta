@@ -1,3 +1,4 @@
+import { toBase64Url } from '../encoding/base64url';
 import { CryptoAlgorithmError, CryptoFormatError, CryptoVersionError } from '../errors';
 
 /**
@@ -21,6 +22,14 @@ export const SUPPORTED_CRYPTO_VERSIONS: readonly number[] = [1];
 export const AEAD_ALGORITHM = 'XCHACHA20-POLY1305' as const;
 
 export type AeadAlgorithm = typeof AEAD_ALGORITHM;
+
+/**
+ * Tamanho do nonce da XChaCha20-Poly1305, em bytes.
+ *
+ * Os 24 bytes são o que torna seguro sortear o nonce em vez de contar: o espaço
+ * é grande o bastante para que a colisão seja desprezível (SECURITY.md secao 17).
+ */
+export const AEAD_NONCE_BYTES = 24;
 
 export type CipherPayload = {
   cryptoVersion: number;
@@ -78,6 +87,35 @@ export function parseCipherPayload(value: unknown): CipherPayload {
   }
 
   return { cryptoVersion, schemaVersion, algorithm, nonce, ciphertext };
+}
+
+/**
+ * Monta um payload a partir do que a AEAD acabou de produzir.
+ *
+ * Existe para que `cryptoVersion` e `algorithm` não sejam escritos à mão em
+ * cada chamador: um deles divergir do que a AEAD realmente usou produziria um
+ * payload que só falha na hora de abrir, possivelmente em outro dispositivo.
+ */
+export function buildCipherPayload(input: {
+  schemaVersion: number;
+  nonce: Uint8Array;
+  ciphertext: Uint8Array;
+}): CipherPayload {
+  if (!Number.isInteger(input.schemaVersion) || input.schemaVersion < 1) {
+    throw new CryptoFormatError('`schemaVersion` deve ser um inteiro positivo.');
+  }
+
+  if (input.nonce.length === 0 || input.ciphertext.length === 0) {
+    throw new CryptoFormatError('Nonce e ciphertext não podem ser vazios.');
+  }
+
+  return {
+    cryptoVersion: CURRENT_CRYPTO_VERSION,
+    schemaVersion: input.schemaVersion,
+    algorithm: AEAD_ALGORITHM,
+    nonce: toBase64Url(input.nonce),
+    ciphertext: toBase64Url(input.ciphertext),
+  };
 }
 
 /**

@@ -818,21 +818,26 @@ Requisitos:
 
 A AAD deverá vincular o ciphertext ao contexto.
 
-A composição implementada em `packages/crypto-core/src/format/aad.ts` vincula:
+A composição implementada em `packages/crypto-core/src/format/aad.ts` tem **dois escopos**, fixados pelo [ADR 0023](docs/decisions/0023-identity-aad-and-key-envelope.md), sob o prefixo de domínio `crypta-aad/v2`:
 
 ```text
-entityType
-entityId
-vaultId
-schemaVersion
+escopo vault          escopo user
+--------------        -----------------
+scope                 scope
+entityType            entityType
+entityId              publicKey
+vaultId               schemaVersion
+schemaVersion         cryptoVersion
 cryptoVersion
 ```
 
-É a mesma lista de `ARCHITECTURE.md` secao 14.9, sob o prefixo de domínio `vault-aad/v1`, com cada segmento prefixado pelo tamanho em bytes para tornar a serialização injetiva. O vetor canônico está congelado em `aad.spec.ts`.
+O escopo `vault` é a lista de `ARCHITECTURE.md` secao 14.9, agora precedida do próprio escopo. O escopo `user` protege a chave privada do usuário, que não pertence a cofre nenhum — daí não ter `vaultId`. Cada segmento é prefixado pelo tamanho em bytes, o que torna a serialização injetiva, e o escopo é o primeiro segmento, o que impede colisão entre os dois. Os vetores canônicos estão congelados em `aad.spec.ts` e em `vectors/identity.ts`.
+
+**No escopo `user`, o vínculo é com a chave pública do próprio par, não com um `userId`.** O ciphertext passa a declarar de qual metade pública ele é a metade privada. Um servidor que troque `publicKey` mantendo `encryptedPrivateKey` é detectado no desbloqueio — sem esse vínculo, a troca seria silenciosa e os envelopes de `VaultKey` dos outros membros passariam a ser endereçados à chave do atacante.
 
 **`applicationId` e `keyVersion` ficaram de fora deliberadamente.** Ambos foram considerados e nenhum acrescenta separação real: ciphertext de outro cofre, de outra instalação ou anterior a um rekey está sob outra `VaultKey`, e a tag Poly1305 já o rejeita. Incluí-los seria defesa em profundidade, não correção de falha.
 
-Acrescentar qualquer campo à AAD é mudança de formato criptográfico: exige ADR, nova versão do prefixo de domínio e migração (`CLAUDE.md` secao 81). Hoje ainda é barato, porque nenhum cofre existe; depois do primeiro conteúdo gravado, não é.
+Acrescentar qualquer campo à AAD é mudança de formato criptográfico: exige ADR, nova versão do prefixo de domínio e migração (`CLAUDE.md` secao 81). Foi assim que a `v1` — `vault-aad/v1`, sem escopo e com `vaultId` obrigatório — virou a `v2`, e o momento foi escolhido: ainda não existe conta, cofre nem migration, então a troca custou reescrever um vetor. Depois do primeiro conteúdo gravado, a mesma mudança exige leitor das duas versões e recifragem que só o dono da senha consegue fazer.
 
 A composição deverá ser:
 
@@ -852,11 +857,26 @@ A API poderá armazenar:
 - destinatário;
 - keyVersion;
 - ephemeral public key;
-- nonce;
 - ciphertext;
 - versão.
 
 A API não poderá armazenar a `VaultKey` aberta.
+
+A forma, fixada pelo [ADR 0023](docs/decisions/0023-identity-aad-and-key-envelope.md) e detalhada em `docs/API.md` secao 15:
+
+```json
+{
+  "keyVersion": 1,
+  "cryptoVersion": 1,
+  "algorithm": "X25519-HKDF-SHA256-XCHACHA20-POLY1305",
+  "ephemeralPublicKey": "base64url",
+  "encryptedVaultKey": "base64url"
+}
+```
+
+**O nonce não faz parte do envelope.** Ele é derivado do segredo compartilhado junto com a chave da AEAD, e o par efêmero é novo a cada envelope — a chave da AEAD nunca se repete, logo o nonce derivado tampouco. A propriedade que a secao 17 exige vale por construção, e transmitir o valor criaria uma segunda fonte de verdade capaz de discordar da primeira. Um receptor que confiasse no nonce transmitido estaria aceitando um valor escolhido por quem enviou.
+
+O nome do algoritmo descreve a composição real, com o HKDF incluído. O nome anterior, `X25519-XCHACHA20-POLY1305`, sugeria a família de sealed box que o [ADR 0017](docs/decisions/0017-web-crypto-primitives.md) proibiu por falhar aberto, e é recusado explicitamente por `parseKeyEnvelope`.
 
 ---
 
@@ -909,6 +929,21 @@ O projeto deverá possuir vetores fixos para:
 - Android.
 
 Os mesmos vetores deverão produzir resultados compatíveis entre plataformas.
+
+Onde eles vivem hoje:
+
+| Vetor                                 | Arquivo                                          | Estado                             |
+| ------------------------------------- | ------------------------------------------------ | ---------------------------------- |
+| Argon2id, incluindo o KAT do RFC 9106 | `packages/crypto-web/src/vectors.ts`             | exercitado na Web                  |
+| Derivação de identidade e HKDF        | `packages/crypto-core/src/vectors/identity.ts`   | exercitado na Web                  |
+| AAD dos dois escopos                  | `aad.spec.ts` e `vectors/identity.ts`            | congelado, independe de plataforma |
+| Payload e envelope                    | `crypto-payload.spec.ts`, `key-envelope.spec.ts` | congelado, independe de plataforma |
+| Rekey                                 | —                                                | entra na R0.5                      |
+| Android                               | —                                                | bloqueado por `PEND-003`, R0.7     |
+
+Os vetores de identidade ficam em `@crypta/crypto-core`, e não no package da Web, porque `@crypta/crypto-mobile` precisará dos mesmos bytes e não pode depender de `@crypta/crypto-web`.
+
+**Nenhum vetor foi conferido em Android até aqui.** A compatibilidade é garantida por construção — parâmetros e algoritmos fixados nos ADRs 0016, 0017 e 0023 — e só será medida na R0.7. Um vetor que roda em uma plataforma só prova metade do que esta secao exige.
 
 ---
 

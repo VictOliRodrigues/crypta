@@ -191,6 +191,7 @@ Uma decisão deverá gerar ADR quando:
 | DEC-047 | Exclusão física com auditoria preservada            | ACCEPTED   | ADR 0020   |
 | DEC-048 | Duração dos tokens e cookie de refresh host-only    | ACCEPTED   | ADR 0021   |
 | DEC-049 | Credenciais e tokens no servidor                    | ACCEPTED   | ADR 0022   |
+| DEC-050 | AAD de identidade e formato do envelope de chave    | ACCEPTED   | ADR 0023   |
 
 ---
 
@@ -2041,6 +2042,70 @@ O bcrypt trunca em 72 bytes e limita a entropia do valor que deveria proteger. O
 ### ADR
 
 [`docs/decisions/0022-server-side-credentials.md`](decisions/0022-server-side-credentials.md)
+
+---
+
+## DEC-050 — AAD de identidade e formato do envelope de chave
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+A `AadContext` vira união discriminada por `scope`, e o prefixo de domínio passa de `vault-aad/v1` para `crypta-aad/v2`. O escopo é o primeiro segmento serializado:
+
+```text
+crypta-aad/v2|5:vault|10:credential|36:<entityId>|36:<vaultId>|1:1|1:1
+crypta-aad/v2|4:user|15:user-key-bundle|43:<publicKey>|1:1|1:1
+```
+
+No escopo `user` a AAD amarra a **chave pública do próprio par**, não um `userId`. O ciphertext passa a declarar de qual metade pública ele é a metade privada.
+
+O envelope de chave é documentado como implementado: o campo `nonce` sai da `API.md` secao 15, porque ele é derivado por HKDF e não trafega, e o algoritmo passa a se chamar `X25519-HKDF-SHA256-XCHACHA20-POLY1305`, que é a composição real. `crypto-core` ganha `key-envelope.ts` com `buildKeyEnvelope`, `parseKeyEnvelope` e `sealedBytesFromEnvelope`, único lugar que conhece o enquadramento `ephemeralPublicKey || ciphertext`.
+
+`cryptoVersion` continua 1: o conjunto de algoritmos não mudou, e nenhum payload com outra combinação chegou a existir.
+
+`crypto-core` passa a orquestrar a identidade — `deriveIdentitySecrets`, `createUserKeyBundle` e `openUserKeyBundle` — recebendo os adapters por injeção, sem primitivas e sem dependências. Os vetores de identidade ficam em `crypto-core`, onde `@crypta/crypto-mobile` poderá importá-los.
+
+### Motivos
+
+A primeira coisa que a R0.2 cifra é a chave privada do usuário, que não pertence a cofre nenhum. A AAD anterior exigia `vaultId` não-vazio, então só restariam string vazia em campo obrigatório ou `vaultId` sentinela — campo sem significado dentro de formato criptográfico, para sempre.
+
+O identificador natural seria o `userId`, e ele não existe quando o cliente cifra: é UUIDv7 gerado pelo Prisma no servidor (ADR 0019). Amarrar à chave pública resolve isso e protege mais. Um servidor que troque `publicKey` mantendo `encryptedPrivateKey` faria os envelopes de `VaultKey` dos outros membros serem endereçados a uma chave que o usuário não abre — ou à de um terceiro. Com a AAD, a troca aparece no desbloqueio; com `userId`, não apareceria nunca.
+
+O envelope divergia: a `API.md` prometia um `nonce` que a implementação deriva e nunca transmite, sob um nome de algoritmo que omitia o HKDF e sugeria a família de sealed box que o ADR 0017 proibiu. Nada em `crypto-core` reconciliava os dois, então cada chamador futuro fatiaria o blob por conta própria — que foi como a divergência surgiu.
+
+Tudo isso é gratuito agora e caro depois. Não existe conta, cofre, envelope nem migration: `vault-aad/v1` nunca produziu ciphertext persistido. A `SECURITY.md` secao 18 já registrava essa janela.
+
+### Rejeitado
+
+```text
+acrescentar user-key-bundle a AAD_ENTITY_TYPES com vaultId vazio
+usar userId como identificador do escopo user
+usar o e-mail normalizado
+AAD do bundle sem identificador nenhum
+manter nonce no envelope e passar a transmiti-lo
+manter o nome X25519-XCHACHA20-POLY1305
+adiar para a R0.3
+```
+
+O e-mail é alterável por `PATCH /users/me`, e a alteração tornaria a chave privada permanentemente indecifrável. Transmitir o nonce exigiria trocar uma garantia estrutural — par efêmero novo a cada envelope, logo nonce nunca repetido — por disciplina de geração. Adiar para a R0.3 não funciona porque o key bundle da R0.2 já é o primeiro ciphertext.
+
+### Consequências
+
+- material de identidade ganha AAD própria, sem campo vazio nem sentinela;
+- troca de `publicKey` por servidor malicioso passa a ser detectada no desbloqueio;
+- documentação e implementação do envelope voltam a descrever a mesma coisa, com parser único em `crypto-core`;
+- `HKDF_INFO` deixa de ser constante decorativa: existe um só lugar que escolhe os rótulos, o que torna a separação do ADR 0004 verificável;
+- um vetor congelado foi reescrito, com exceção registrada — precisa continuar sendo exceção;
+- amarrar a `publicKey` acopla o bundle ao par: trocar o par exige recifrar;
+- `crypto-core` cresce de formato puro para formato mais orquestração, ainda sem primitivas e sem dependências;
+- `@crypta/crypto-mobile` divergir da AAD continua sendo o risco aberto, mitigado pelo vetor canônico congelado e por `PEND-003`.
+
+### ADR
+
+[`docs/decisions/0023-identity-aad-and-key-envelope.md`](decisions/0023-identity-aad-and-key-envelope.md)
 
 ---
 
