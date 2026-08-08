@@ -253,7 +253,7 @@ Os nove primeiros vêm da secao 17. O décimo vem do [ADR 0021](decisions/0021-s
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | Senha original não enviada à API | O corpo de `POST /setup` e de `POST /auth/login` carrega `authSecret` e nenhum campo derivado da senha. Teste na Web espiona o adapter do axios; o DTO da API rejeita qualquer campo fora dele.                                        | PENDENTE — depende das branches de auth e de Web                                                                  |
 | AuthSecret não logado            | O `LogFields` fechado do `StructuredLogger` não admite o campo, então não existe caminho para registrá-lo; e2e confirma que o log de uma requisição de auth não contém o valor.                                                        | PENDENTE — depende da branch do módulo de auth                                                                    |
-| Private key nunca enviada aberta | O DTO de `POST /setup` aceita `encryptedPrivateKey` e `privateKeyNonce`; o schema `.strict()` responde `400` a um campo `privateKey` em vez de ignorá-lo.                                                                              | OK — `setup.e2e-spec.ts`, incluindo o caso do campo dentro do `keyBundle`; nenhuma conta é criada                 |
+| Private key nunca enviada aberta | O DTO de `POST /setup` aceita `encryptedPrivateKey` e `privateKeyNonce`; `forbidNonWhitelisted` responde `400` a um campo `privateKey`.                                                                                                | PENDENTE — depende da branch do módulo de auth                                                                    |
 | Vetores passam                   | `pnpm --filter @crypta/crypto-core test` e `pnpm --filter @crypta/crypto-web test` verdes, incluindo os vetores de derivação de identidade, do payload da chave privada e do envelope.                                                 | OK — 116 e 41 testes; `IDENTITY_PRODUCTION_VECTOR` reproduzido pelo libsodium e conferido contra `@noble/hashes`  |
 | Ciphertext adulterado falha      | Loop byte a byte sobre o payload de identidade e sobre o envelope: toda posição alterada resulta em `CryptoAuthenticationError`, no padrão que o ADR 0017 já exigiu do envelope.                                                       | OK — quatro loops em `identity.spec.ts`: chave privada cifrada, nonce, chave pública efêmera e `VaultKey` cifrada |
 | AAD incorreta falha              | Decrypt com escopo, `entityType` ou `entityId` trocados falha fechado, sem devolver conteúdo parcial.                                                                                                                                  | OK — `publicKey` trocada e `schemaVersion` alterada rejeitadas; chave pública de intruso não abre o envelope      |
@@ -270,27 +270,27 @@ Por isso o formato criptográfico é fechado **antes** da primeira migration, e 
 
 ### Tarefas da R0.2
 
-| Item     | Status  | Observação                                                                                                                                                                               |
-| -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BLG-0502 | DONE    | `users`, `user_key_bundles`, `sessions` e `idempotency_records` na migration `20260808181037_identity`, testada em banco vazio e em banco com dados. Abriu o harness e2e com MySQL real. |
-| BLG-0701 | PARCIAL | ADRs 0016, 0017 e 0018 fecharam a Web. Faltam a biblioteca do Android (`PEND-003`) e o Keystore, ambos na R0.7.                                                                          |
-| BLG-0702 | DONE    | Payload versionado, AAD de dois escopos, envelope enquadrado, `buildCipherPayload` e erros. ADR 0023.                                                                                    |
-| BLG-0703 | DONE    | `deriveIdentitySecrets` orquestra Argon2id e os dois HKDF, com vetor congelado em `crypto-core`. Benchmark Android fica na R0.7.                                                         |
-| BLG-0704 | DONE    | `createUserKeyBundle` e `openUserKeyBundle`, com AAD amarrada à chave pública e adulteração testada byte a byte.                                                                         |
-| BLG-0705 | PARCIAL | Formato do envelope fechado e testado. Geração da `VaultKey` e envelopes OWNER/EDITOR entram na R0.3, com o cofre.                                                                       |
-| BLG-0706 | BACKLOG | Depende do formato fechado. Vault, site e credential só ganham payload real a partir da R0.3.                                                                                            |
-| BLG-0707 | BACKLOG | Revisão criptográfica interna. É o último item do gate e bloqueia o uso real.                                                                                                            |
-| BLG-0801 | DONE    | `GET /setup/status`, devolvendo só o booleano.                                                                                                                                           |
-| BLG-0802 | PARCIAL | `POST /setup` com transação, idempotência e validação estrita. Falta a tela W01.                                                                                                         |
-| BLG-0803 | DONE    | `GET /auth/parameters`, com parâmetros sintéticos derivados do e-mail e estáveis entre chamadas.                                                                                         |
-| BLG-0804 | BACKLOG | Tela W02 e `POST /auth/login`.                                                                                                                                                           |
-| BLG-0805 | BACKLOG | Rotação, família e detecção de reuso, com a janela de 10 s do ADR 0021.                                                                                                                  |
-| BLG-0806 | BACKLOG | Logout e logout global.                                                                                                                                                                  |
-| BLG-0807 | BACKLOG | Alteração de senha. **Fora das branches planejadas para a fase** — ver abaixo.                                                                                                           |
-| BLG-0901 | BACKLOG | `GET /sessions`.                                                                                                                                                                         |
-| BLG-0902 | BACKLOG | `DELETE /sessions/:sessionId`, com teste de IDOR obrigatório.                                                                                                                            |
-| BLG-0903 | BACKLOG | `DELETE /sessions`.                                                                                                                                                                      |
-| BLG-0904 | BACKLOG | Interface de sessões na Web. **Fora das branches planejadas para a fase** — ver abaixo.                                                                                                  |
+| Item     | Status  | Observação                                                                                                                       |
+| -------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| BLG-0502 | BACKLOG | `User`, `UserKeyBundle` e `Session`. Primeira migration do projeto; abre também o harness e2e com MySQL real.                    |
+| BLG-0701 | PARCIAL | ADRs 0016, 0017 e 0018 fecharam a Web. Faltam a biblioteca do Android (`PEND-003`) e o Keystore, ambos na R0.7.                  |
+| BLG-0702 | DONE    | Payload versionado, AAD de dois escopos, envelope enquadrado, `buildCipherPayload` e erros. ADR 0023.                            |
+| BLG-0703 | DONE    | `deriveIdentitySecrets` orquestra Argon2id e os dois HKDF, com vetor congelado em `crypto-core`. Benchmark Android fica na R0.7. |
+| BLG-0704 | DONE    | `createUserKeyBundle` e `openUserKeyBundle`, com AAD amarrada à chave pública e adulteração testada byte a byte.                 |
+| BLG-0705 | PARCIAL | Formato do envelope fechado e testado. Geração da `VaultKey` e envelopes OWNER/EDITOR entram na R0.3, com o cofre.               |
+| BLG-0706 | BACKLOG | Depende do formato fechado. Vault, site e credential só ganham payload real a partir da R0.3.                                    |
+| BLG-0707 | BACKLOG | Revisão criptográfica interna. É o último item do gate e bloqueia o uso real.                                                    |
+| BLG-0801 | BACKLOG | `GET /setup/status`.                                                                                                             |
+| BLG-0802 | BACKLOG | Tela W01 e `POST /setup`, em transação e com idempotência.                                                                       |
+| BLG-0803 | BACKLOG | `GET /auth/parameters`. Os parâmetros sintéticos precisam ser estáveis por e-mail, ou viram oráculo de enumeração.               |
+| BLG-0804 | BACKLOG | Tela W02 e `POST /auth/login`.                                                                                                   |
+| BLG-0805 | BACKLOG | Rotação, família e detecção de reuso, com a janela de 10 s do ADR 0021.                                                          |
+| BLG-0806 | BACKLOG | Logout e logout global.                                                                                                          |
+| BLG-0807 | BACKLOG | Alteração de senha. **Fora das branches planejadas para a fase** — ver abaixo.                                                   |
+| BLG-0901 | BACKLOG | `GET /sessions`.                                                                                                                 |
+| BLG-0902 | BACKLOG | `DELETE /sessions/:sessionId`, com teste de IDOR obrigatório.                                                                    |
+| BLG-0903 | BACKLOG | `DELETE /sessions`.                                                                                                              |
+| BLG-0904 | BACKLOG | Interface de sessões na Web. **Fora das branches planejadas para a fase** — ver abaixo.                                          |
 
 ### Trabalho da fase fora das branches planejadas
 
