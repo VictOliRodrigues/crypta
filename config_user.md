@@ -773,20 +773,38 @@ Regras que a validação aplica:
 
 #### A partir da R0.2 — autenticação
 
-Ainda não configure: a API só passa a ler estas variáveis quando o módulo de autenticação existir. Os valores e as faixas estão fixados pelo [ADR 0021](docs/decisions/0021-session-token-lifetimes.md), e a validação de startup recusa qualquer valor fora da faixa.
+Ainda não configure: a API só passa a ler estas variáveis quando o módulo de autenticação existir. Os valores e as faixas estão fixados pelo [ADR 0021](docs/decisions/0021-session-token-lifetimes.md) e pelo [ADR 0022](docs/decisions/0022-server-side-credentials.md), e a validação de startup recusa qualquer valor fora da faixa.
 
 ```text
-JWT_PRIVATE_KEY=<gerada por ambiente, nunca reaproveitada>
-JWT_PUBLIC_KEY=<par da anterior>
+JWT_PRIVATE_KEY=<base64 do PEM, uma linha, por ambiente>
+JWT_PUBLIC_KEY=<par da anterior, mesmo formato>
+AUTH_SERVER_SECRET=v1:<32 bytes em base64url>
+AUTH_SERVER_SECRET_PREVIOUS=<vazio, exceto durante uma rotação>
 ACCESS_TOKEN_TTL=15m
 REFRESH_TOKEN_TTL=7d
 REFRESH_TOKEN_ABSOLUTE_TTL=30d
 REFRESH_COOKIE_SAMESITE=Strict
+LOGIN_MAX_ATTEMPTS=5
+LOGIN_LOCK_INITIAL_SECONDS=60
+LOGIN_LOCK_MAX_SECONDS=900
+AUTH_IP_RATE_LIMIT=60
 ```
 
-Dois pontos que dão trabalho se passarem despercebidos:
+Como gerar os dois segredos, em qualquer máquina com Node:
 
-- **O par de chaves JWT é por ambiente.** Reaproveitar o de development em produção faria um token emitido no ambiente de testes ser aceito no ambiente real.
+```bash
+# Par Ed25519, já em base64 do PEM numa linha só
+node -e "const{generateKeyPairSync}=require('node:crypto');const{publicKey,privateKey}=generateKeyPairSync('ed25519');console.log('JWT_PRIVATE_KEY='+Buffer.from(privateKey.export({type:'pkcs8',format:'pem'})).toString('base64'));console.log('JWT_PUBLIC_KEY='+Buffer.from(publicKey.export({type:'spki',format:'pem'})).toString('base64'))"
+
+# Segredo do servidor, 32 bytes em base64url
+node -e "console.log('AUTH_SERVER_SECRET=v1:'+require('node:crypto').randomBytes(32).toString('base64url'))"
+```
+
+Quatro pontos que dão trabalho se passarem despercebidos:
+
+- **Perder o `AUTH_SERVER_SECRET` torna todas as contas daquele ambiente inacessíveis, de forma definitiva.** Ele é o pepper do verificador do `AuthSecret`, e a V1 não tem recuperação de conta (`SECURITY.md` secao 28). Guarde-o no mesmo backup das chaves JWT, **fora** do backup do banco — se os dois estiverem no mesmo lugar, o pepper deixa de proteger contra o vazamento do banco, que é a única coisa que ele existe para fazer. Rotacionar é possível e não exige que ninguém troque de senha; perder sem rotacionar, não.
+- **O par de chaves JWT é por ambiente.** Reaproveitar o de development em produção faria um token emitido no ambiente de testes ser aceito no ambiente real. A API assina e verifica um valor de prova na partida, então par incompleto ou trocado falha no deploy — mas par _válido de outro ambiente_ passa, porque é um par legítimo. Essa conferência é sua.
+- **O PEM cru é multilinha; aqui ele vai em base64, numa linha só.** A secao 41.1 já registra uma repository variable com quebra de linha invisível como causa de run perdido. Uma linha só elimina a classe inteira — mas confira que não sobrou espaço ou quebra ao colar.
 - **`REFRESH_COOKIE_SAMESITE=Strict` só funciona porque Web e API ficam sob o mesmo domínio registrável** — `crypta-dev` e `crypta-api-dev` são hosts diferentes sob `vorodrigues.com.br`, o que para efeito de cookie é same-site. Se algum ambiente for para um domínio registrável diferente do da sua Web, `Strict` faz o cookie deixar de ser enviado e o sintoma é traiçoeiro: o login funciona e a sessão morre na primeira renovação, cerca de 15 minutos depois. Nesse caso, e só nesse, use `None`.
 
 Não existe `REFRESH_COOKIE_DOMAIN`. O cookie é host-only de propósito, para que a sessão de um ambiente não seja aceita em outro.

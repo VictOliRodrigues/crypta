@@ -190,6 +190,7 @@ Uma decisão deverá gerar ADR quando:
 | DEC-046 | Identificadores UUIDv7 em `CHAR(36)`                | ACCEPTED   | ADR 0019   |
 | DEC-047 | Exclusão física com auditoria preservada            | ACCEPTED   | ADR 0020   |
 | DEC-048 | Duração dos tokens e cookie de refresh host-only    | ACCEPTED   | ADR 0021   |
+| DEC-049 | Credenciais e tokens no servidor                    | ACCEPTED   | ADR 0022   |
 
 ---
 
@@ -1977,6 +1978,72 @@ sem janela de tolerância
 
 ---
 
+## DEC-049 — Credenciais e tokens no servidor
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+O verificador do `AuthSecret` é `HMAC-SHA-256(pepper, authSecret)`, comparado em tempo constante, sobre um `AuthSecret` que precisa decodificar para exatamente 32 bytes. O pepper não fica no banco: deriva do `AUTH_SERVER_SECRET` por HKDF-SHA-256 com `info="auth-secret-pepper"`. O mesmo segredo, com `info="kdf-parameters-decoy"`, gera os parâmetros KDF sintéticos de `GET /auth/parameters`, que precisam ser determinísticos por e-mail.
+
+O segredo é versionado (`v<N>:<base64url>`), com `AUTH_SERVER_SECRET_PREVIOUS` opcional. Cada usuário guarda a versão que gerou o seu verificador, e o login recalcula e regrava quando a versão não for a corrente. É o que torna a rotação possível sem que ninguém troque de senha.
+
+Refresh token: 32 bytes de CSPRNG em base64url, `SHA-256` em repouso, índice único, busca pelo hash. Sem pepper — não há preimagem adivinhável a proteger.
+
+Access token: `EdDSA` sobre Ed25519, pela `jose`, com `iss`, `aud`, `sub`, `sid`, `iat` e `exp`, e nada mais. `JWT_PRIVATE_KEY` e `JWT_PUBLIC_KEY` recebem o base64 do PEM em uma linha, e a partida assina e verifica um valor de prova para confirmar que formam par.
+
+Bloqueio progressivo por conta no MySQL: `LOGIN_MAX_ATTEMPTS` falhas consecutivas iniciam uma espera de `LOGIN_LOCK_INITIAL_SECONDS`, que dobra a cada falha até `LOGIN_LOCK_MAX_SECONDS`, zera no sucesso e nunca é permanente. Filtro por IP em memória, `AUTH_IP_RATE_LIMIT` por minuto, pelo `@nestjs/throttler`.
+
+`ACCOUNT_LOCKED` e `ACCOUNT_DISABLED` deixam de aparecer no login de quem não autenticou: só são devolvidos quando o `AuthSecret` confere e o acesso é negado mesmo assim.
+
+### Motivos
+
+O `AuthSecret` não é senha — é saída de Argon2id de 64 MiB e t=3 no cliente. Diante de um banco vazado, esse custo já domina cada tentativa offline; um segundo Argon2id no servidor somaria um fator próximo de dois ao atacante e dobraria a latência de toda requisição de login, que não é autenticada, virando vetor de exaustão de memória.
+
+O que o pepper acrescenta é diferente e concreto: `DATABASE.md` secao 9 registra que os secrets da aplicação têm backup separado do banco, então o vazamento mais provável entrega o dump sem entregar o pepper — e sem ele o ataque offline contra a senha não começa.
+
+Ed25519 não tem parâmetro para errar, ao contrário do tamanho de chave do RSA e do nonce por assinatura do ECDSA. A `jose` exige que o algoritmo esperado seja passado na verificação, o que fecha por construção a confusão de algoritmo que origina CVE recorrente em bibliotecas de JWT.
+
+Devolver `ACCOUNT_LOCKED` a um login errado revela que o e-mail está cadastrado, contra `SECURITY.md` secao 25. Condicioná-lo à verificação bem-sucedida entrega a informação a quem já provou ter a senha, e a mais ninguém. Como `SECURITY.md` está acima da `API.md` na hierarquia do `CLAUDE.md` secao 2, quem cede é a `API.md`.
+
+### Rejeitado
+
+```text
+Argon2id no servidor sobre o AuthSecret
+Argon2id no servidor com parâmetros baratos
+bcrypt
+SHA-256 com salt por usuário, sem pepper
+nenhum segredo de servidor
+HS256 no access token
+RS256
+@nestjs/jwt com jsonwebtoken
+bloqueio só por IP
+bloqueio por conta em memória
+ACCOUNT_LOCKED sempre visível no login
+```
+
+O bcrypt trunca em 72 bytes e limita a entropia do valor que deveria proteger. O salt por usuário não resolve nada aqui, porque o `kdfSalt` do cliente já é por usuário e não há tabela pré-computada a impedir. HS256 descartaria a verificação por chave pública que o `.env.example` já reservou. Bloqueio só por IP não protege o dono da conta contra um atacante com IPs rotativos; em memória, ele some a cada deploy.
+
+### Consequências
+
+- o módulo `auth` fica de fato desbloqueado, com valor para as quatro lacunas que impediam escrever o código;
+- um dump sem os secrets da aplicação não permite iniciar o ataque offline contra as senhas;
+- o login não executa KDF caro em rota não autenticada, então não vira vetor de negação de serviço;
+- nasce um segredo cuja perda torna toda conta inacessível, já que a V1 não tem recuperação — mitigado pela rotação preguiçosa e pelo backup junto das chaves JWT;
+- a tabela de usuários ganha verificador, versão do segredo, contador de falhas e instante de liberação, e a de sessões ganha o hash com índice único; entram na migration de identidade;
+- uma tentativa de login falha passa a ser escrita no banco;
+- o limite por IP degrada em silêncio com mais de uma réplica;
+- duas dependências novas em ponto crítico, `jose` e `@nestjs/throttler`;
+- a verificação do bloqueio precisa vir depois do cálculo do verificador, ou o oráculo volta pelo tempo de resposta.
+
+### ADR
+
+[`docs/decisions/0022-server-side-credentials.md`](decisions/0022-server-side-credentials.md)
+
+---
+
 # DECISÕES REJEITADAS
 
 ---
@@ -2184,6 +2251,7 @@ Aumenta o risco de vazamento, perda de dados e execução acidental em produçã
 | PEND-023     | Reviewers do Environment `production`         | REVIEW_REQUIRED      | Release          |
 | PEND-024     | Retenção de manifests e artefatos de RC       | REVIEW_REQUIRED      | Operação         |
 | PEND-025     | Política final de proteção e retenção de tags | REVIEW_REQUIRED      | Release          |
+| ~~PEND-026~~ | ~~Credenciais e tokens no servidor~~          | RESOLVIDA em DEC-049 | —                |
 
 ---
 

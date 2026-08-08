@@ -35,12 +35,15 @@ Um ADR publicado não é reescrito. Quando uma decisão muda, cria-se um novo AD
 | [0019](0019-database-identifiers.md)          | Identificadores UUIDv7 em `CHAR(36)`          | ACCEPTED |
 | [0020](0020-deletion-policy.md)               | Exclusão física com auditoria preservada      | ACCEPTED |
 | [0021](0021-session-token-lifetimes.md)       | Duração dos tokens e cookie de refresh        | ACCEPTED |
+| [0022](0022-server-side-credentials.md)       | Credenciais e tokens no servidor              | ACCEPTED |
 
 ## Decisões ainda em aberto
 
 As pendências estão listadas em [`../DECISIONS.md`](../DECISIONS.md) secao 7. Cada uma precisa virar ADR antes da implementação que ela bloqueia.
 
-**Nenhuma pendência bloqueia a R0.2.** As três últimas — `PEND-007` e `PEND-008`, duração dos tokens, e `PEND-009`, `SameSite` e domínio do cookie — foram fechadas pelo [ADR 0021](0021-session-token-lifetimes.md).
+**Nenhuma pendência bloqueia a R0.2.** `PEND-007`, `PEND-008` e `PEND-009` — duração dos tokens, `SameSite` e domínio do cookie — foram fechadas pelo [ADR 0021](0021-session-token-lifetimes.md). `PEND-026`, credenciais e tokens no servidor, foi aberta e fechada pelo [ADR 0022](0022-server-side-credentials.md).
+
+`PEND-026` só existiu porque a afirmação acima já tinha sido escrita uma vez e estava errada. Ela era verdadeira sobre a lista de pendências, e falsa sobre a fase: ao começar o módulo `auth` apareceram quatro exigências do `SECURITY.md` sem valor fixado — hash do `AuthSecret`, hash do refresh token, algoritmo de assinatura e bloqueio progressivo. Uma lacuna que nunca virou linha na tabela não deixa de bloquear por não estar lá.
 
 Histórico do desbloqueio da fase: `PEND-001`, `PEND-002` e `PEND-004` foram fechadas pelos ADRs 0016, 0017 e 0018, liberando `@crypta/crypto-web`. `PEND-005`, `PEND-006` e `PEND-014` foram fechadas pelos ADRs 0019 e 0020, liberando o `schema.prisma`.
 
