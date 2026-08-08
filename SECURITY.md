@@ -1345,6 +1345,14 @@ Evitar:
 - inline script sem nonce;
 - CDN não revisada.
 
+### `wasm-unsafe-eval`
+
+`script-src` inclui `'wasm-unsafe-eval'`. A derivação de chave usa Argon2id em WebAssembly (ADR 0016), e a compilação de WebAssembly é bloqueada por CSP em todos os navegadores atuais — Chrome 97, Firefox 102, Safari 16. A origem dos bytes é irrelevante: o portão é a compilação, não o `fetch`.
+
+`'wasm-unsafe-eval'` é estritamente mais estreito que `'unsafe-eval'`: permite compilar e instanciar WebAssembly e nada mais. `eval()`, `new Function()` e afins continuam bloqueados.
+
+**`'unsafe-eval'` puro permanece proibido**, e não apenas desaconselhado: ele engloba `'wasm-unsafe-eval'` e reabre a execução dinâmica de JavaScript na página onde as chaves são derivadas. `apps/web/src/test/nginx-config.test.ts` deverá assertar que `'unsafe-eval'` nunca aparece em `script-src`.
+
 ### Entrega da CSP
 
 A CSP é servida pelo Nginx da imagem da Web, junto dos demais cabeçalhos de segurança, em `apps/web/security-headers.conf`.

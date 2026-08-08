@@ -2,9 +2,9 @@
   "name": "@crypta/crypto-web",
   "version": "0.1.0",
   "private": true,
-  "description": "Adapters criptográficos da Web. Bloqueado por PEND-001 e PEND-002.",
+  "description": "Adapters criptográficos da Web. Desbloqueado pelos ADRs 0016 a 0018; implementação na R0.2.",
   "scripts": {
-    "build": "echo \"@crypta/crypto-web: bloqueado por PEND-001/PEND-002, sem build\"",
+    "build": "echo \"@crypta/crypto-web: implementação na R0.2, sem build\"",
     "clean": "echo \"@crypta/crypto-web: sem artefatos\"",
     "lint": "echo \"@crypta/crypto-web: sem código para lint\"",
     "lint:fix": "echo \"@crypta/crypto-web: sem código para lint\"",

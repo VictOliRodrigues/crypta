@@ -145,8 +145,11 @@ A primeira versão será distribuída por APK.
 - HKDF-SHA-256 para separação de contexto;
 - XChaCha20-Poly1305 para criptografia autenticada;
 - X25519 para compartilhamento de chaves;
-- bibliotecas da família libsodium;
+- cada primitiva vem da origem que a implementa melhor, e não de uma biblioteca única (ADR 0017);
+- na Web: Argon2id e XChaCha20-Poly1305 pelo `libsodium-wrappers-sumo` em WebAssembly, HKDF-SHA-256 e X25519 pelo `crypto.subtle`;
 - gerador criptograficamente seguro fornecido pela plataforma.
+
+A formulação anterior fixava "bibliotecas da família libsodium". Ela não sobreviveu à medição: nenhum build do `libsodium.js` expõe HKDF chamável, e o sealed box que corresponderia ao envelope declarado falha aberto. Os ADRs 0016 e 0017 registram as evidências.
 
 ### 3.7 Infraestrutura
 
@@ -2697,9 +2700,7 @@ Produção recebe `staging` ou `hotfix/*` conforme o fluxo autorizado.
 
 As decisões abaixo deverão ser fechadas antes da implementação correspondente:
 
-- biblioteca exata de Argon2id para Web;
 - biblioteca exata de libsodium para React Native;
-- parâmetros iniciais do KDF;
 - duração dos tokens;
 - política de bloqueio;
 - limite do CSV;
@@ -2711,7 +2712,6 @@ As decisões abaixo deverão ser fechadas antes da implementação correspondent
 - formato exato de UUID;
 - suporte inicial à sincronização incremental;
 - estratégia de rekey para grandes cofres;
-- licença open source;
 - mecanismo final de autenticação do GitHub Actions no Coolify;
 - visibilidade dos packages no GHCR;
 - responsáveis pela aprovação do Environment `production`;
@@ -2727,7 +2727,7 @@ docs/decisions/
 
 ## 51. ADRs registrados
 
-Os quinze ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
+Os dezoito ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
 arquitetura depende. As decisões ainda em aberto estão listadas como pendências em
 [`DECISIONS.md`](DECISIONS.md).
 
@@ -2746,6 +2746,9 @@ arquitetura depende. As decisões ainda em aberto estão listadas como pendênci
 - [`0013-agpl-license.md`](decisions/0013-agpl-license.md)
 - [`0014-js-yaml-override.md`](decisions/0014-js-yaml-override.md)
 - [`0015-migrations-on-container-start.md`](decisions/0015-migrations-on-container-start.md)
+- [`0016-argon2id-libsodium-wasm.md`](decisions/0016-argon2id-libsodium-wasm.md)
+- [`0017-web-crypto-primitives.md`](decisions/0017-web-crypto-primitives.md)
+- [`0018-argon2id-parameters.md`](decisions/0018-argon2id-parameters.md)
 
 ---
 

@@ -323,7 +323,7 @@ Não serão utilizados inicialmente:
 ├── packages/
 │   ├── contracts/      envelopes, códigos de erro e tipos da API
 │   ├── crypto-core/    formatos, AAD e interfaces — sem API de plataforma
-│   ├── crypto-web/     bloqueado por PEND-001/PEND-002
+│   ├── crypto-web/     desbloqueado pelos ADRs 0016 a 0018, entra na R0.2
 │   ├── crypto-mobile/  bloqueado por PEND-003
 │   ├── validation/     schemas Zod compartilhados
 │   ├── eslint-config/  flat config: base, react e nest
@@ -936,7 +936,7 @@ Consulte [`docs/ROADMAP.md`](docs/ROADMAP.md).
 ### O que ainda não existe
 
 - **nenhuma entidade no banco** — depende de `PEND-005`, `PEND-006` e `PEND-014` ([`docs/DATABASE.md`](docs/DATABASE.md));
-- **nenhuma implementação criptográfica** — `@crypta/crypto-web` e `@crypta/crypto-mobile` estão bloqueados por `PEND-001`, `PEND-002` e `PEND-003`;
+- **nenhuma implementação criptográfica** — `@crypta/crypto-web` foi desbloqueado pelos ADRs 0016 a 0018 e entra na R0.2; `@crypta/crypto-mobile` continua bloqueado por `PEND-003`, na R0.7;
 - autenticação, cofres, sites, credenciais, convites e importação;
 - `apps/mobile` — entra na R0.7;
 - `publish-prerelease.yml` e `publish-production.yml` — entram na R0.8, junto com os projetos Coolify de staging e production;

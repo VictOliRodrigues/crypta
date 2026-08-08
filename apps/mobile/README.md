@@ -22,6 +22,6 @@ Fora do escopo da R0.7: importação CSV, Android Autofill, biometria, modo offl
 ## Antes de iniciar
 
 - fechar PEND-003 (biblioteca libsodium para React Native);
-- fechar PEND-004 (parâmetros Argon2id, medidos também no Android mais fraco suportado);
+- revisar o ADR 0018: os parâmetros Argon2id são provisórios até serem medidos no Android médio e no mais fraco suportado;
 - fechar PEND-013 (bloqueio de screenshot);
 - confirmar que `@crypta/contracts` e `@crypta/crypto-core` cobrem o que o app precisa.
