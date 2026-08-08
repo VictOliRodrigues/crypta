@@ -107,6 +107,15 @@ export type KeyExchangeAdapter = {
 
 /** Conjunto completo que cada plataforma precisa fornecer. */
 export type CryptoAdapter = {
+  /**
+   * Prepara a plataforma e valida a implementação antes do primeiro uso.
+   *
+   * Existe porque o libsodium exige `await sodium.ready` (ADR 0016), mas o
+   * contrato é mais amplo: cabe aqui o self-test de vetor conhecido que recusa
+   * operar quando a implementação diverge. Precisa ser idempotente, e nenhum
+   * outro método pode ser chamado antes que a promise resolva.
+   */
+  init(): Promise<void>;
   random: RandomSource;
   kdf: KdfAdapter;
   aead: AeadAdapter;

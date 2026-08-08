@@ -11,7 +11,12 @@ export {
 } from './adapters/crypto-adapters';
 export { fromBase64Url, toBase64Url } from './encoding/base64url';
 export { encodeUtf8, utf8ByteLength } from './encoding/utf8';
-export { CryptoAlgorithmError, CryptoFormatError, CryptoVersionError } from './errors';
+export {
+  CryptoAlgorithmError,
+  CryptoAuthenticationError,
+  CryptoFormatError,
+  CryptoVersionError,
+} from './errors';
 export {
   AAD_ENTITY_TYPES,
   type AadContext,

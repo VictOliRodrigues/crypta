@@ -2,13 +2,41 @@
   "name": "@crypta/crypto-web",
   "version": "0.1.0",
   "private": true,
-  "description": "Adapters criptográficos da Web. Desbloqueado pelos ADRs 0016 a 0018; implementação na R0.2.",
+  "description": "Adapters criptográficos da Web: Argon2id e XChaCha20-Poly1305 pelo libsodium, HKDF-SHA-256 e X25519 pelo WebCrypto.",
+  "type": "module",
+  "main": "./dist/esm/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "echo \"@crypta/crypto-web: implementação na R0.2, sem build\"",
-    "clean": "echo \"@crypta/crypto-web: sem artefatos\"",
-    "lint": "echo \"@crypta/crypto-web: sem código para lint\"",
-    "lint:fix": "echo \"@crypta/crypto-web: sem código para lint\"",
-    "test": "echo \"@crypta/crypto-web: sem testes\"",
-    "typecheck": "echo \"@crypta/crypto-web: sem código para typecheck\""
+    "build": "tsc --project tsconfig.build.json",
+    "clean": "node ../../scripts/clean-dist.mjs",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@crypta/crypto-core": "workspace:*",
+    "libsodium-wrappers-sumo": "0.8.4"
+  },
+  "devDependencies": {
+    "@crypta/eslint-config": "workspace:*",
+    "@crypta/tsconfig": "workspace:*",
+    "@noble/ciphers": "2.2.0",
+    "@noble/curves": "2.2.0",
+    "@noble/hashes": "2.2.0",
+    "eslint": "^9.38.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   }
 }

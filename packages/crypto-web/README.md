@@ -4,9 +4,9 @@ Implementação dos adapters criptográficos para o navegador.
 
 ## Estado atual
 
-**Não implementado.** Este package existe apenas como fronteira reservada do monorepo.
+**Implementado.** Os adapters existem e passam a suíte de vetores.
 
-As decisões que o bloqueavam foram fechadas em 7 de agosto de 2026 — ele está desbloqueado e entra na R0.2.
+As versões de `libsodium-wrappers-sumo` e `@noble/*` são fixas, sem `^`: uma subida silenciosa de minor numa biblioteca criptográfica pode mudar a saída, e a saída aqui é o que abre o cofre.
 
 | Decisão                                                          | Fecha    | Assunto                          |
 | ---------------------------------------------------------------- | -------- | -------------------------------- |
@@ -14,7 +14,7 @@ As decisões que o bloqueavam foram fechadas em 7 de agosto de 2026 — ele est�
 | [ADR 0017](../../docs/decisions/0017-web-crypto-primitives.md)   | PEND-002 | as demais primitivas             |
 | [ADR 0018](../../docs/decisions/0018-argon2id-parameters.md)     | PEND-004 | parâmetros iniciais, provisórios |
 
-## O que este package deverá implementar
+## O que este package implementa
 
 As interfaces já definidas em [`@crypta/crypto-core`](../crypto-core/src/adapters/crypto-adapters.ts), com a origem fixada pelos ADRs 0016 e 0017:
 
@@ -25,7 +25,7 @@ As interfaces já definidas em [`@crypta/crypto-core`](../crypto-core/src/adapte
 
 Invariantes que não podem ser alteradas sem novo ADR: `parallelism = 1`, salt de 16 bytes, apenas o build ESM do libsodium, e self-test de vetor conhecido na inicialização.
 
-## Critérios de aceite quando for implementado
+## Critérios de aceite
 
 - vetores determinísticos idênticos aos de `@crypta/crypto-mobile`, incluindo o vetor conhecido do RFC 9106 secao 5.3;
 - decrypt falha com ciphertext adulterado;

@@ -1,0 +1,17 @@
+{
+  "extends": "@crypta/tsconfig/base.json",
+  "compilerOptions": {
+    // Este package roda no navegador: precisa de `crypto.subtle`,
+    // `crypto.getRandomValues` e `TextEncoder`, todos em DOM.
+    "lib": ["ES2023", "DOM"],
+    // `bundler` é obrigatório aqui. Com `node10` o TypeScript ignora o campo
+    // `exports` do `libsodium-wrappers-sumo` e cai nos tipos do build CommonJS,
+    // que é justamente o build proibido pelo ADR 0016.
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": [],
+    "rootDir": "./src",
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*.ts"]
+}
