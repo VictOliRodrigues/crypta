@@ -745,7 +745,7 @@ Requisitos:
 
 ## 14. AuthSecret
 
-O `AuthSecret` é uma credencial autenticadora derivada.
+O `AuthSecret` é uma credencial autenticadora derivada. São **32 bytes**, saída de `HKDF-SHA-256(RootKey, info="auth")`, transportados em base64url. Tamanho decodificado diferente de 32 bytes é rejeitado antes de qualquer comparação.
 
 Deverá:
 
@@ -754,6 +754,18 @@ Deverá:
 - nunca ser logado;
 - ser hasheado novamente no servidor;
 - ser substituído em alteração de senha.
+
+O verificador guardado, fixado pelo [ADR 0022](docs/decisions/0022-server-side-credentials.md):
+
+```text
+auth_secret_hash = HMAC-SHA-256(pepper, authSecret)
+```
+
+Comparado em tempo constante. O pepper **não fica no banco**: deriva do `AUTH_SERVER_SECRET` por `HKDF-SHA-256` com `info="auth-secret-pepper"`. É isso que separa este desenho de um hash simples — quem obtém apenas o dump não tem como iniciar o ataque offline contra a senha, e a secao 9 do `DATABASE.md` já registra que os secrets da aplicação têm backup separado do banco.
+
+**O verificador é rápido de propósito.** O fator de trabalho contra a senha é o Argon2id do cliente, com os parâmetros da secao 13, e já foi pago. Repeti-lo no servidor somaria pouco ao custo do atacante e dobraria o custo de toda requisição de login, que não é autenticada — exaustão de memória em rota aberta.
+
+`AUTH_SERVER_SECRET` é versionado (`v<N>:<base64url>`) e cada usuário guarda a versão que gerou o seu verificador. Rotacionar não exige que ninguém troque de senha: no login seguinte o verificador é recalculado com a versão corrente. **Perder o segredo sem rotação torna toda conta inacessível de forma definitiva**, porque a V1 não tem recuperação (secao 28).
 
 O uso de `AuthSecret` não equivale a um protocolo PAKE.
 
@@ -961,6 +973,26 @@ Aplicar bloqueio progressivo.
 
 Evitar bloqueio permanente facilmente abusável.
 
+Os valores, fixados pelo [ADR 0022](docs/decisions/0022-server-side-credentials.md):
+
+| Controle            | Onde vive                 | Padrão | Variável                     | Faixa    |
+| ------------------- | ------------------------- | ------ | ---------------------------- | -------- |
+| Falhas até bloquear | linha do usuário no MySQL | 5      | `LOGIN_MAX_ATTEMPTS`         | 3–20     |
+| Espera inicial      | linha do usuário no MySQL | 60 s   | `LOGIN_LOCK_INITIAL_SECONDS` | 10–600   |
+| Teto da espera      | linha do usuário no MySQL | 900 s  | `LOGIN_LOCK_MAX_SECONDS`     | 60–86400 |
+| Requisições por IP  | memória do processo       | 60/min | `AUTH_IP_RATE_LIMIT`         | 10–600   |
+
+A espera dobra a cada nova falha até o teto, e um login bem-sucedido zera a contagem. **Não existe bloqueio permanente**: um bloqueio disparável por terceiros e sem prazo é negação de serviço contra o dono da conta.
+
+O contador por conta fica no banco, e não em memória, porque um controle de segurança que some no restart do container não é controle. O filtro por IP fica em memória por ser apenas o filtro grosseiro anterior; com mais de uma réplica o teto efetivo por IP passa a ser o limite vezes o número de réplicas, e isso é limitação aceita.
+
+**O estado da conta só é revelado a quem já provou conhecer a credencial.** Login com `AuthSecret` errado, com e-mail inexistente ou contra conta bloqueada devolve sempre `INVALID_CREDENTIALS` e a mesma mensagem pública. `ACCOUNT_LOCKED` e `ACCOUNT_DISABLED` só aparecem quando o `AuthSecret` **confere** e o acesso é negado mesmo assim — nesse ponto informar não entrega nada novo a quem perguntou. Devolvê-los antes disso transformaria o bloqueio em oráculo de enumeração, contra a secao 25.
+
+Duas consequências que precisam valer no código, ou o oráculo volta por outro caminho:
+
+- a verificação do bloqueio acontece **depois** do cálculo do verificador, nunca antes;
+- e-mail inexistente executa um HMAC descartável de mesmo custo, para que o tempo de resposta não separe os casos que os códigos igualaram.
+
 Registrar:
 
 - conta;
@@ -1017,6 +1049,18 @@ Requisitos:
 - nenhuma informação sensível;
 - chave fora do repositório.
 
+Assinatura, fixada pelo [ADR 0022](docs/decisions/0022-server-side-credentials.md):
+
+```text
+EdDSA sobre Ed25519, pela biblioteca jose
+```
+
+Ed25519 não tem parâmetro para errar: não há tamanho de chave a escolher como no RSA, nem nonce por assinatura como no ECDSA, cuja reutilização revela a chave privada. A `jose` **exige que o algoritmo esperado seja passado na verificação**, o que fecha por construção a confusão de algoritmo — `alg: none` e a troca de assimétrico por simétrico. Token cujo cabeçalho não declare `EdDSA` é recusado.
+
+O conteúdo é exatamente `iss`, `aud`, `sub`, `sid`, `iat` e `exp`. Nome e e-mail não entram: quem precisa deles chama `GET /users/me`.
+
+`JWT_PRIVATE_KEY` e `JWT_PUBLIC_KEY` recebem o **base64 do PEM, em uma linha**. O PEM cru é multilinha, e `config_user.md` secao 41.1 já registra uma variable com quebra de linha invisível como causa de falha nesta infraestrutura. Na partida a API decodifica as duas, confirma que são Ed25519 e assina e verifica um valor de prova: chave trocada entre ambientes falha ali, não na primeira requisição de um usuário. O par é por ambiente e nunca compartilhado.
+
 Duração, fixada pelo [ADR 0021](docs/decisions/0021-session-token-lifetimes.md):
 
 ```text
@@ -1042,6 +1086,15 @@ Requisitos:
 - revogação;
 - expiração;
 - detecção de reutilização.
+
+Forma e armazenamento, fixados pelo [ADR 0022](docs/decisions/0022-server-side-credentials.md):
+
+```text
+32 bytes de CSPRNG, transportados em base64url
+SHA-256 em repouso, com índice único, e busca pelo hash
+```
+
+Não há pepper aqui, e a ausência é deliberada. O pepper da secao 14 existe para impedir ataque offline contra um segredo de entropia limitada — a senha. O refresh token não tem preimagem adivinhável: são 256 bits sem estrutura, e contra ele o atacante não tem o que tentar. Acrescentá-lo seria simetria estética, e faria a rotação do segredo do servidor derrubar todas as sessões vivas.
 
 Duração, fixada pelo [ADR 0021](docs/decisions/0021-session-token-lifetimes.md) — os dois limites valem ao mesmo tempo:
 
