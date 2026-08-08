@@ -244,7 +244,7 @@ Os parâmetros KDF ficam por usuário, e não em configuração global, por duas
 
 **Não existe coluna de revogação.** Revogar é apagar a linha (ADR 0020). Um `revoked_at` traria de volta o problema que a exclusão física resolve: bastaria um `findMany` sem o filtro para uma sessão revogada voltar a valer.
 
-> **Ponto em aberto para o `BLG-0805`.** O ADR 0021 diz que, dentro da janela de 10 segundos, o refresh "devolve o mesmo par que a rotação original emitiu". Devolver o mesmo _refresh token_ exigiria guardá-lo em texto aberto — o oposto do que `refresh_token_hash` existe para fazer, e um dump passaria a entregar sessões utilizáveis. As colunas acima suportam as duas leituras; qual delas vale precisa ser decidido antes de a rotação ser implementada, e a leitura literal exigiria emenda ao ADR 0021.
+> **Fechado pelo [ADR 0024](decisions/0024-rotation-grace-window.md).** O ADR 0021 dizia que, dentro da janela de 10 segundos, o refresh "devolve o mesmo par que a rotação original emitiu" — o que exigiria guardar o token em texto aberto, o oposto do que `refresh_token_hash` existe para fazer. Dentro da janela a rotação acontece de novo e o par é **novo**; `last_used_at` não é movido, então a inatividade não é estendida. Estas colunas servem exatamente a isso.
 
 ### `idempotency_records`
 

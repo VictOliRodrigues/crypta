@@ -2757,7 +2757,7 @@ docs/decisions/
 
 ## 51. ADRs registrados
 
-Os vinte e três ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
+Os vinte e quatro ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
 arquitetura depende. As decisões ainda em aberto estão listadas como pendências em
 [`DECISIONS.md`](DECISIONS.md).
 
@@ -2784,6 +2784,7 @@ arquitetura depende. As decisões ainda em aberto estão listadas como pendênci
 - [`0021-session-token-lifetimes.md`](decisions/0021-session-token-lifetimes.md)
 - [`0022-server-side-credentials.md`](decisions/0022-server-side-credentials.md)
 - [`0023-identity-aad-and-key-envelope.md`](decisions/0023-identity-aad-and-key-envelope.md)
+- [`0024-rotation-grace-window.md`](decisions/0024-rotation-grace-window.md)
 
 ---
 

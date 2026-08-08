@@ -925,13 +925,26 @@ REFRESH_TOKEN_REUSED
 SESSION_REVOKED
 ```
 
+### Janela de tolerância
+
+Um refresh token rotacionado há 10 segundos ou menos é aceito, e a sessão continua de pé. Existe para que duas abas renovando ao mesmo tempo não sejam tratadas como reutilização (ADR 0021).
+
+**O par devolvido é novo**, e não o que a rotação original emitiu ([ADR 0024](decisions/0024-rotation-grace-window.md)). Repetir o par exigiria guardar o refresh token em texto aberto, o que anularia o hash em repouso e faria um dump do banco entregar sessões utilizáveis. A rotação dentro da janela **não estende** o limite de inatividade.
+
 ### Reutilização
 
-Em reutilização detectada:
+Fora da janela, apresentar um token já rotacionado é reutilização:
 
-- revogar sessão ou família;
-- retornar `401`;
+- revogar a **família inteira**, não apenas a sessão;
+- retornar `401 SESSION_REVOKED`;
+- limpar o cookie de refresh;
 - registrar auditoria.
+
+### Cookie duplicado
+
+Requisição que apresente mais de um cookie `refresh_token` recebe `401`, sem que a API escolha entre os valores. A ordem não é garantida por especificação, e um subdomínio irmão comprometido pode gravar um cookie de mesmo nome com escopo mais amplo (ADR 0021).
+
+A sessão **não** é revogada nesse caso: a requisição é que está ambígua, não a credencial.
 
 ---
 

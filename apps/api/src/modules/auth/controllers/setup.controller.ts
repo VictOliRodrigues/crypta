@@ -16,6 +16,7 @@ import { type AuthSessionResponse, type SetupStatusResponse } from '@crypta/cont
 
 import { ZodValidationPipe } from '@/common/validation/zod-validation.pipe';
 
+import { PublicRoute } from '../decorators/public-route.decorator';
 import { idempotencyKeySchema, type SetupRequest, setupRequestSchema } from '../dto/setup.schema';
 import { readSessionClient } from '../mappers/session-client.mapper';
 import { CreateFirstUserService } from '../services/create-first-user.service';
@@ -37,6 +38,7 @@ export class SetupController {
     private readonly createFirstUser: CreateFirstUserService,
   ) {}
 
+  @PublicRoute()
   @Get('status')
   @Header('Cache-Control', 'no-store')
   @ApiOperation({ summary: 'Informa se o primeiro usuário precisa ser criado.' })
@@ -45,6 +47,7 @@ export class SetupController {
     return { data: await this.setupStatus.execute() };
   }
 
+  @PublicRoute()
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Header('Cache-Control', 'no-store')

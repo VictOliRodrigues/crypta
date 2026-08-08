@@ -192,6 +192,7 @@ Uma decisão deverá gerar ADR quando:
 | DEC-048 | Duração dos tokens e cookie de refresh host-only    | ACCEPTED   | ADR 0021   |
 | DEC-049 | Credenciais e tokens no servidor                    | ACCEPTED   | ADR 0022   |
 | DEC-050 | AAD de identidade e formato do envelope de chave    | ACCEPTED   | ADR 0023   |
+| DEC-051 | Comportamento da janela de tolerância na rotação    | ACCEPTED   | ADR 0024   |
 
 ---
 
@@ -650,8 +651,10 @@ Módulos nativos serão permitidos quando necessários para:
 
 ### ADR pendente
 
+O número é atribuído quando o ADR for escrito, na ordem em que ele entrar. Os nomes abaixo eram reservas de numeração que a fila de decisões já ultrapassou.
+
 ```text
-docs/decisions/0020-react-native-expo.md
+docs/decisions/NNNN-react-native-expo.md
 ```
 
 ---
@@ -748,8 +751,10 @@ Observações não entram na busca da V1.
 
 ### ADR pendente
 
+O número é atribuído quando o ADR for escrito, na ordem em que ele entrar. Os nomes abaixo eram reservas de numeração que a fila de decisões já ultrapassou.
+
 ```text
-docs/decisions/0021-client-side-search.md
+docs/decisions/NNNN-client-side-search.md
 ```
 
 ---
@@ -781,8 +786,10 @@ O projeto ficará público no GitHub.
 
 ### ADR pendente
 
+O número é atribuído quando o ADR for escrito, na ordem em que ele entrar. Os nomes abaixo eram reservas de numeração que a fila de decisões já ultrapassou.
+
 ```text
-docs/decisions/0022-public-repository.md
+docs/decisions/NNNN-public-repository.md
 ```
 
 ---
@@ -843,8 +850,10 @@ Validar cedo:
 
 ### ADR pendente
 
+O número é atribuído quando o ADR for escrito, na ordem em que ele entrar. Os nomes abaixo eram reservas de numeração que a fila de decisões já ultrapassou.
+
 ```text
-docs/decisions/0023-early-development-deployment.md
+docs/decisions/NNNN-early-development-deployment.md
 ```
 
 ## DEC-019 — Testes e documentação contínuos
@@ -978,8 +987,10 @@ O Android será distribuído inicialmente por APK assinado.
 
 ### ADR pendente
 
+O número é atribuído quando o ADR for escrito, na ordem em que ele entrar. Os nomes abaixo eram reservas de numeração que a fila de decisões já ultrapassou.
+
 ```text
-docs/decisions/0024-android-apk-distribution.md
+docs/decisions/NNNN-android-apk-distribution.md
 ```
 
 ---
@@ -1006,8 +1017,10 @@ O servidor não possui a chave privada aberta.
 
 ### ADR pendente
 
+O número é atribuído quando o ADR for escrito, na ordem em que ele entrar. Os nomes abaixo eram reservas de numeração que a fila de decisões já ultrapassou.
+
 ```text
-docs/decisions/0025-account-recovery.md
+docs/decisions/NNNN-account-recovery.md
 ```
 
 ---
@@ -1068,8 +1081,10 @@ Remover membership bloqueia acesso imediato, mas a remoção criptográfica exig
 
 ### ADR pendente
 
+O número é atribuído quando o ADR for escrito, na ordem em que ele entrar. Os nomes abaixo eram reservas de numeração que a fila de decisões já ultrapassou.
+
 ```text
-docs/decisions/0026-vault-rekey.md
+docs/decisions/NNNN-vault-rekey.md
 ```
 
 ---
@@ -1100,8 +1115,10 @@ O cliente envia `expectedVersion`.
 
 ### ADR pendente
 
+O número é atribuído quando o ADR for escrito, na ordem em que ele entrar. Os nomes abaixo eram reservas de numeração que a fila de decisões já ultrapassou.
+
 ```text
-docs/decisions/0027-optimistic-concurrency.md
+docs/decisions/NNNN-optimistic-concurrency.md
 ```
 
 ---
@@ -2106,6 +2123,56 @@ O e-mail é alterável por `PATCH /users/me`, e a alteração tornaria a chave p
 ### ADR
 
 [`docs/decisions/0023-identity-aad-and-key-envelope.md`](decisions/0023-identity-aad-and-key-envelope.md)
+
+---
+
+## DEC-051 — Comportamento da janela de tolerância na rotação
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+Dentro da janela de 10 segundos, apresentar o refresh token imediatamente anterior **não é reutilização**: a sessão sobrevive, a família não cai, e o chamador recebe um par **novo**, não o par que a rotação original emitiu. A rotação de tolerância **não move** `last_used_at`, então não estende o limite de inatividade.
+
+Fora da janela, nada muda: o token anterior derruba a família inteira.
+
+A troca do token é condicional no banco — o hash apresentado entra no `WHERE` do `UPDATE` —, então duas rotações simultâneas disputam a linha e apenas uma escreve. A perdedora recusa em vez de sobrescrever.
+
+### Motivos
+
+O ADR 0021 descreveu a janela dizendo que ela "devolve o mesmo par que a rotação original emitiu". Isso não é executável: o servidor guarda `SHA-256(token)` por decisão do ADR 0022, e hash não tem volta. Devolver o mesmo token exigiria persistir o valor em texto aberto — anulando a coluna `refresh_token_hash` e convertendo um dump do banco, que o ADR 0022 trata como o vazamento mais provável, em sessões prontas para uso.
+
+O propósito do ADR 0021, porém, não depende de o par ser literalmente o mesmo: ele quer que duas abas renovando ao mesmo tempo não sejam tratadas como reutilização. Rotacionar de novo entrega isso, e as duas abas terminam com credencial funcionando.
+
+Dentro da janela passam a valer dois tokens, o corrente e o anterior. Isso é inerente a qualquer janela de tolerância, inclusive à do ADR 0021, e não é introduzido aqui. Na Web a exposição real é ainda menor: o cookie é substituído pelo navegador na primeira rotação, então o token anterior só reaparece em requisição que já estava em voo.
+
+### Rejeitado
+
+```text
+guardar o refresh token em texto aberto para poder repeti-lo
+guardar em texto aberto apenas durante os 10 segundos
+devolver só um access token novo, sem rotacionar
+remover a janela
+token de uso único com contador, no lugar da janela temporal
+```
+
+Guardar em claro por 10 segundos reduz a janela mas não o modo de falha, e cria um caminho de escrita de segredo que uma refatoração futura pode esquecer de limpar. Devolver só o access token deixaria o chamador com o token anterior, que sai da janela e vira reutilização — a aba concorrente cairia de qualquer forma, com atraso e sintoma pior.
+
+### Consequências
+
+- a janela passa a ser implementável sem persistir segredo em claro;
+- duas abas renovando juntas continuam funcionando, que é o objetivo do ADR 0021;
+- a inatividade não é estendida pela rotação de tolerância, como aquele ADR exige;
+- a detecção de reutilização fora da janela fica intacta;
+- o texto do ADR 0021 deixa de descrever o comportamento real e passa a depender deste para ser lido corretamente — ADR publicado não é reescrito;
+- cada passagem pela janela custa uma escrita a mais no banco;
+- dois tokens válidos dentro da janela, assumido e não introduzido aqui.
+
+### ADR
+
+[`docs/decisions/0024-rotation-grace-window.md`](decisions/0024-rotation-grace-window.md)
 
 ---
 

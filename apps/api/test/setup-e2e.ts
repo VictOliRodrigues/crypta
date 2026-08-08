@@ -35,3 +35,15 @@ process.env.LOG_LEVEL ??= 'fatal';
 for (const [key, value] of Object.entries(buildTestAuthEnv())) {
   process.env[key] ??= value;
 }
+
+// Teto do throttle por IP no máximo aceito pela faixa do ADR 0022.
+//
+// A suíte inteira sai do mesmo endereço e faz centenas de requisições em poucos
+// minutos, o que estoura o padrão de 60/min e produz `429` em testes que não
+// têm nada a ver com rate limit — falha intermitente, dependente de como as
+// requisições caem nas janelas de 60 s.
+//
+// A consequência é que o throttle **não é exercitado por esta suíte**. Cobri-lo
+// exigiria um processo próprio, com limite baixo, e está registrado como
+// pendência em vez de simulado aqui.
+process.env.AUTH_IP_RATE_LIMIT ??= '600';

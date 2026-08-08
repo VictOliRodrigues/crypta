@@ -27,6 +27,8 @@ export {
   type AuthSessionData,
   type AuthSessionResponse,
   type KeyBundlePayload,
+  type RefreshSessionData,
+  type RefreshSessionResponse,
   type SetupStatusData,
   type SetupStatusResponse,
 } from './auth/auth.contract';
