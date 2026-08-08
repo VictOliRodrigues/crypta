@@ -16,9 +16,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.2",
     "@crypta/contracts": "workspace:*",
+    "@crypta/crypto-web": "workspace:*",
     "@crypta/validation": "workspace:*",
+    "@tanstack/react-query": "^5.90.2",
     "axios": "^1.12.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

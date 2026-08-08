@@ -2708,8 +2708,6 @@ As decisões abaixo deverão ser fechadas antes da implementação correspondent
 - expiração de convite;
 - estratégia de envio de convite;
 - bloqueio de screenshot no Android;
-- hard delete ou soft delete por entidade;
-- formato exato de UUID;
 - suporte inicial à sincronização incremental;
 - estratégia de rekey para grandes cofres;
 - mecanismo final de autenticação do GitHub Actions no Coolify;
@@ -2727,7 +2725,7 @@ docs/decisions/
 
 ## 51. ADRs registrados
 
-Os dezoito ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
+Os vinte ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
 arquitetura depende. As decisões ainda em aberto estão listadas como pendências em
 [`DECISIONS.md`](DECISIONS.md).
 
@@ -2749,6 +2747,8 @@ arquitetura depende. As decisões ainda em aberto estão listadas como pendênci
 - [`0016-argon2id-libsodium-wasm.md`](decisions/0016-argon2id-libsodium-wasm.md)
 - [`0017-web-crypto-primitives.md`](decisions/0017-web-crypto-primitives.md)
 - [`0018-argon2id-parameters.md`](decisions/0018-argon2id-parameters.md)
+- [`0019-database-identifiers.md`](decisions/0019-database-identifiers.md)
+- [`0020-deletion-policy.md`](decisions/0020-deletion-policy.md)
 
 ---
 

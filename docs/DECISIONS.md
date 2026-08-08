@@ -140,53 +140,55 @@ Uma decisão deverá gerar ADR quando:
 
 ## 6. Índice de decisões
 
-| ID      | Decisão                                             | Status   | ADR        |
-| ------- | --------------------------------------------------- | -------- | ---------- |
-| DEC-001 | Monorepo com pnpm workspaces                        | ACCEPTED | ADR 0001   |
-| DEC-002 | Monólito modular no backend                         | ACCEPTED | ADR 0002   |
-| DEC-003 | Criptografia no cliente                             | ACCEPTED | ADR 0003   |
-| DEC-004 | Separação entre autenticação e criptografia         | ACCEPTED | ADR 0004   |
-| DEC-005 | VaultKey individual por cofre                       | ACCEPTED | ADR 0005   |
-| DEC-006 | Envelope de chave por membro                        | ACCEPTED | ADR 0005   |
-| DEC-007 | API REST versionada                                 | ACCEPTED | ADR 0007   |
-| DEC-008 | MySQL com Prisma                                    | ACCEPTED | ADR 0008   |
-| DEC-009 | Deploy no Coolify sem Docker Compose                | ACCEPTED | ADR 0009   |
-| DEC-010 | Web, API e banco separados por ambiente             | ACCEPTED | ADR 0009   |
-| DEC-011 | React + Vite para Web                               | ACCEPTED | ADR 0001   |
-| DEC-012 | NestJS para API                                     | ACCEPTED | ADR 0002   |
-| DEC-013 | React Native + Expo para Android                    | ACCEPTED | ADR futuro |
-| DEC-014 | Refresh token rotacionado e revogável               | ACCEPTED | ADR 0010   |
-| DEC-015 | CSV processado no navegador                         | ACCEPTED | ADR 0006   |
-| DEC-016 | Busca local em conteúdo descriptografado            | ACCEPTED | ADR futuro |
-| DEC-017 | Repositório público                                 | ACCEPTED | ADR futuro |
-| DEC-018 | Deploy antecipado em development                    | ACCEPTED | ADR futuro |
-| DEC-019 | Testes e documentação contínuos                     | ACCEPTED | ADR futuro |
-| DEC-020 | OWNER e EDITOR na V1                                | ACCEPTED | ADR futuro |
-| DEC-021 | Link opcional pertence ao site                      | ACCEPTED | ADR futuro |
-| DEC-022 | Um site possui várias credenciais                   | ACCEPTED | ADR futuro |
-| DEC-023 | Importação CSV somente na Web                       | ACCEPTED | ADR 0006   |
-| DEC-024 | Android distribuído inicialmente por APK            | ACCEPTED | ADR futuro |
-| DEC-025 | Sem recuperação automática na V1                    | ACCEPTED | ADR futuro |
-| DEC-026 | Sem modo offline na V1                              | ACCEPTED | ADR futuro |
-| DEC-027 | Sem extensão na V1                                  | ACCEPTED | ADR futuro |
-| DEC-028 | Rekey após remoção de membro                        | ACCEPTED | ADR futuro |
-| DEC-029 | Controle de concorrência por versão                 | ACCEPTED | ADR futuro |
-| DEC-030 | IDs UUID em string inicialmente                     | PROPOSED | ADR futuro |
-| DEC-031 | Branches permanentes `develop`, `staging` e `main`  | ACCEPTED | ADR 0011   |
-| DEC-032 | GitHub Environments e Coolify isolados por ambiente | ACCEPTED | ADR 0011   |
-| DEC-033 | GHCR como registry oficial de Web e API             | ACCEPTED | ADR 0012   |
-| DEC-034 | Construir na RC e promover os mesmos digests        | ACCEPTED | ADR 0012   |
-| DEC-035 | Semantic Versioning com arquivo `VERSION`           | ACCEPTED | ADR 0011   |
-| DEC-036 | RCs, tags estáveis e releases imutáveis             | ACCEPTED | ADR 0011   |
-| DEC-037 | Hotfix nasce de `main` e retorna às linhas ativas   | ACCEPTED | ADR 0011   |
-| DEC-038 | Branch `release/*` permanece durante a homologação  | ACCEPTED | ADR 0011   |
-| DEC-039 | Correções de staging passam por `fix/* → release/*` | ACCEPTED | ADR 0011   |
-| DEC-040 | Licença AGPL-3.0                                    | ACCEPTED | ADR 0013   |
-| DEC-041 | Override de `js-yaml` para a versão corrigida       | ACCEPTED | ADR 0014   |
-| DEC-042 | Migrations aplicadas no start do container da API   | ACCEPTED | ADR 0015   |
-| DEC-043 | Argon2id pelo libsodium em WebAssembly              | ACCEPTED | ADR 0016   |
-| DEC-044 | Primitivas da Web por origem especializada          | ACCEPTED | ADR 0017   |
-| DEC-045 | Parâmetros iniciais do Argon2id                     | ACCEPTED | ADR 0018   |
+| ID      | Decisão                                             | Status     | ADR        |
+| ------- | --------------------------------------------------- | ---------- | ---------- |
+| DEC-001 | Monorepo com pnpm workspaces                        | ACCEPTED   | ADR 0001   |
+| DEC-002 | Monólito modular no backend                         | ACCEPTED   | ADR 0002   |
+| DEC-003 | Criptografia no cliente                             | ACCEPTED   | ADR 0003   |
+| DEC-004 | Separação entre autenticação e criptografia         | ACCEPTED   | ADR 0004   |
+| DEC-005 | VaultKey individual por cofre                       | ACCEPTED   | ADR 0005   |
+| DEC-006 | Envelope de chave por membro                        | ACCEPTED   | ADR 0005   |
+| DEC-007 | API REST versionada                                 | ACCEPTED   | ADR 0007   |
+| DEC-008 | MySQL com Prisma                                    | ACCEPTED   | ADR 0008   |
+| DEC-009 | Deploy no Coolify sem Docker Compose                | ACCEPTED   | ADR 0009   |
+| DEC-010 | Web, API e banco separados por ambiente             | ACCEPTED   | ADR 0009   |
+| DEC-011 | React + Vite para Web                               | ACCEPTED   | ADR 0001   |
+| DEC-012 | NestJS para API                                     | ACCEPTED   | ADR 0002   |
+| DEC-013 | React Native + Expo para Android                    | ACCEPTED   | ADR futuro |
+| DEC-014 | Refresh token rotacionado e revogável               | ACCEPTED   | ADR 0010   |
+| DEC-015 | CSV processado no navegador                         | ACCEPTED   | ADR 0006   |
+| DEC-016 | Busca local em conteúdo descriptografado            | ACCEPTED   | ADR futuro |
+| DEC-017 | Repositório público                                 | ACCEPTED   | ADR futuro |
+| DEC-018 | Deploy antecipado em development                    | ACCEPTED   | ADR futuro |
+| DEC-019 | Testes e documentação contínuos                     | ACCEPTED   | ADR futuro |
+| DEC-020 | OWNER e EDITOR na V1                                | ACCEPTED   | ADR futuro |
+| DEC-021 | Link opcional pertence ao site                      | ACCEPTED   | ADR futuro |
+| DEC-022 | Um site possui várias credenciais                   | ACCEPTED   | ADR futuro |
+| DEC-023 | Importação CSV somente na Web                       | ACCEPTED   | ADR 0006   |
+| DEC-024 | Android distribuído inicialmente por APK            | ACCEPTED   | ADR futuro |
+| DEC-025 | Sem recuperação automática na V1                    | ACCEPTED   | ADR futuro |
+| DEC-026 | Sem modo offline na V1                              | ACCEPTED   | ADR futuro |
+| DEC-027 | Sem extensão na V1                                  | ACCEPTED   | ADR futuro |
+| DEC-028 | Rekey após remoção de membro                        | ACCEPTED   | ADR futuro |
+| DEC-029 | Controle de concorrência por versão                 | ACCEPTED   | ADR futuro |
+| DEC-030 | IDs UUID em string inicialmente                     | SUPERSEDED | ADR 0019   |
+| DEC-031 | Branches permanentes `develop`, `staging` e `main`  | ACCEPTED   | ADR 0011   |
+| DEC-032 | GitHub Environments e Coolify isolados por ambiente | ACCEPTED   | ADR 0011   |
+| DEC-033 | GHCR como registry oficial de Web e API             | ACCEPTED   | ADR 0012   |
+| DEC-034 | Construir na RC e promover os mesmos digests        | ACCEPTED   | ADR 0012   |
+| DEC-035 | Semantic Versioning com arquivo `VERSION`           | ACCEPTED   | ADR 0011   |
+| DEC-036 | RCs, tags estáveis e releases imutáveis             | ACCEPTED   | ADR 0011   |
+| DEC-037 | Hotfix nasce de `main` e retorna às linhas ativas   | ACCEPTED   | ADR 0011   |
+| DEC-038 | Branch `release/*` permanece durante a homologação  | ACCEPTED   | ADR 0011   |
+| DEC-039 | Correções de staging passam por `fix/* → release/*` | ACCEPTED   | ADR 0011   |
+| DEC-040 | Licença AGPL-3.0                                    | ACCEPTED   | ADR 0013   |
+| DEC-041 | Override de `js-yaml` para a versão corrigida       | ACCEPTED   | ADR 0014   |
+| DEC-042 | Migrations aplicadas no start do container da API   | ACCEPTED   | ADR 0015   |
+| DEC-043 | Argon2id pelo libsodium em WebAssembly              | ACCEPTED   | ADR 0016   |
+| DEC-044 | Primitivas da Web por origem especializada          | ACCEPTED   | ADR 0017   |
+| DEC-045 | Parâmetros iniciais do Argon2id                     | ACCEPTED   | ADR 0018   |
+| DEC-046 | Identificadores UUIDv7 em `CHAR(36)`                | ACCEPTED   | ADR 0019   |
+| DEC-047 | Exclusão física com auditoria preservada            | ACCEPTED   | ADR 0020   |
 
 ---
 
@@ -1105,7 +1107,7 @@ docs/decisions/0027-optimistic-concurrency.md
 
 ### Status
 
-PROPOSED
+SUPERSEDED pelo DEC-046
 
 ### Proposta
 
@@ -1130,15 +1132,13 @@ BINARY(16)
 - Prisma;
 - menor complexidade inicial.
 
-### Pendente
+### Resolvido
 
-Definir antes da primeira migration de produção.
+O DEC-046 confirmou `CHAR(36)` e acrescentou o que faltava: a versão do UUID. A numeração de ADR prevista aqui (`0028`) era estimativa; o ADR saiu como `0019`.
 
-### ADR pendente
+### ADR
 
-```text
-docs/decisions/0028-database-identifiers.md
-```
+[`docs/decisions/0019-database-identifiers.md`](decisions/0019-database-identifiers.md)
 
 ---
 
@@ -1830,6 +1830,100 @@ O piso do OWASP deixaria fator de trabalho na mesa sem ganho perceptível. 2 GiB
 
 ---
 
+## DEC-046 — Identificadores UUIDv7 em `CHAR(36)`
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+Todo identificador é UUIDv7 em `CHAR(36)`, na forma canônica com hifens, gerado pelo Prisma:
+
+```prisma
+id String @id @default(uuid(7)) @db.Char(36)
+```
+
+Chaves estrangeiras usam o mesmo tipo. Substitui o DEC-030, que propunha `CHAR(36)` sem definir a versão do UUID.
+
+### Motivos
+
+Verificado com o Prisma 6.19.3 do repositório: `String @default(uuid(7)) @db.Char(36)` valida e gera `string` no client; `Bytes @db.Binary(16)` valida mas gera `Bytes`, e `Bytes @default(uuid(7))` é **rejeitado** — com coluna binária, toda inserção precisa produzir o ID em código de aplicação.
+
+A v7 carrega o timestamp nos 48 bits mais significativos, então os IDs crescem no tempo. Em InnoDB a chave primária é o índice clusterizado e é replicada em todo índice secundário, então inserir em ordem crescente evita divisão de página. Esse argumento vem do comportamento documentado do InnoDB: tentei medir em MySQL 8.4 real, mas a mesma carga variou de 22 s para 43 s entre repetições nesta máquina, e nenhum número meu entrou na decisão.
+
+`CHAR(36)` custa mais espaço, mas `BINARY(16)` empurraria `Bytes` para todo DTO, contrato, rota e log. `CLAUDE.md` secao 43.2 põe segurança antes de micro-otimização, e a escala é de VPS única.
+
+### Rejeitado
+
+```text
+UUIDv4 em CHAR(36)
+UUIDv7 em BINARY(16)
+chave sequencial interna com UUID público separado
+ULID
+```
+
+A v4 abre mão da localidade sem ganhar nada além de não revelar o horário de criação. `BINARY(16)` é a opção mais compacta e continua correta se o volume mudar — a conversão por `UUID_TO_BIN`/`BIN_TO_UUID` é sem perda. Chave dupla complicaria o modelo de autorização. ULID difere da v7 só na codificação e não é gerado pelo Prisma.
+
+### Consequências
+
+- inserção em ordem crescente na chave clusterizada;
+- o Prisma gera o ID, sem depender de código de aplicação;
+- `id` é `string` em todas as fronteiras, sem conversão;
+- `CHAR(36)` ocupa 36 bytes contra 16, multiplicado por índice secundário;
+- o UUIDv7 revela o instante de criação com resolução de milissegundos;
+- a migração para `BINARY(16)` continua possível, com ADR próprio.
+
+### ADR
+
+[`docs/decisions/0019-database-identifiers.md`](decisions/0019-database-identifiers.md)
+
+---
+
+## DEC-047 — Exclusão física com auditoria preservada
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+Conteúdo do cofre é excluído fisicamente, sem `deleted_at` e sem filtro de exclusão. `AuditLog` é tabela independente, sem chave estrangeira, guardando `actor_id` e `entity_id` como valores.
+
+Cada relação tem `onDelete` declarado: `Cascade` de `Vault` para sites, credenciais, envelopes, membros e convites, e de `User` para sessões e key bundle; `Restrict` de `User` para `VaultMember`, para que excluir um proprietário não deixe cofre órfão.
+
+### Motivos
+
+`DATABASE.md` secao 7 impõe duas restrições em tensão: segredo excluído não pode continuar acessível, e auditoria não é apagada com a entidade. Soft delete resolve a segunda de graça e transforma a primeira em disciplina — um `findMany` sem o filtro devolve segredo que o usuário mandou apagar, e um dump posterior ainda conteria tudo que foi excluído.
+
+Excluir a linha é o que torna o dado inacessível a partir de um dump futuro, que é o mesmo raciocínio de revogação efetiva do DEC-028. Auditoria sem FK satisfaz a segunda restrição sem reintroduzir a primeira.
+
+### Rejeitado
+
+```text
+soft delete em todas as entidades
+soft delete só no Vault
+AuditLog com FK e ON DELETE SET NULL
+lixeira com retenção por prazo
+```
+
+Soft delete converte invariante estrutural em disciplina de consulta. Soft delete parcial preserva o pior dos dois. Anular o `actor_id` destrói exatamente o que a auditoria guarda. Lixeira é funcionalidade de produto, fora do escopo pelo `CLAUDE.md` secao 11.
+
+### Consequências
+
+- segredo excluído deixa de existir, então nenhuma consulta futura pode devolvê-lo;
+- a restrição 1 de `DATABASE.md` secao 7 passa a ser garantida pela estrutura;
+- dump posterior à exclusão não contém o conteúdo excluído;
+- exclusão é irreversível, e a interface precisa confirmar de forma inequívoca;
+- excluir conta que ainda é proprietária falha por `Restrict`, exigindo passo anterior;
+- auditoria passa a crescer sem ser podada pela exclusão, o que fica sob a PEND-015.
+
+### ADR
+
+[`docs/decisions/0020-deletion-policy.md`](decisions/0020-deletion-policy.md)
+
+---
+
 # DECISÕES REJEITADAS
 
 ---
@@ -2016,8 +2110,8 @@ Aumenta o risco de vazamento, perda de dados e execução acidental em produçã
 | ~~PEND-002~~ | ~~Biblioteca libsodium Web~~                  | RESOLVIDA em DEC-044 | —                |
 | PEND-003     | Biblioteca libsodium Mobile                   | REVIEW_REQUIRED      | Mobile           |
 | ~~PEND-004~~ | ~~Parâmetros Argon2id~~                       | RESOLVIDA em DEC-045 | —                |
-| PEND-005     | UUIDv4 ou UUIDv7                              | REVIEW_REQUIRED      | Banco            |
-| PEND-006     | `CHAR(36)` ou `BINARY(16)`                    | REVIEW_REQUIRED      | Banco            |
+| ~~PEND-005~~ | ~~UUIDv4 ou UUIDv7~~                          | RESOLVIDA em DEC-046 | —                |
+| ~~PEND-006~~ | ~~`CHAR(36)` ou `BINARY(16)`~~                | RESOLVIDA em DEC-046 | —                |
 | PEND-007     | Duração do access token                       | REVIEW_REQUIRED      | Auth             |
 | PEND-008     | Duração do refresh token                      | REVIEW_REQUIRED      | Auth             |
 | PEND-009     | SameSite e domínio do cookie                  | REVIEW_REQUIRED      | Deploy           |
@@ -2025,7 +2119,7 @@ Aumenta o risco de vazamento, perda de dados e execução acidental em produçã
 | PEND-011     | Expiração de convite                          | REVIEW_REQUIRED      | Compartilhamento |
 | PEND-012     | Estratégia de envio do convite                | REVIEW_REQUIRED      | Compartilhamento |
 | PEND-013     | Bloqueio de screenshot Android                | REVIEW_REQUIRED      | Mobile           |
-| PEND-014     | Política de hard/soft delete                  | REVIEW_REQUIRED      | Banco            |
+| ~~PEND-014~~ | ~~Política de hard/soft delete~~              | RESOLVIDA em DEC-047 | —                |
 | PEND-015     | Retenção de auditoria                         | REVIEW_REQUIRED      | Operação         |
 | ~~PEND-016~~ | ~~Licença open source~~                       | RESOLVIDA em DEC-040 | —                |
 | PEND-017     | Estratégia de recuperação                     | REVIEW_REQUIRED      | Pós-V1           |
@@ -2099,10 +2193,10 @@ Quando uma decisão for substituída:
 - explicar a migração;
 - preservar histórico.
 
-Exemplo:
+Exemplo, agora real:
 
 ```text
-DEC-030 SUPERSEDED BY DEC-045
+DEC-030 SUPERSEDED BY DEC-046
 ```
 
 ---

@@ -134,11 +134,17 @@ describe('security-headers.conf', () => {
    * `'unsafe-eval'` reabre a execução dinâmica de JavaScript na página onde as
    * chaves são derivadas, e engloba `'wasm-unsafe-eval'` (SECURITY.md secao 50).
    *
-   * O padrão exige a aspa imediatamente antes de `unsafe-eval`, então
-   * `'wasm-unsafe-eval'` — que o ADR 0016 autoriza para compilar o Argon2id em
-   * WebAssembly — não dispara este teste.
+   * Duas sutilezas, ambas descobertas por este teste reprovando:
+   *
+   * 1. a asserção precisa olhar só o valor da diretiva, não o arquivo inteiro —
+   *    senão um comentário que *menciona* `'unsafe-eval'` derruba o teste;
+   * 2. o padrão exige a aspa imediatamente antes de `unsafe-eval`, então
+   *    `'wasm-unsafe-eval'` — que o ADR 0016 autoriza — não dispara.
    */
   it('nunca permite unsafe-eval puro na CSP', () => {
-    expect(snippet).not.toMatch(/'unsafe-eval'/);
+    const policy = /add_header Content-Security-Policy "([^"]*)"/.exec(snippet)?.[1];
+
+    expect(policy).toBeDefined();
+    expect(policy).not.toMatch(/'unsafe-eval'/);
   });
 });

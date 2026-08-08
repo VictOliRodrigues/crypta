@@ -37,3 +37,20 @@ export class CryptoAlgorithmError extends Error {
     this.name = 'CryptoAlgorithmError';
   }
 }
+
+/**
+ * Falha de autenticação da AEAD: tag inválida, AAD divergente ou ciphertext
+ * adulterado.
+ *
+ * Existe separado de `CryptoFormatError` porque a interface precisa distinguir
+ * "conteúdo adulterado ou senha errada" de "JSON malformado" sem inspecionar
+ * texto de mensagem de biblioteca (SECURITY.md secao 21).
+ */
+export class CryptoAuthenticationError extends Error {
+  readonly code = 'CRYPTO_AUTHENTICATION_FAILED';
+
+  constructor(message: string) {
+    super(message);
+    this.name = 'CryptoAuthenticationError';
+  }
+}
