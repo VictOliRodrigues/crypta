@@ -406,6 +406,7 @@ Recursos mutáveis utilizam `version`.
   "encryptedPayload": {
     "cryptoVersion": 1,
     "schemaVersion": 1,
+    "algorithm": "XCHACHA20-POLY1305",
     "nonce": "base64url",
     "ciphertext": "base64url"
   }

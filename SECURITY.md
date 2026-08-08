@@ -806,17 +806,21 @@ Requisitos:
 
 A AAD deverá vincular o ciphertext ao contexto.
 
-Exemplo:
+A composição implementada em `packages/crypto-core/src/format/aad.ts` vincula:
 
 ```text
-applicationId
 entityType
 entityId
 vaultId
 schemaVersion
 cryptoVersion
-keyVersion
 ```
+
+É a mesma lista de `ARCHITECTURE.md` secao 14.9, sob o prefixo de domínio `vault-aad/v1`, com cada segmento prefixado pelo tamanho em bytes para tornar a serialização injetiva. O vetor canônico está congelado em `aad.spec.ts`.
+
+**`applicationId` e `keyVersion` ficaram de fora deliberadamente.** Ambos foram considerados e nenhum acrescenta separação real: ciphertext de outro cofre, de outra instalação ou anterior a um rekey está sob outra `VaultKey`, e a tag Poly1305 já o rejeita. Incluí-los seria defesa em profundidade, não correção de falha.
+
+Acrescentar qualquer campo à AAD é mudança de formato criptográfico: exige ADR, nova versão do prefixo de domínio e migração (`CLAUDE.md` secao 81). Hoje ainda é barato, porque nenhum cofre existe; depois do primeiro conteúdo gravado, não é.
 
 A composição deverá ser:
 
