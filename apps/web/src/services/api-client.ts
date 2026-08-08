@@ -1,4 +1,8 @@
-import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
+import axios, {
+  type AxiosInstance,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from 'axios';
 
 import {
   type ApiErrorCode,
@@ -8,6 +12,8 @@ import {
 } from '@crypta/contracts';
 
 import { buildInfo, env } from '@/lib/env';
+
+import { createRefreshQueue } from './refresh-queue';
 
 /**
  * Cliente HTTP único da aplicação (STYLE_GUIDE.md secao 18).
@@ -82,4 +88,98 @@ function readRequestId(response: AxiosResponse<unknown>): string | null {
   const header: unknown = response.headers[RESPONSE_HEADERS.requestId];
 
   return typeof header === 'string' ? header : null;
+}
+
+/**
+ * Rotas que **não** devem disparar refresh ao receber `401`.
+ *
+ * O próprio refresh está na lista pelo motivo óbvio: um `401` nele significa que
+ * a sessão acabou, e tentar renovar a partir dali seria laço infinito. O login
+ * está pela mesma razão em outra forma — o `401` ali é credencial errada, não
+ * token expirado, e renovar não tem o que consertar.
+ */
+const NO_REFRESH_PATHS = ['/auth/refresh', '/auth/login', '/setup'];
+
+function shouldSkipRefresh(url: string | undefined): boolean {
+  return url !== undefined && NO_REFRESH_PATHS.some((path) => url.startsWith(path));
+}
+
+/** Marca a requisição que já foi reexecutada, para não repetir indefinidamente. */
+type RetriableConfig = InternalAxiosRequestConfig & { retriedAfterRefresh?: boolean };
+
+export type AuthBridge = {
+  getAccessToken: () => string | null;
+  setAccessToken: (token: string) => void;
+  /** Chamado quando a renovação falha: limpa sessão, cache e volta ao login. */
+  onSessionLost: () => void;
+};
+
+/**
+ * Liga o cliente à sessão.
+ *
+ * Recebe o acesso ao estado por parâmetro em vez de importá-lo: assim os testes
+ * exercitam a fila de refresh sem montar o store, e o módulo do cliente não
+ * passa a depender do de sessão — que depende dele.
+ */
+export function installAuthInterceptors(client: AxiosInstance, bridge: AuthBridge): () => void {
+  const queue = createRefreshQueue(async () => {
+    try {
+      const response = await client.post<{ data: { accessToken: string } }>('/auth/refresh');
+
+      bridge.setAccessToken(response.data.data.accessToken);
+
+      return true;
+    } catch {
+      return false;
+    }
+  });
+
+  const requestId = client.interceptors.request.use((config) => {
+    const token = bridge.getAccessToken();
+
+    if (token !== null) {
+      config.headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return config;
+  });
+
+  const responseId = client.interceptors.response.use(
+    (response) => response,
+    async (error: unknown) => {
+      if (!axios.isAxiosError(error) || error.response?.status !== 401) {
+        throw error;
+      }
+
+      const config = error.config as RetriableConfig | undefined;
+
+      if (config === undefined || config.retriedAfterRefresh === true) {
+        throw error;
+      }
+
+      if (shouldSkipRefresh(config.url)) {
+        throw error;
+      }
+
+      // Um único refresh em voo. As demais requisições que falharem enquanto ele
+      // corre aguardam o mesmo resultado, em vez de disparar o próprio.
+      const renewed = await queue.run();
+
+      if (!renewed) {
+        bridge.onSessionLost();
+
+        throw error;
+      }
+
+      config.retriedAfterRefresh = true;
+
+      return client.request(config);
+    },
+  );
+
+  return () => {
+    client.interceptors.request.eject(requestId);
+    client.interceptors.response.eject(responseId);
+    queue.reset();
+  };
 }
