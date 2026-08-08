@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
+import { AuthProvider } from '@/app/providers/auth-provider';
 import { QueryProvider } from '@/app/providers/query-provider';
 import { AppRouter } from '@/app/router/app-router';
 
@@ -15,7 +16,9 @@ if (container === null) {
 createRoot(container).render(
   <StrictMode>
     <QueryProvider>
-      <AppRouter />
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
     </QueryProvider>
   </StrictMode>,
 );

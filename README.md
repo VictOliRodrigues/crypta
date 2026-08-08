@@ -330,7 +330,7 @@ Não serão utilizados inicialmente:
 │   └── tsconfig/       base, node e react
 │
 ├── docs/
-│   ├── decisions/      ADRs 0001 a 0021
+│   ├── decisions/      ADRs 0001 a 0024
 │   ├── telas/          mockups gerados na fase de design
 │   ├── API.md
 │   ├── ARCHITECTURE.md
@@ -932,13 +932,16 @@ Consulte [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Web React + Vite com a tela de diagnóstico da integração;
 - `Dockerfile` multi-stage para Web e API;
 - workflows de CI, validação do fluxo de PR, limpeza de branches, início de release e deploy de development;
-- ADRs 0001 a 0021.
+- `@crypta/crypto-core` — derivação de identidade, key bundle, AAD com escopo e envelope enquadrado;
+- módulo `auth` da API — setup, parâmetros KDF, login, rotação com detecção de reuso, logout e sessões;
+- Web com W01, W02 e a fila de refresh do cliente HTTP;
+- ADRs 0001 a 0024.
 
 ### O que ainda não existe
 
 - **nenhuma entidade no banco** — desbloqueado pelos ADRs 0019 e 0020; as tabelas entram na R0.2 ([`docs/DATABASE.md`](docs/DATABASE.md));
 - **nenhuma criptografia no Android** — `@crypta/crypto-mobile` continua bloqueado por `PEND-003`, na R0.7. Os vetores da Web só serão confirmados em outra plataforma lá;
-- autenticação, cofres, sites, credenciais, convites e importação;
+- cofres, sites, credenciais, convites e importação;
 - `apps/mobile` — entra na R0.7;
 - `publish-prerelease.yml` e `publish-production.yml` — entram na R0.8, junto com os projetos Coolify de staging e production;
 - os ambientes no Coolify e a configuração manual do GitHub — ver [`config_user.md`](config_user.md).
@@ -1028,7 +1031,7 @@ Os destinos de pull request são validados por GitHub Actions. Não promova feat
 Consulte:
 
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — índice das decisões, status e pendências abertas
-- [`docs/decisions/`](docs/decisions/) — os 21 ADRs registrados, do 0001 ao 0021
+- [`docs/decisions/`](docs/decisions/) — os 24 ADRs registrados, do 0001 ao 0024
 
 Mudanças relevantes exigem ADR.
 
