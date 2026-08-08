@@ -771,6 +771,26 @@ Regras que a validação aplica:
 
 `APP_ENVIRONMENT`, `APP_VERSION`, `APP_COMMIT` e `APP_BUILT_AT` **não** devem ser configuradas no Coolify: já vêm embutidas na imagem pelos build args do workflow. Defini-las manualmente faria `/api/v1/version` mentir sobre o que está implantado.
 
+#### A partir da R0.2 — autenticação
+
+Ainda não configure: a API só passa a ler estas variáveis quando o módulo de autenticação existir. Os valores e as faixas estão fixados pelo [ADR 0021](docs/decisions/0021-session-token-lifetimes.md), e a validação de startup recusa qualquer valor fora da faixa.
+
+```text
+JWT_PRIVATE_KEY=<gerada por ambiente, nunca reaproveitada>
+JWT_PUBLIC_KEY=<par da anterior>
+ACCESS_TOKEN_TTL=15m
+REFRESH_TOKEN_TTL=7d
+REFRESH_TOKEN_ABSOLUTE_TTL=30d
+REFRESH_COOKIE_SAMESITE=Strict
+```
+
+Dois pontos que dão trabalho se passarem despercebidos:
+
+- **O par de chaves JWT é por ambiente.** Reaproveitar o de development em produção faria um token emitido no ambiente de testes ser aceito no ambiente real.
+- **`REFRESH_COOKIE_SAMESITE=Strict` só funciona porque Web e API ficam sob o mesmo domínio registrável** — `crypta-dev` e `crypta-api-dev` são hosts diferentes sob `vorodrigues.com.br`, o que para efeito de cookie é same-site. Se algum ambiente for para um domínio registrável diferente do da sua Web, `Strict` faz o cookie deixar de ser enviado e o sintoma é traiçoeiro: o login funciona e a sessão morre na primeira renovação, cerca de 15 minutos depois. Nesse caso, e só nesse, use `None`.
+
+Não existe `REFRESH_COOKIE_DOMAIN`. O cookie é host-only de propósito, para que a sessão de um ambiente não seja aceita em outro.
+
 ### Migrations
 
 O container da API executa `prisma migrate deploy` no entrypoint, antes de aceitar tráfego (ADR 0015). Nenhuma configuração adicional é necessária no Coolify.
