@@ -21,6 +21,16 @@ export {
 } from './api/envelope';
 export { API_ERROR_CODES, type ApiErrorCode, isApiErrorCode } from './api/error-codes';
 export {
+  type AuthenticatedUser,
+  type AuthParametersData,
+  type AuthParametersResponse,
+  type AuthSessionData,
+  type AuthSessionResponse,
+  type KeyBundlePayload,
+  type SetupStatusData,
+  type SetupStatusResponse,
+} from './auth/auth.contract';
+export {
   type LivenessData,
   type LivenessResponse,
   type ReadinessData,

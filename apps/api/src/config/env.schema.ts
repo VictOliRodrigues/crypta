@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import { APP_ENVIRONMENTS } from '@crypta/contracts';
 
+import { authEnvSchema, collectAuthEnvIssues } from './auth-env.schema';
+
 /**
  * Validação das variáveis de ambiente (STYLE_GUIDE.md secao 68).
  *
@@ -39,7 +41,7 @@ const corsOriginsSchema = z
     message: 'CORS_ORIGINS deve conter URLs absolutas.',
   });
 
-export const envSchema = z.object({
+const baseEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
   APP_ENVIRONMENT: z.enum(APP_ENVIRONMENTS),
@@ -64,6 +66,8 @@ export const envSchema = z.object({
   LOG_LEVEL: z.enum(LOG_LEVELS).default('info'),
 });
 
+export const envSchema = baseEnvSchema.merge(authEnvSchema);
+
 export type AppEnv = z.infer<typeof envSchema>;
 
 /** Lançado quando a configuração de ambiente é inválida. */
@@ -82,20 +86,28 @@ export class EnvValidationError extends Error {
  * Valida `process.env`.
  *
  * A mensagem de erro cita apenas NOMES de variáveis e o motivo. Os valores
- * jamais são incluídos: `DATABASE_URL` carrega a senha do banco e a mensagem
- * costuma acabar em log de container (CLAUDE.md secao 36).
+ * jamais são incluídos: `DATABASE_URL` carrega a senha do banco,
+ * `AUTH_SERVER_SECRET` e `JWT_PRIVATE_KEY` são segredos, e a mensagem costuma
+ * acabar em log de container (CLAUDE.md secao 36).
  */
 export function parseEnv(source: Record<string, string | undefined>): AppEnv {
   const result = envSchema.safeParse(source);
 
-  if (result.success) {
-    return result.data;
+  if (!result.success) {
+    const issues = result.error.issues.map((issue) => {
+      const field = issue.path.join('.');
+      return field.length > 0 ? `${field}: ${issue.message}` : issue.message;
+    });
+
+    throw new EnvValidationError(issues);
   }
 
-  const issues = result.error.issues.map((issue) => {
-    const field = issue.path.join('.');
-    return field.length > 0 ? `${field}: ${issue.message}` : issue.message;
-  });
+  // Relações entre variáveis, que a validação de campo isolado não alcança.
+  const crossFieldIssues = collectAuthEnvIssues(result.data);
 
-  throw new EnvValidationError(issues);
+  if (crossFieldIssues.length > 0) {
+    throw new EnvValidationError(crossFieldIssues);
+  }
+
+  return result.data;
 }

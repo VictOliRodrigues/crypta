@@ -773,7 +773,7 @@ Regras que a validação aplica:
 
 #### A partir da R0.2 — autenticação
 
-Ainda não configure: a API só passa a ler estas variáveis quando o módulo de autenticação existir. Os valores e as faixas estão fixados pelo [ADR 0021](docs/decisions/0021-session-token-lifetimes.md) e pelo [ADR 0022](docs/decisions/0022-server-side-credentials.md), e a validação de startup recusa qualquer valor fora da faixa.
+A API **lê** estas variáveis desde a R0.2 e valida a faixa de cada uma na partida. Sem as três obrigatórias — `AUTH_SERVER_SECRET`, `JWT_PRIVATE_KEY` e `JWT_PUBLIC_KEY` — ou com qualquer valor fora da faixa, ela **não sobe**. Os valores estão fixados pelo [ADR 0021](docs/decisions/0021-session-token-lifetimes.md) e pelo [ADR 0022](docs/decisions/0022-server-side-credentials.md).
 
 ```text
 JWT_PRIVATE_KEY=<base64 do PEM, uma linha, por ambiente>

@@ -1,3 +1,4 @@
+import { buildTestAuthEnv } from './support/auth-env';
 import { assertTestDatabase } from './support/database';
 
 /**
@@ -28,3 +29,9 @@ process.env.NODE_ENV = 'test';
 process.env.APP_ENVIRONMENT ??= 'development';
 process.env.CORS_ORIGINS ??= 'http://localhost:5173';
 process.env.LOG_LEVEL ??= 'fatal';
+
+// Segredos de autenticação descartáveis, gerados a cada execução. A validação de
+// partida recusa subir sem eles (ADR 0022).
+for (const [key, value] of Object.entries(buildTestAuthEnv())) {
+  process.env[key] ??= value;
+}
