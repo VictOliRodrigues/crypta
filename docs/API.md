@@ -760,11 +760,13 @@ GET /auth/parameters?email=owner@example.test
 
 Para e-mail inexistente, retornar parâmetros sintéticos válidos.
 
+Os parâmetros sintéticos precisam ser **estáveis por e-mail**. Sorteá-los a cada requisição faria duas consultas ao mesmo endereço devolverem `kdfSalt` diferente, e a instabilidade seria por si só o oráculo de enumeração que esta secao existe para fechar. Pelo [ADR 0022](decisions/0022-server-side-credentials.md) eles são derivados do e-mail normalizado com um segredo do servidor — `HKDF-SHA-256(AUTH_SERVER_SECRET, info="kdf-parameters-decoy")` — o que os torna determinísticos sem os tornar previsíveis.
+
 A resposta não deve revelar se a conta existe.
 
 ### Rate limit
 
-Obrigatório.
+Obrigatório. `AUTH_IP_RATE_LIMIT` requisições por minuto por IP, padrão 60, pelo [ADR 0022](decisions/0022-server-side-credentials.md).
 
 ---
 
@@ -839,16 +841,26 @@ O refresh token é enviado em cookie.
 
 ```text
 INVALID_CREDENTIALS
-ACCOUNT_DISABLED
-ACCOUNT_LOCKED
 RATE_LIMIT_EXCEEDED
 ```
+
+Somente estes dois quando a autenticação **não** teve sucesso.
+
+`ACCOUNT_DISABLED` e `ACCOUNT_LOCKED` existem, mas só são devolvidos quando o `AuthSecret` **confere** e o acesso é negado mesmo assim. Antes disso a resposta é sempre `INVALID_CREDENTIALS`, independentemente de a conta existir, estar bloqueada ou desativada.
+
+O motivo está no [ADR 0022](decisions/0022-server-side-credentials.md): devolver `ACCOUNT_LOCKED` a quem errou a senha revela que o e-mail está cadastrado, e enumerar a base vira questão de tempo — contra `SECURITY.md` secao 25, que está acima deste documento na hierarquia do `CLAUDE.md` secao 2. Condicionar a revelação à verificação bem-sucedida entrega a informação a quem já provou ter a senha, e a mais ninguém.
+
+Duas consequências para a implementação: o bloqueio é verificado **depois** do cálculo do verificador, e e-mail inexistente executa um HMAC descartável de mesmo custo — do contrário o tempo de resposta separa os casos que os códigos igualaram.
 
 ### Mensagem pública
 
 ```text
 E-mail ou senha inválidos.
 ```
+
+### Rate limit
+
+Por IP, `AUTH_IP_RATE_LIMIT` por minuto. Por conta, bloqueio progressivo conforme `SECURITY.md` secao 26.
 
 ---
 

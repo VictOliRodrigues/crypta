@@ -758,7 +758,9 @@ A separação por contexto impede que o segredo usado para login seja igual à c
 
 O cliente enviará `AuthSecret` por HTTPS.
 
-O backend armazenará apenas um hash forte de `AuthSecret`.
+O backend armazenará apenas um verificador do `AuthSecret`, nunca o valor recebido.
+
+Pelo [ADR 0022](decisions/0022-server-side-credentials.md) o verificador é `HMAC-SHA-256(pepper, authSecret)`, com o pepper derivado de `AUTH_SERVER_SECRET` e mantido fora do banco. Ele é rápido de propósito: o fator de trabalho contra a senha é o Argon2id da secao 14.3, executado no cliente, e repeti-lo aqui abriria a rota de login — que não é autenticada — à exaustão de memória.
 
 O backend não receberá:
 
@@ -953,12 +955,13 @@ sequenceDiagram
 
 ## 17. Sessões e tokens
 
-Prazos e atributos estão fixados pelo [ADR 0021](decisions/0021-session-token-lifetimes.md).
+Prazos e atributos estão fixados pelo [ADR 0021](decisions/0021-session-token-lifetimes.md); algoritmo de assinatura, armazenamento em repouso e bloqueio, pelo [ADR 0022](decisions/0022-server-side-credentials.md).
 
 ### 17.1 Access token
 
 - 15 minutos, configurável entre `1m` e `60m`;
-- JWT assinado;
+- JWT assinado em `EdDSA` sobre Ed25519, pela `jose`, com o algoritmo esperado declarado na verificação;
+- claims exatamente `iss`, `aud`, `sub`, `sid`, `iat` e `exp`;
 - enviado em `Authorization: Bearer`;
 - mantido somente em memória;
 - não armazenado em localStorage;
@@ -966,9 +969,9 @@ Prazos e atributos estão fixados pelo [ADR 0021](decisions/0021-session-token-l
 
 ### 17.2 Refresh token
 
-- aleatório e opaco;
+- aleatório e opaco, 32 bytes de CSPRNG em base64url;
 - 7 dias de inatividade e 30 dias absolutos, os dois limites simultâneos;
-- hash armazenado no banco;
+- `SHA-256` armazenado no banco, com índice único, e busca pelo hash;
 - rotacionado a cada uso, com janela de tolerância de 10 segundos para rotação concorrente;
 - revogável;
 - associado a sessão e dispositivo.
@@ -999,6 +1002,14 @@ Se um refresh token já rotacionado for reutilizado:
 - opcionalmente revogar a família;
 - registrar evento;
 - exigir novo login.
+
+### 17.6 Bloqueio de login
+
+- contador de falhas consecutivas e instante de liberação na linha do usuário, no MySQL — não em memória, que sumiria a cada deploy;
+- espera inicial de 60 s após 5 falhas, dobrando a cada nova falha até o teto de 900 s, zerada no sucesso;
+- nunca permanente;
+- filtro por IP em memória do processo como camada anterior, 60 requisições por minuto sobre as rotas de autenticação;
+- o estado da conta só é revelado a quem já apresentou o `AuthSecret` correto — antes disso a resposta é sempre `INVALID_CREDENTIALS`, para não virar oráculo de enumeração.
 
 ---
 
@@ -2706,8 +2717,6 @@ Produção recebe `staging` ou `hotfix/*` conforme o fluxo autorizado.
 As decisões abaixo deverão ser fechadas antes da implementação correspondente:
 
 - biblioteca exata de libsodium para React Native;
-- duração dos tokens;
-- política de bloqueio;
 - limite do CSV;
 - limite de payload;
 - expiração de convite;
@@ -2718,7 +2727,11 @@ As decisões abaixo deverão ser fechadas antes da implementação correspondent
 - mecanismo final de autenticação do GitHub Actions no Coolify;
 - visibilidade dos packages no GHCR;
 - responsáveis pela aprovação do Environment `production`;
-- retenção dos artefatos e manifests de RC.
+- retenção dos artefatos e manifests de RC;
+- retenção de auditoria;
+- política final de proteção e retenção de tags.
+
+Duração dos tokens saiu desta lista com o [ADR 0021](decisions/0021-session-token-lifetimes.md), e política de bloqueio com o [ADR 0022](decisions/0022-server-side-credentials.md).
 
 Cada decisão relevante deverá gerar um ADR em:
 
@@ -2730,7 +2743,7 @@ docs/decisions/
 
 ## 51. ADRs registrados
 
-Os vinte ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
+Os vinte e dois ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
 arquitetura depende. As decisões ainda em aberto estão listadas como pendências em
 [`DECISIONS.md`](DECISIONS.md).
 
@@ -2754,6 +2767,8 @@ arquitetura depende. As decisões ainda em aberto estão listadas como pendênci
 - [`0018-argon2id-parameters.md`](decisions/0018-argon2id-parameters.md)
 - [`0019-database-identifiers.md`](decisions/0019-database-identifiers.md)
 - [`0020-deletion-policy.md`](decisions/0020-deletion-policy.md)
+- [`0021-session-token-lifetimes.md`](decisions/0021-session-token-lifetimes.md)
+- [`0022-server-side-credentials.md`](decisions/0022-server-side-credentials.md)
 
 ---
 
