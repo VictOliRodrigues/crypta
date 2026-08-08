@@ -76,3 +76,18 @@ export type AuthSessionData = {
 };
 
 export type AuthSessionResponse = ApiSuccessResponse<AuthSessionData>;
+
+/**
+ * Resposta de `POST /auth/refresh` (docs/API.md secao 23).
+ *
+ * Sem `user`, de propósito: o refresh renova credencial, não devolve perfil.
+ * Quem precisa do perfil chama `GET /users/me`, e repeti-lo aqui faria toda
+ * renovação carregar dado que ninguém pediu.
+ */
+export type RefreshSessionData = {
+  accessToken: string;
+  expiresIn: number;
+  refreshToken?: string;
+};
+
+export type RefreshSessionResponse = ApiSuccessResponse<RefreshSessionData>;

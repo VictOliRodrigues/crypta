@@ -9,6 +9,7 @@ import {
 import { API_SERVICE_NAME, type LivenessResponse, type ReadinessResponse } from '@crypta/contracts';
 
 import { ServiceUnavailableException } from '@/common/errors/api.exception';
+import { PublicRoute } from '@/modules/auth/decorators/public-route.decorator';
 
 import { HealthService } from './health.service';
 
@@ -23,6 +24,7 @@ import { HealthService } from './health.service';
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}
 
+  @PublicRoute()
   @Get('live')
   @Header('Cache-Control', 'no-store')
   @ApiOperation({ summary: 'Verifica se o processo está ativo.' })
@@ -37,6 +39,7 @@ export class HealthController {
     };
   }
 
+  @PublicRoute()
   @Get('ready')
   @Header('Cache-Control', 'no-store')
   @ApiOperation({ summary: 'Verifica se a API pode receber tráfego.' })

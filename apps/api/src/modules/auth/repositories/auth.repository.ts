@@ -120,6 +120,28 @@ export class AuthRepository {
     });
   }
 
+  async findKeyBundleByUserId(
+    userId: string,
+    executor: PrismaExecutor = this.prisma,
+  ): Promise<StoredKeyBundle | null> {
+    return executor.userKeyBundle.findUnique({
+      where: { userId },
+      select: {
+        kdfAlgorithm: true,
+        kdfVersion: true,
+        kdfSalt: true,
+        kdfMemory: true,
+        kdfIterations: true,
+        kdfParallelism: true,
+        publicKey: true,
+        encryptedPrivateKey: true,
+        privateKeyNonce: true,
+        cryptoVersion: true,
+        schemaVersion: true,
+      },
+    });
+  }
+
   async findUserById(
     id: string,
     executor: PrismaExecutor = this.prisma,

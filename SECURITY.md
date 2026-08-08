@@ -1140,7 +1140,9 @@ Duração, fixada pelo [ADR 0021](docs/decisions/0021-session-token-lifetimes.md
 
 O limite de inatividade é renovado a cada rotação. O absoluto conta da criação da sessão e nenhuma rotação o estende, o que impede sessão perpétua em cliente que renova sozinho.
 
-**Janela de tolerância de 10 segundos.** Um refresh token rotacionado há 10 segundos ou menos é aceito e devolve o mesmo par emitido pela rotação original, sem rotacionar de novo e sem estender a inatividade. Existe para que duas abas renovando ao mesmo tempo não sejam tratadas como reutilização. Fora da janela, é reutilização e a sessão cai.
+**Janela de tolerância de 10 segundos.** Um refresh token rotacionado há 10 segundos ou menos é aceito, sem que a sessão ou a família caiam. Existe para que duas abas renovando ao mesmo tempo não sejam tratadas como reutilização. Fora da janela, é reutilização e a família inteira cai.
+
+O [ADR 0024](docs/decisions/0024-rotation-grace-window.md) corrige o mecanismo que o ADR 0021 descreveu: **o par devolvido é novo**, não o que a rotação original emitiu. Repetir o par exigiria guardar o refresh token em texto aberto, anulando o hash em repouso da secao 30 — e um dump passaria a entregar sessões utilizáveis. A rotação dentro da janela **não estende a inatividade**, como o ADR 0021 exige.
 
 ---
 

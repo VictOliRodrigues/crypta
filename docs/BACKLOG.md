@@ -283,13 +283,13 @@ Por isso o formato criptográfico é fechado **antes** da primeira migration, e 
 | BLG-0801 | DONE    | `GET /setup/status`, devolvendo só o booleano.                                                                                                                                           |
 | BLG-0802 | PARCIAL | `POST /setup` com transação, idempotência e validação estrita. Falta a tela W01.                                                                                                         |
 | BLG-0803 | DONE    | `GET /auth/parameters`, com parâmetros sintéticos derivados do e-mail e estáveis entre chamadas.                                                                                         |
-| BLG-0804 | BACKLOG | Tela W02 e `POST /auth/login`.                                                                                                                                                           |
-| BLG-0805 | BACKLOG | Rotação, família e detecção de reuso, com a janela de 10 s do ADR 0021.                                                                                                                  |
-| BLG-0806 | BACKLOG | Logout e logout global.                                                                                                                                                                  |
+| BLG-0804 | PARCIAL | `POST /auth/login`, com bloqueio progressivo e cookie de refresh. Falta a tela W02.                                                                                                      |
+| BLG-0805 | DONE    | Rotação, família e detecção de reuso, com a janela de 10 s lida conforme o ADR 0024.                                                                                                     |
+| BLG-0806 | DONE    | `POST /auth/logout` e `POST /auth/logout-all`, com limpeza do cookie.                                                                                                                    |
 | BLG-0807 | BACKLOG | Alteração de senha. **Fora das branches planejadas para a fase** — ver abaixo.                                                                                                           |
-| BLG-0901 | BACKLOG | `GET /sessions`.                                                                                                                                                                         |
-| BLG-0902 | BACKLOG | `DELETE /sessions/:sessionId`, com teste de IDOR obrigatório.                                                                                                                            |
-| BLG-0903 | BACKLOG | `DELETE /sessions`.                                                                                                                                                                      |
+| BLG-0901 | DONE    | `GET /sessions`, escopado ao dono e marcando a sessão atual.                                                                                                                             |
+| BLG-0902 | DONE    | `DELETE /sessions/:sessionId`, com `404` para sessão de outro usuário e teste de IDOR.                                                                                                   |
+| BLG-0903 | DONE    | `DELETE /sessions`, preservando a sessão que fez a chamada.                                                                                                                              |
 | BLG-0904 | BACKLOG | Interface de sessões na Web. **Fora das branches planejadas para a fase** — ver abaixo.                                                                                                  |
 
 ### Trabalho da fase fora das branches planejadas
