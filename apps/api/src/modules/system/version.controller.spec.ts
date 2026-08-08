@@ -1,10 +1,12 @@
 import { AppConfigService } from '@/config/app-config.service';
 import { parseEnv } from '@/config/env.schema';
+import { VALID_ENV } from '@/config/test-env.fixture';
 
 import { VersionController } from './version.controller';
 
 function buildController(overrides: Record<string, string> = {}): VersionController {
   const env = parseEnv({
+    ...VALID_ENV,
     APP_ENVIRONMENT: 'staging',
     DATABASE_URL: 'mysql://crypta:s3cr3t@db:3306/crypta_staging',
     CORS_ORIGINS: 'https://crypta-staging.example.com',

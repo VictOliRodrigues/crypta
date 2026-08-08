@@ -24,6 +24,19 @@ export const API_ERROR_CODES = [
   'PAYLOAD_TOO_LARGE',
   'SERVICE_UNAVAILABLE',
   'INTERNAL_ERROR',
+
+  // Setup e autenticação (docs/API.md secoes 20 a 22).
+  //
+  // `ACCOUNT_DISABLED` e `ACCOUNT_LOCKED` existem, mas o login só os devolve a
+  // quem já apresentou o `AuthSecret` correto. Antes disso a resposta é sempre
+  // `INVALID_CREDENTIALS`, para que o bloqueio não vire oráculo de enumeração
+  // (ADR 0022, SECURITY.md secao 25).
+  'SETUP_ALREADY_COMPLETED',
+  'INVALID_KDF_PARAMETERS',
+  'INVALID_KEY_BUNDLE',
+  'INVALID_CREDENTIALS',
+  'ACCOUNT_DISABLED',
+  'ACCOUNT_LOCKED',
 ] as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];

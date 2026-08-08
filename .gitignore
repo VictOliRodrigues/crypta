@@ -58,7 +58,12 @@ apps/mobile/android/keystore.properties
 apps/mobile/android/app/google-services.json
 
 # --- Banco de dados, dumps e backups -------------------------------------
+# `*.sql` existe para barrar dump e backup, que podem conter dado real. As
+# migrations do Prisma também são `.sql` e precisam do caminho oposto: sem elas
+# no repositório, `prisma migrate deploy` não encontra nada para aplicar e o
+# container sobe contra um banco vazio (ADR 0015).
 *.sql
+!apps/api/prisma/migrations/**/*.sql
 *.sql.gz
 *.dump
 *.bak

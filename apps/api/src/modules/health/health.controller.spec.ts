@@ -3,9 +3,13 @@ import { ApiException } from '@/common/errors/api.exception';
 import { HealthController } from './health.controller';
 import { type HealthService } from './health.service';
 
-function buildController(isDatabaseReachable: boolean): HealthController {
-  const healthService: Pick<HealthService, 'isDatabaseReachable'> = {
+function buildController(
+  isDatabaseReachable: boolean,
+  areMigrationsApplied = true,
+): HealthController {
+  const healthService: Pick<HealthService, 'isDatabaseReachable' | 'areMigrationsApplied'> = {
     isDatabaseReachable: () => Promise.resolve(isDatabaseReachable),
+    areMigrationsApplied: () => Promise.resolve(areMigrationsApplied),
   };
 
   return new HealthController(healthService as HealthService);
@@ -34,7 +38,7 @@ describe('HealthController', () => {
   });
 
   describe('getReadiness', () => {
-    it('reports ready when the database answers', async () => {
+    it('reports ready when the database answers and the migrations are applied', async () => {
       await expect(buildController(true).getReadiness()).resolves.toEqual({
         data: { status: 'ready', database: 'ok' },
       });
@@ -44,11 +48,33 @@ describe('HealthController', () => {
       await expect(buildController(false).getReadiness()).rejects.toBeInstanceOf(ApiException);
     });
 
+    /**
+     * Banco alcançável com schema errado é pior do que banco fora do ar: a
+     * instância aceitaria tráfego e falharia por dentro (docs/API.md secao 17).
+     */
+    it('fails closed when the database answers but the migrations did not run', async () => {
+      await expect(buildController(true, false).getReadiness()).rejects.toMatchObject({
+        code: 'SERVICE_UNAVAILABLE',
+      });
+    });
+
     it('does not describe why the database is unreachable', async () => {
       await expect(buildController(false).getReadiness()).rejects.toMatchObject({
         code: 'SERVICE_UNAVAILABLE',
         publicMessage: 'O serviço ainda não está disponível.',
       });
+    });
+
+    it('does not reveal whether the failure was the connection or the migrations', async () => {
+      const unreachable = await buildController(false)
+        .getReadiness()
+        .catch((error: unknown) => error);
+      const pending = await buildController(true, false)
+        .getReadiness()
+        .catch((error: unknown) => error);
+
+      expect(unreachable).toMatchObject({ publicMessage: 'O serviço ainda não está disponível.' });
+      expect(pending).toMatchObject({ publicMessage: 'O serviço ainda não está disponível.' });
     });
   });
 });

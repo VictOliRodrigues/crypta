@@ -1,10 +1,5 @@
 import { EnvValidationError, parseEnv } from './env.schema';
-
-const VALID_ENV = {
-  APP_ENVIRONMENT: 'development',
-  DATABASE_URL: 'mysql://crypta:s3cr3t@db:3306/crypta_development',
-  CORS_ORIGINS: 'http://localhost:5173',
-};
+import { VALID_ENV } from './test-env.fixture';
 
 describe('parseEnv', () => {
   it('accepts a minimal valid environment and applies defaults', () => {

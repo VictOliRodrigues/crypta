@@ -42,4 +42,40 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
       return false;
     }
   }
+
+  /**
+   * Verifica se todas as migrations conhecidas pelo banco terminaram.
+   *
+   * O container roda `prisma migrate deploy` no entrypoint, antes de aceitar
+   * tráfego (ADR 0015). Esta checagem cobre o caso em que isso não aconteceu
+   * ou não terminou: banco alcançável com schema errado é pior do que banco
+   * fora do ar, porque a instância aceitaria requisições e falharia por dentro.
+   *
+   * Falha fechado em todos os casos ambíguos:
+   *
+   * - `_prisma_migrations` inexistente — nenhuma migration jamais rodou;
+   * - tabela vazia — idem;
+   * - `finished_at` nulo — migration em andamento ou interrompida;
+   * - `rolled_back_at` preenchido — migration revertida, schema indefinido.
+   */
+  async areMigrationsApplied(): Promise<boolean> {
+    try {
+      const rows = await this.$queryRaw<{ pending: bigint; total: bigint }[]>`
+        SELECT
+          COUNT(*) AS total,
+          SUM(CASE WHEN finished_at IS NULL OR rolled_back_at IS NOT NULL THEN 1 ELSE 0 END) AS pending
+        FROM _prisma_migrations
+      `;
+
+      const row = rows.at(0);
+
+      if (row === undefined) {
+        return false;
+      }
+
+      return Number(row.total) > 0 && Number(row.pending ?? 0) === 0;
+    } catch {
+      return false;
+    }
+  }
 }

@@ -907,7 +907,7 @@ O workflow acima é apenas metade da proteção — ele deixa de apagar, mas nã
 ```text
 Restrict deletions
 Block force pushes
-Require status checks           os mesmos três das branches permanentes
+Require status checks           os mesmos quatro das branches permanentes
 Do not require status checks on creation
 ```
 
