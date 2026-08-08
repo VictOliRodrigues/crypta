@@ -1,19 +1,21 @@
 // Schema Prisma do cofre de senhas.
 //
-// ESTADO ATUAL (R0): apenas datasource e generator.
+// ESTADO ATUAL (R0.2): identidade. Cofres entram na R0.3.
 //
-// As decisões que bloqueavam o schema foram fechadas: identificadores são
-// UUIDv7 em CHAR(36) gerados pelo Prisma (ADR 0019), e a exclusão é física,
-// com auditoria em tabela independente (ADR 0020).
+// Convenções fixadas e não negociáveis sem ADR:
 //
-//   id String @id @default(uuid(7)) @db.Char(36)
-//
-// As entidades entram na R0.2 (identidade) e R0.3 (cofres), documentadas em
-// docs/DATABASE.md antes da primeira migration.
+//   - identificador público é UUIDv7 em CHAR(36), gerado pelo Prisma (ADR 0019);
+//   - exclusão é física, sem `deleted_at` e sem filtro de exclusão em consulta,
+//     e o comportamento de cada FK está declarado no ADR 0020;
+//   - tabelas no plural em snake_case, colunas em snake_case (DATABASE.md secao 5);
+//   - `created_at` e `updated_at` em UTC nas tabelas relevantes.
 //
 // Regra permanente: nenhuma coluna em texto aberto para nome de cofre,
 // descrição, nome de site, link, usuário da credencial, senha, observação,
 // VaultKey ou chave privada (CLAUDE.md secao 44).
+//
+// A fonte de verdade da modelagem é docs/DATABASE.md. Toda alteração aqui
+// atualiza aquele documento no mesmo pull request (CLAUDE.md secao 43).
 
 generator client {
   provider = "prisma-client-js"
@@ -22,4 +24,188 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+/// Conta de usuário.
+///
+/// Guarda apenas o que autentica e identifica. O material que descriptografa
+/// está em `UserKeyBundle`, e mesmo lá a metade privada é opaca ao servidor.
+model User {
+  id String @id @default(uuid(7)) @db.Char(36)
+
+  /// Nome de perfil. Texto aberto por decisão: não é conteúdo de cofre
+  /// (DATABASE.md secao 4).
+  name String @db.VarChar(120)
+
+  /// Identificador de login, normalizado em minúsculas antes de gravar.
+  email String @unique @db.VarChar(254)
+
+  /// `HMAC-SHA-256(pepper, authSecret)` em hexadecimal (ADR 0022).
+  ///
+  /// Não é o `AuthSecret`, e não serve como credencial: o pepper vive fora do
+  /// banco, derivado de `AUTH_SERVER_SECRET`.
+  authSecretHash String @map("auth_secret_hash") @db.Char(64)
+
+  /// Versão do `AUTH_SERVER_SECRET` que gerou o hash acima.
+  ///
+  /// Existe para que rotacionar o segredo não exija que ninguém troque de
+  /// senha: o login recalcula e regrava quando esta versão não é a corrente.
+  authSecretVersion Int @default(1) @map("auth_secret_version") @db.UnsignedSmallInt
+
+  /// Conta desativada não autentica. O motivo só é revelado a quem já
+  /// apresentou o `AuthSecret` correto (ADR 0022).
+  isActive Boolean @default(true) @map("is_active")
+
+  /// Falhas consecutivas de login. Zera no sucesso.
+  ///
+  /// Fica no banco, e não em memória, porque um controle de segurança que some
+  /// no restart do container não é controle (ADR 0022).
+  failedLoginAttempts Int @default(0) @map("failed_login_attempts") @db.UnsignedSmallInt
+
+  /// Instante até o qual o login é recusado. Nunca é permanente.
+  lockedUntil DateTime? @map("locked_until") @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  keyBundle UserKeyBundle?
+  sessions  Session[]
+
+  @@map("users")
+}
+
+/// Material criptográfico do usuário, 1:1 com a conta.
+///
+/// Os parâmetros KDF ficam aqui, e não em configuração global, porque o cliente
+/// precisa deles ANTES de autenticar e porque recalibrar o Argon2id (ADR 0018)
+/// não pode invalidar conta existente.
+model UserKeyBundle {
+  id String @id @default(uuid(7)) @db.Char(36)
+
+  userId String @unique @map("user_id") @db.Char(36)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  kdfAlgorithm String @map("kdf_algorithm") @db.VarChar(32)
+  kdfVersion   Int    @map("kdf_version") @db.UnsignedSmallInt
+
+  /// Salt do Argon2id em base64url. 16 bytes viram 22 caracteres.
+  kdfSalt String @map("kdf_salt") @db.VarChar(32)
+
+  /// Custo de memória em KiB. `UnsignedInt` porque 64 MiB já são 65536.
+  kdfMemory      Int @map("kdf_memory") @db.UnsignedInt
+  kdfIterations  Int @map("kdf_iterations") @db.UnsignedSmallInt
+  kdfParallelism Int @map("kdf_parallelism") @db.UnsignedSmallInt
+
+  /// Chave pública X25519 em base64url. 32 bytes viram 43 caracteres.
+  ///
+  /// Texto aberto por necessidade: é ela que os outros membros usam para
+  /// endereçar envelopes. A AAD do bundle a amarra ao ciphertext da privada,
+  /// então trocá-la aqui é detectado no desbloqueio (ADR 0023).
+  publicKey String @map("public_key") @db.VarChar(43)
+
+  /// Chave privada X25519 cifrada com a `UserEncryptionKey`, em base64url.
+  ///
+  /// O servidor não tem como abrir: a chave deriva da senha e nunca sai do
+  /// cliente (ADR 0003, ADR 0004).
+  encryptedPrivateKey String @map("encrypted_private_key") @db.VarChar(255)
+
+  /// Nonce da XChaCha20-Poly1305 em base64url. 24 bytes viram 32 caracteres.
+  privateKeyNonce String @map("private_key_nonce") @db.VarChar(32)
+
+  cryptoVersion Int @map("crypto_version") @db.UnsignedSmallInt
+  schemaVersion Int @map("schema_version") @db.UnsignedSmallInt
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  @@map("user_key_bundles")
+}
+
+/// Sessão autenticada.
+///
+/// O `id` é o `sid` que o access token carrega. A autorização o consulta a cada
+/// requisição, e é isso que torna a revogação imediata em vez de esperar os 15
+/// minutos do token (ADR 0021, SECURITY.md secao 29).
+///
+/// Revogar é APAGAR a linha (ADR 0020). Não existe coluna de revogação.
+///
+/// Nenhum prazo é gravado: inatividade e teto absoluto são calculados a partir
+/// de `last_used_at` e `created_at` com os valores de ambiente vigentes. Gravar
+/// congelaria a configuração no momento do login, e apertar um prazo deixaria de
+/// valer para as sessões já abertas — o oposto do que o ADR 0021 descreve.
+model Session {
+  id String @id @default(uuid(7)) @db.Char(36)
+
+  userId String @map("user_id") @db.Char(36)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Agrupa as rotações de uma mesma sessão. Reuso detectado derruba a família.
+  familyId String @map("family_id") @db.Char(36)
+
+  /// `SHA-256` do refresh token corrente, em hexadecimal.
+  ///
+  /// Sem pepper, ao contrário do `AuthSecret`: são 256 bits sem estrutura, e não
+  /// existe preimagem adivinhável a proteger (ADR 0022). A busca é por este
+  /// índice, nunca por varredura.
+  refreshTokenHash String @unique @map("refresh_token_hash") @db.Char(64)
+
+  /// `SHA-256` do token imediatamente anterior, para a janela de tolerância de
+  /// 10 segundos do ADR 0021. Fora da janela, apresentá-lo é reuso.
+  previousTokenHash String? @map("previous_token_hash") @db.Char(64)
+
+  /// Quando a rotação que produziu `previous_token_hash` aconteceu.
+  rotatedAt DateTime? @map("rotated_at") @db.DateTime(3)
+
+  /// `web`, `android` ou `extension`.
+  clientType String  @map("client_type") @db.VarChar(16)
+  clientName String? @map("client_name") @db.VarChar(120)
+
+  /// Metadados de sessão exibidos na tela de sessões. IPv6 cabe em 45 caracteres.
+  ipAddress String? @map("ip_address") @db.VarChar(45)
+  userAgent String? @map("user_agent") @db.VarChar(255)
+
+  /// Âncora do teto absoluto. Nenhuma rotação a move.
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  /// Âncora do limite de inatividade. Cada rotação a renova.
+  lastUsedAt DateTime @default(now()) @map("last_used_at") @db.DateTime(3)
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([previousTokenHash])
+  @@map("sessions")
+}
+
+/// Resultado de uma operação idempotente (API.md secao 38, CLAUDE.md secao 38).
+///
+/// Não guarda corpo de resposta. O `POST /setup` responde com um access token, e
+/// gravá-lo transformaria esta tabela em depósito de credencial viva — um dump
+/// devolveria sessões utilizáveis. O replay reconstrói a resposta a partir de
+/// `resource_id` e emite um access token novo.
+///
+/// Sem chave estrangeira, pelo mesmo motivo do `AuditLog` no ADR 0020: o
+/// registro precisa sobreviver à exclusão da entidade que ele descreve.
+model IdempotencyRecord {
+  id String @id @default(uuid(7)) @db.Char(36)
+
+  /// Operação a que a chave pertence. Duas rotas diferentes podem receber a
+  /// mesma chave de clientes diferentes sem colidir.
+  scope String @map("scope") @db.VarChar(64)
+
+  /// Valor do header `Idempotency-Key`.
+  idempotencyKey String @map("idempotency_key") @db.VarChar(255)
+
+  /// `SHA-256` do payload canônico. Mesma chave com payload diferente é
+  /// `409 IDEMPOTENCY_CONFLICT`, não um replay silencioso.
+  requestHash String @map("request_hash") @db.Char(64)
+
+  /// Identificador do recurso criado, quando houve um.
+  resourceId String? @map("resource_id") @db.Char(36)
+
+  responseStatus Int @map("response_status") @db.UnsignedSmallInt
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@unique([scope, idempotencyKey])
+  @@map("idempotency_records")
 }

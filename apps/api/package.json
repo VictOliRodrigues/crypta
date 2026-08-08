@@ -20,7 +20,7 @@
     "prisma:validate": "prisma validate",
     "start": "node dist/main.js",
     "test": "jest",
-    "test:e2e": "jest --config jest.e2e.config.js",
+    "test:e2e": "prisma generate && jest --config jest.e2e.config.js",
     "test:watch": "jest --watch",
     "typecheck": "prisma generate && tsc --noEmit"
   },

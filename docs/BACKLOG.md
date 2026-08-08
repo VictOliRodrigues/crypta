@@ -128,7 +128,7 @@ Uma tarefa somente poderá ser considerada `DONE` quando:
 | BLG-0101 | DONE    | Workspaces criados. `apps/mobile` é apenas README: entra na R0.7.                                                                                                                                           |
 | BLG-0102 | DONE    | `@crypta/tsconfig` com `strict`, `noUncheckedIndexedAccess` e `exactOptionalPropertyTypes`; aliases configurados.                                                                                           |
 | BLG-0103 | DONE    | `@crypta/eslint-config` (flat config) com variantes React e Nest; Prettier na raiz.                                                                                                                         |
-| BLG-0104 | PARCIAL | Vitest nos packages e na Web, Jest e Supertest na API. Testes de integração com MySQL entram na R0.2.                                                                                                       |
+| BLG-0104 | DONE    | Vitest nos packages e na Web, Jest e Supertest na API. Testes de integração com MySQL real entram na R0.2, em job próprio da CI.                                                                            |
 | BLG-0105 | BACKLOG | Hooks locais (Husky/lint-staged) ainda não avaliados.                                                                                                                                                       |
 | BLG-0201 | DONE    | `ci.yml` com format, lint, typecheck, test, build e validação do schema Prisma. Os três checks estão registrados como obrigatórios nas branches permanentes.                                                |
 | BLG-0202 | PARCIAL | `pnpm audit --audit-level high` na CI e Dependabot configurado. Falta container scan (`PEND-019`).                                                                                                          |
@@ -270,27 +270,27 @@ Por isso o formato criptográfico é fechado **antes** da primeira migration, e 
 
 ### Tarefas da R0.2
 
-| Item     | Status  | Observação                                                                                                                       |
-| -------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| BLG-0502 | BACKLOG | `User`, `UserKeyBundle` e `Session`. Primeira migration do projeto; abre também o harness e2e com MySQL real.                    |
-| BLG-0701 | PARCIAL | ADRs 0016, 0017 e 0018 fecharam a Web. Faltam a biblioteca do Android (`PEND-003`) e o Keystore, ambos na R0.7.                  |
-| BLG-0702 | DONE    | Payload versionado, AAD de dois escopos, envelope enquadrado, `buildCipherPayload` e erros. ADR 0023.                            |
-| BLG-0703 | DONE    | `deriveIdentitySecrets` orquestra Argon2id e os dois HKDF, com vetor congelado em `crypto-core`. Benchmark Android fica na R0.7. |
-| BLG-0704 | DONE    | `createUserKeyBundle` e `openUserKeyBundle`, com AAD amarrada à chave pública e adulteração testada byte a byte.                 |
-| BLG-0705 | PARCIAL | Formato do envelope fechado e testado. Geração da `VaultKey` e envelopes OWNER/EDITOR entram na R0.3, com o cofre.               |
-| BLG-0706 | BACKLOG | Depende do formato fechado. Vault, site e credential só ganham payload real a partir da R0.3.                                    |
-| BLG-0707 | BACKLOG | Revisão criptográfica interna. É o último item do gate e bloqueia o uso real.                                                    |
-| BLG-0801 | BACKLOG | `GET /setup/status`.                                                                                                             |
-| BLG-0802 | BACKLOG | Tela W01 e `POST /setup`, em transação e com idempotência.                                                                       |
-| BLG-0803 | BACKLOG | `GET /auth/parameters`. Os parâmetros sintéticos precisam ser estáveis por e-mail, ou viram oráculo de enumeração.               |
-| BLG-0804 | BACKLOG | Tela W02 e `POST /auth/login`.                                                                                                   |
-| BLG-0805 | BACKLOG | Rotação, família e detecção de reuso, com a janela de 10 s do ADR 0021.                                                          |
-| BLG-0806 | BACKLOG | Logout e logout global.                                                                                                          |
-| BLG-0807 | BACKLOG | Alteração de senha. **Fora das branches planejadas para a fase** — ver abaixo.                                                   |
-| BLG-0901 | BACKLOG | `GET /sessions`.                                                                                                                 |
-| BLG-0902 | BACKLOG | `DELETE /sessions/:sessionId`, com teste de IDOR obrigatório.                                                                    |
-| BLG-0903 | BACKLOG | `DELETE /sessions`.                                                                                                              |
-| BLG-0904 | BACKLOG | Interface de sessões na Web. **Fora das branches planejadas para a fase** — ver abaixo.                                          |
+| Item     | Status  | Observação                                                                                                                                                                               |
+| -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BLG-0502 | DONE    | `users`, `user_key_bundles`, `sessions` e `idempotency_records` na migration `20260808181037_identity`, testada em banco vazio e em banco com dados. Abriu o harness e2e com MySQL real. |
+| BLG-0701 | PARCIAL | ADRs 0016, 0017 e 0018 fecharam a Web. Faltam a biblioteca do Android (`PEND-003`) e o Keystore, ambos na R0.7.                                                                          |
+| BLG-0702 | DONE    | Payload versionado, AAD de dois escopos, envelope enquadrado, `buildCipherPayload` e erros. ADR 0023.                                                                                    |
+| BLG-0703 | DONE    | `deriveIdentitySecrets` orquestra Argon2id e os dois HKDF, com vetor congelado em `crypto-core`. Benchmark Android fica na R0.7.                                                         |
+| BLG-0704 | DONE    | `createUserKeyBundle` e `openUserKeyBundle`, com AAD amarrada à chave pública e adulteração testada byte a byte.                                                                         |
+| BLG-0705 | PARCIAL | Formato do envelope fechado e testado. Geração da `VaultKey` e envelopes OWNER/EDITOR entram na R0.3, com o cofre.                                                                       |
+| BLG-0706 | BACKLOG | Depende do formato fechado. Vault, site e credential só ganham payload real a partir da R0.3.                                                                                            |
+| BLG-0707 | BACKLOG | Revisão criptográfica interna. É o último item do gate e bloqueia o uso real.                                                                                                            |
+| BLG-0801 | BACKLOG | `GET /setup/status`.                                                                                                                                                                     |
+| BLG-0802 | BACKLOG | Tela W01 e `POST /setup`, em transação e com idempotência.                                                                                                                               |
+| BLG-0803 | BACKLOG | `GET /auth/parameters`. Os parâmetros sintéticos precisam ser estáveis por e-mail, ou viram oráculo de enumeração.                                                                       |
+| BLG-0804 | BACKLOG | Tela W02 e `POST /auth/login`.                                                                                                                                                           |
+| BLG-0805 | BACKLOG | Rotação, família e detecção de reuso, com a janela de 10 s do ADR 0021.                                                                                                                  |
+| BLG-0806 | BACKLOG | Logout e logout global.                                                                                                                                                                  |
+| BLG-0807 | BACKLOG | Alteração de senha. **Fora das branches planejadas para a fase** — ver abaixo.                                                                                                           |
+| BLG-0901 | BACKLOG | `GET /sessions`.                                                                                                                                                                         |
+| BLG-0902 | BACKLOG | `DELETE /sessions/:sessionId`, com teste de IDOR obrigatório.                                                                                                                            |
+| BLG-0903 | BACKLOG | `DELETE /sessions`.                                                                                                                                                                      |
+| BLG-0904 | BACKLOG | Interface de sessões na Web. **Fora das branches planejadas para a fase** — ver abaixo.                                                                                                  |
 
 ### Trabalho da fase fora das branches planejadas
 

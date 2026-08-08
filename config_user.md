@@ -1104,19 +1104,26 @@ Se houver somente o proprietário:
 
 ### Checks sugeridos
 
-Marque os **três** checks abaixo. São os nomes exatos dos jobs, como aparecem na lista depois de
+Marque os **quatro** checks abaixo. São os nomes exatos dos jobs, como aparecem na lista depois de
 cada workflow rodar pelo menos uma vez:
 
 ```text
 Validar origem e destino
 Lint, tipos, testes e builds
 Auditoria de dependências
+Testes de integração com MySQL
 ```
 
+> **`Testes de integração com MySQL` é novo na R0.2** e precisa ser marcado à mão, aqui e no
+> ruleset de `release/*` da secao seguinte. Enquanto não estiver marcado, ele roda, aparece
+> vermelho quando falha e **não impede o merge** — que é o pior estado possível para um check que
+> valida migration e schema.
+
 No GitHub, um check obrigatório é registrado por _check run_, não por workflow. `ci.yml` produz
-dois jobs distintos: marcar apenas `Lint, tipos, testes e builds` deixaria `Auditoria de
-dependências` rodando sem poder de bloqueio — uma vulnerabilidade conhecida em dependência
-apareceria vermelha e o merge seguiria assim mesmo.
+três jobs distintos: marcar apenas `Lint, tipos, testes e builds` deixaria `Auditoria de
+dependências` e `Testes de integração com MySQL` rodando sem poder de bloqueio — uma
+vulnerabilidade conhecida em dependência, ou uma migration quebrada, apareceriam vermelhas e o
+merge seguiria assim mesmo.
 
 O check `Validar origem e destino` só aparece nesta lista **depois** que existir um pull request
 que o tenha executado, porque `validate-pr-flow.yml` dispara apenas em `pull_request`. Faça o PR
@@ -1140,6 +1147,7 @@ Permanent branches   target=branch   refs/heads/{develop,staging,main}
   Block force pushes
   Require a pull request        aprovações = 0, conversation resolution = on
   Require status checks         Auditoria de dependências
+                                Testes de integração com MySQL
                                 Lint, tipos, testes e builds
                                 Validar origem e destino
 ```
@@ -1182,7 +1190,7 @@ Ativar:
 
 - [x] Restrict deletions.
 - [x] Block force pushes.
-- [x] Require status checks — os mesmos três da secao 25.
+- [x] Require status checks — os mesmos **quatro** da secao 25, incluindo `Testes de integração com MySQL`, novo na R0.2.
 - [x] Do not require status checks on creation.
 
 Não ativar:
