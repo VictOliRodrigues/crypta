@@ -22,15 +22,17 @@ Ele é a fonte de verdade do schema. Toda alteração em `apps/api/prisma/schema
 
 `apps/api/prisma/schema.prisma` contém apenas `datasource` e `generator`. Não existe nenhuma migration.
 
-Isso é intencional. As chaves primárias de todas as tabelas dependem de três decisões ainda abertas, e criá-las agora significaria uma migration destrutiva logo em seguida — em um banco que, a partir da R1.0, guarda material criptográfico insubstituível:
+Era intencional: as chaves primárias dependiam de três decisões abertas, e criá-las antes significaria uma migration destrutiva logo em seguida — em um banco que, a partir da R1.0, guarda material criptográfico insubstituível.
 
-| Pendência | Tema                                | Impacto se decidido depois                           |
-| --------- | ----------------------------------- | ---------------------------------------------------- |
-| PEND-005  | UUIDv4 ou UUIDv7                    | Ordenação e localidade de índice de todas as tabelas |
-| PEND-006  | `CHAR(36)` ou `BINARY(16)`          | Tipo de toda chave primária e estrangeira            |
-| PEND-014  | Política de hard delete/soft delete | Colunas de exclusão e comportamento de todas as FKs  |
+**As três foram fechadas em 7 de agosto de 2026 e o schema está desbloqueado:**
 
-As entidades entram na **R0.2** (identidade) e **R0.3** (cofres), depois que essas decisões virarem ADR.
+| Pendência | Tema                                | Resolução                                                       |
+| --------- | ----------------------------------- | --------------------------------------------------------------- |
+| PEND-005  | UUIDv4 ou UUIDv7                    | UUIDv7 ([ADR 0019](decisions/0019-database-identifiers.md))     |
+| PEND-006  | `CHAR(36)` ou `BINARY(16)`          | `CHAR(36)` ([ADR 0019](decisions/0019-database-identifiers.md)) |
+| PEND-014  | Política de hard delete/soft delete | Exclusão física ([ADR 0020](decisions/0020-deletion-policy.md)) |
+
+As entidades entram na **R0.2** (identidade) e **R0.3** (cofres).
 
 O readiness probe (`GET /api/v1/health/ready`) verifica a conexão com `SELECT 1`, justamente por não depender de nenhuma tabela. A verificação do estado das migrations entra junto com a primeira migration.
 
@@ -82,7 +84,13 @@ O que o banco **pode** armazenar em texto aberto: identificadores, e-mail, nome 
 
 Todo ID público é UUID. IDs sequenciais não são usados como identificador externo — não como medida de segurança, mas para não facilitar enumeração e inferência de volume. A autorização continua sendo verificada em toda consulta, independentemente do formato do ID.
 
-Formato exato pendente (`PEND-005`, `PEND-006`).
+O formato é **UUIDv7 em `CHAR(36)`**, gerado pelo Prisma (ADR 0019):
+
+```prisma
+id String @id @default(uuid(7)) @db.Char(36)
+```
+
+Chaves estrangeiras usam o mesmo tipo. A v7 embute o instante de criação em milissegundos — é metadado que a v4 não entregaria, avaliado e aceito no ADR.
 
 ### Nomes
 
@@ -127,12 +135,14 @@ As colunas de cada entidade serão detalhadas aqui conforme forem implementadas.
 
 ## 7. Exclusões
 
-A política de hard delete versus soft delete por entidade está em aberto (`PEND-014`). Duas restrições já valem, independentemente do que for decidido:
+A política é **exclusão física**, sem `deleted_at` e sem filtro de exclusão em consulta (ADR 0020). Ela atende às duas restrições que já valiam:
 
 1. **Segredo excluído não pode permanecer acessível pela aplicação.** Um cofre ou credencial marcado como excluído não pode continuar retornando `encryptedPayload` por nenhuma rota.
 2. **Auditoria não é apagada junto com a entidade.** O registro de que algo foi excluído precisa sobreviver à exclusão.
 
-`ON DELETE CASCADE` não é aplicado indiscriminadamente. Cada relação terá o comportamento decidido e documentado individualmente.
+A segunda é atendida por `AuditLog` ser tabela independente, sem chave estrangeira: ela guarda `actor_id` e `entity_id` como valores, então apagar a entidade não tem como apagar o registro.
+
+`ON DELETE CASCADE` não é aplicado indiscriminadamente. O comportamento de cada relação está declarado no [ADR 0020](decisions/0020-deletion-policy.md) — com destaque para `User` → `VaultMember`, que é `Restrict` para que excluir um proprietário não deixe cofre órfão.
 
 ---
 
@@ -194,5 +204,5 @@ Retirado de `CLAUDE.md` secao 80:
 - `docs/ARCHITECTURE.md` secoes 12 e 32
 - `docs/decisions/0008-mysql-prisma.md`
 - `docs/decisions/0003-client-side-encryption.md`
-- `docs/DECISIONS.md` PEND-005, PEND-006, PEND-014, PEND-015
+- `docs/DECISIONS.md` DEC-046, DEC-047 e PEND-015 (retenção de auditoria, ainda aberta)
 - `CLAUDE.md` secoes 41 a 45

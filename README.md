@@ -935,7 +935,7 @@ Consulte [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ### O que ainda não existe
 
-- **nenhuma entidade no banco** — depende de `PEND-005`, `PEND-006` e `PEND-014` ([`docs/DATABASE.md`](docs/DATABASE.md));
+- **nenhuma entidade no banco** — desbloqueado pelos ADRs 0019 e 0020; as tabelas entram na R0.2 ([`docs/DATABASE.md`](docs/DATABASE.md));
 - **nenhuma implementação criptográfica** — `@crypta/crypto-web` foi desbloqueado pelos ADRs 0016 a 0018 e entra na R0.2; `@crypta/crypto-mobile` continua bloqueado por `PEND-003`, na R0.7;
 - autenticação, cofres, sites, credenciais, convites e importação;
 - `apps/mobile` — entra na R0.7;
