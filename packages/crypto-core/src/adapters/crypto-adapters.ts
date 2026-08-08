@@ -5,8 +5,13 @@
  * `@crypta/crypto-mobile` implementam COMO, cada um com a biblioteca da sua
  * plataforma (ARCHITECTURE.md secoes 8.2 a 8.4).
  *
- * A escolha das bibliotecas está em aberto: DECISIONS.md PEND-001, PEND-002 e
- * PEND-003. Nenhuma implementação será escrita antes desses ADRs.
+ * A escolha das bibliotecas da Web está fechada: ADR 0016 (Argon2id pelo
+ * `libsodium-wrappers-sumo`) e ADR 0017 (XChaCha20-Poly1305 pelo libsodium,
+ * HKDF-SHA-256 e X25519 pelo `crypto.subtle`).
+ *
+ * A do Android continua em aberto: DECISIONS.md PEND-003, na R0.7. Ela precisa
+ * respeitar as invariantes dos ADRs 0016 e 0017 para os vetores continuarem
+ * compatíveis.
  */
 
 /** Chave simétrica ou material de chave bruto. Sempre em memória, nunca persistido. */
@@ -18,15 +23,24 @@ export type RandomSource = {
   getRandomBytes(length: number): Uint8Array;
 };
 
-/** Parâmetros Argon2id armazenados por usuário, para permitir recalibração futura. */
+/**
+ * Parâmetros Argon2id armazenados por usuário, para permitir recalibração futura.
+ *
+ * Os valores iniciais estão no ADR 0018 e são provisórios até a medição em
+ * Android na R0.7.
+ */
 export type Argon2idParameters = {
   /** Custo de memória em KiB. */
   memoryKib: number;
   /** Número de passagens. */
   iterations: number;
-  /** Grau de paralelismo. */
+  /**
+   * Grau de paralelismo. Fixo em 1: o `crypto_pwhash` do libsodium não expõe o
+   * parâmetro e crava 1 lane, então outro valor quebraria a compatibilidade de
+   * bytes entre Web e Android (ADR 0016).
+   */
   parallelism: number;
-  /** Salt em base64url. */
+  /** Salt em base64url. Exatamente 16 bytes — o libsodium rejeita outros tamanhos. */
   salt: string;
 };
 

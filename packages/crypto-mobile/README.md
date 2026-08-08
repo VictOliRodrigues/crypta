@@ -11,8 +11,9 @@ O Android entra na R0.7 do roadmap, mas a compatibilidade criptográfica com a W
 | Pendência | Tema                                   | Referência                                     |
 | --------- | -------------------------------------- | ---------------------------------------------- |
 | PEND-003  | Biblioteca libsodium para React Native | [`docs/DECISIONS.md`](../../docs/DECISIONS.md) |
-| PEND-004  | Parâmetros iniciais do Argon2id        | [`docs/DECISIONS.md`](../../docs/DECISIONS.md) |
 | PEND-013  | Bloqueio de screenshot no Android      | [`docs/DECISIONS.md`](../../docs/DECISIONS.md) |
+
+Os parâmetros do Argon2id já estão definidos no [ADR 0018](../../docs/decisions/0018-argon2id-parameters.md), mas são **provisórios**: foram medidos só em desktop. Medi-los no Android médio e no mais fraco suportado é entrega da R0.7 e pode substituir aquele ADR.
 
 ## O que este package deverá implementar
 

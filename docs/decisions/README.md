@@ -29,14 +29,17 @@ Um ADR publicado não é reescrito. Quando uma decisão muda, cria-se um novo AD
 | [0013](0013-agpl-license.md)                  | Licença AGPL-3.0                              | ACCEPTED |
 | [0014](0014-js-yaml-override.md)              | Override de `js-yaml` para a versão corrigida | ACCEPTED |
 | [0015](0015-migrations-on-container-start.md) | Migrations aplicadas no start do container    | ACCEPTED |
+| [0016](0016-argon2id-libsodium-wasm.md)       | Argon2id pelo libsodium em WebAssembly        | ACCEPTED |
+| [0017](0017-web-crypto-primitives.md)         | Primitivas da Web por origem especializada    | ACCEPTED |
+| [0018](0018-argon2id-parameters.md)           | Parâmetros iniciais do Argon2id               | ACCEPTED |
 
 ## Decisões ainda em aberto
 
-As pendências `PEND-001` a `PEND-025` estão listadas em [`../DECISIONS.md`](../DECISIONS.md) secao 7. Cada uma precisa virar ADR antes da implementação que ela bloqueia.
+As pendências estão listadas em [`../DECISIONS.md`](../DECISIONS.md) secao 7. Cada uma precisa virar ADR antes da implementação que ela bloqueia.
 
 As mais urgentes, porque bloqueiam a R0.2:
 
-- `PEND-001` / `PEND-002` — bibliotecas de Argon2id e libsodium para a Web;
-- `PEND-004` — parâmetros iniciais do Argon2id;
 - `PEND-005` / `PEND-006` — formato e tipo de coluna dos identificadores;
 - `PEND-007` / `PEND-008` — duração dos tokens.
+
+`PEND-001`, `PEND-002` e `PEND-004` foram fechadas pelos ADRs 0016, 0017 e 0018. `PEND-003`, a biblioteca do Android, continua aberta e entra na R0.7 — os ADRs 0016 e 0017 registram as invariantes que a escolha do Android precisa respeitar para manter os vetores compatíveis.

@@ -1249,13 +1249,13 @@ As armadilhas de configuração manual encontradas nesta fase estão registradas
 
 ### Tarefas
 
-- [ ] Avaliar Argon2id Web.
-- [ ] Avaliar libsodium Web.
-- [ ] Avaliar libsodium React Native.
+- [x] Avaliar Argon2id Web. — ADR 0016, com medição das três candidatas.
+- [x] Avaliar libsodium Web. — ADR 0017.
+- [ ] Avaliar libsodium React Native. — PEND-003, R0.7.
 - [ ] Avaliar Android Keystore.
-- [ ] Verificar manutenção.
-- [ ] Verificar licença.
-- [ ] Criar ADR.
+- [x] Verificar manutenção.
+- [x] Verificar licença. — ISC e MIT, compatíveis com AGPL-3.0-only.
+- [x] Criar ADR. — 0016, 0017 e 0018.
 
 ### Critérios de aceite
 

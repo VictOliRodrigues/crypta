@@ -6,26 +6,28 @@ Implementação dos adapters criptográficos para o navegador.
 
 **Não implementado.** Este package existe apenas como fronteira reservada do monorepo.
 
-Nenhuma linha de criptografia será escrita aqui antes das decisões abaixo, porque a escolha da biblioteca determina o formato dos parâmetros persistidos por usuário e, uma vez que exista um cofre real, mudá-la exige migração criptográfica.
+As decisões que o bloqueavam foram fechadas em 7 de agosto de 2026 — ele está desbloqueado e entra na R0.2.
 
-| Pendência | Tema                            | Referência                                     |
-| --------- | ------------------------------- | ---------------------------------------------- |
-| PEND-001  | Biblioteca Argon2id para Web    | [`docs/DECISIONS.md`](../../docs/DECISIONS.md) |
-| PEND-002  | Biblioteca libsodium para Web   | [`docs/DECISIONS.md`](../../docs/DECISIONS.md) |
-| PEND-004  | Parâmetros iniciais do Argon2id | [`docs/DECISIONS.md`](../../docs/DECISIONS.md) |
+| Decisão                                                          | Fecha    | Assunto                          |
+| ---------------------------------------------------------------- | -------- | -------------------------------- |
+| [ADR 0016](../../docs/decisions/0016-argon2id-libsodium-wasm.md) | PEND-001 | Argon2id pelo libsodium em WASM  |
+| [ADR 0017](../../docs/decisions/0017-web-crypto-primitives.md)   | PEND-002 | as demais primitivas             |
+| [ADR 0018](../../docs/decisions/0018-argon2id-parameters.md)     | PEND-004 | parâmetros iniciais, provisórios |
 
 ## O que este package deverá implementar
 
-As interfaces já definidas em [`@crypta/crypto-core`](../crypto-core/src/adapters/crypto-adapters.ts):
+As interfaces já definidas em [`@crypta/crypto-core`](../crypto-core/src/adapters/crypto-adapters.ts), com a origem fixada pelos ADRs 0016 e 0017:
 
 - `RandomSource` — sobre `crypto.getRandomValues`, nunca `Math.random()`;
-- `KdfAdapter` — Argon2id e HKDF-SHA-256;
-- `AeadAdapter` — XChaCha20-Poly1305;
-- `KeyExchangeAdapter` — X25519 e envelopes de `VaultKey`.
+- `KdfAdapter` — Argon2id pelo `libsodium-wrappers-sumo`, HKDF-SHA-256 pelo `crypto.subtle`;
+- `AeadAdapter` — XChaCha20-Poly1305 pelo `libsodium-wrappers-sumo`;
+- `KeyExchangeAdapter` — X25519 pelo `crypto.subtle`, com envelope composto; os sealed boxes do libsodium estão proibidos (ADR 0017).
+
+Invariantes que não podem ser alteradas sem novo ADR: `parallelism = 1`, salt de 16 bytes, apenas o build ESM do libsodium, e self-test de vetor conhecido na inicialização.
 
 ## Critérios de aceite quando for implementado
 
-- vetores determinísticos idênticos aos de `@crypta/crypto-mobile`;
+- vetores determinísticos idênticos aos de `@crypta/crypto-mobile`, incluindo o vetor conhecido do RFC 9106 secao 5.3;
 - decrypt falha com ciphertext adulterado;
 - decrypt falha com AAD incorreta;
 - nenhum nonce reutilizado;

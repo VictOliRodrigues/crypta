@@ -806,17 +806,21 @@ Requisitos:
 
 A AAD deverá vincular o ciphertext ao contexto.
 
-Exemplo:
+A composição implementada em `packages/crypto-core/src/format/aad.ts` vincula:
 
 ```text
-applicationId
 entityType
 entityId
 vaultId
 schemaVersion
 cryptoVersion
-keyVersion
 ```
+
+É a mesma lista de `ARCHITECTURE.md` secao 14.9, sob o prefixo de domínio `vault-aad/v1`, com cada segmento prefixado pelo tamanho em bytes para tornar a serialização injetiva. O vetor canônico está congelado em `aad.spec.ts`.
+
+**`applicationId` e `keyVersion` ficaram de fora deliberadamente.** Ambos foram considerados e nenhum acrescenta separação real: ciphertext de outro cofre, de outra instalação ou anterior a um rekey está sob outra `VaultKey`, e a tag Poly1305 já o rejeita. Incluí-los seria defesa em profundidade, não correção de falha.
+
+Acrescentar qualquer campo à AAD é mudança de formato criptográfico: exige ADR, nova versão do prefixo de domínio e migração (`CLAUDE.md` secao 81). Hoje ainda é barato, porque nenhum cofre existe; depois do primeiro conteúdo gravado, não é.
 
 A composição deverá ser:
 
@@ -1344,6 +1348,14 @@ Evitar:
 - scripts de terceiros;
 - inline script sem nonce;
 - CDN não revisada.
+
+### `wasm-unsafe-eval`
+
+`script-src` inclui `'wasm-unsafe-eval'`. A derivação de chave usa Argon2id em WebAssembly (ADR 0016), e a compilação de WebAssembly é bloqueada por CSP em todos os navegadores atuais — Chrome 97, Firefox 102, Safari 16. A origem dos bytes é irrelevante: o portão é a compilação, não o `fetch`.
+
+`'wasm-unsafe-eval'` é estritamente mais estreito que `'unsafe-eval'`: permite compilar e instanciar WebAssembly e nada mais. `eval()`, `new Function()` e afins continuam bloqueados.
+
+**`'unsafe-eval'` puro permanece proibido**, e não apenas desaconselhado: ele engloba `'wasm-unsafe-eval'` e reabre a execução dinâmica de JavaScript na página onde as chaves são derivadas. `apps/web/src/test/nginx-config.test.ts` deverá assertar que `'unsafe-eval'` nunca aparece em `script-src`.
 
 ### Entrega da CSP
 

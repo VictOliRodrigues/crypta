@@ -182,6 +182,11 @@ Uma decisão deverá gerar ADR quando:
 | DEC-038 | Branch `release/*` permanece durante a homologação  | ACCEPTED | ADR 0011   |
 | DEC-039 | Correções de staging passam por `fix/* → release/*` | ACCEPTED | ADR 0011   |
 | DEC-040 | Licença AGPL-3.0                                    | ACCEPTED | ADR 0013   |
+| DEC-041 | Override de `js-yaml` para a versão corrigida       | ACCEPTED | ADR 0014   |
+| DEC-042 | Migrations aplicadas no start do container da API   | ACCEPTED | ADR 0015   |
+| DEC-043 | Argon2id pelo libsodium em WebAssembly              | ACCEPTED | ADR 0016   |
+| DEC-044 | Primitivas da Web por origem especializada          | ACCEPTED | ADR 0017   |
+| DEC-045 | Parâmetros iniciais do Argon2id                     | ACCEPTED | ADR 0018   |
 
 ---
 
@@ -1672,6 +1677,159 @@ O runner não alcança o banco sem expor a rede privada (`CLAUDE.md` secao 65). 
 
 ---
 
+## DEC-043 — Argon2id pelo libsodium em WebAssembly
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+A Web deriva a `RootKey` com `libsodium-wrappers-sumo`, por `crypto_pwhash` e `crypto_pwhash_ALG_ARGON2ID13`, sob três invariantes:
+
+```text
+parallelism = 1
+salt        = 16 bytes
+saída       = 32 bytes
+```
+
+Apenas o build ESM. `'wasm-unsafe-eval'` entra em `script-src`. O adapter roda um self-test de vetor conhecido na inicialização e recusa destravar em divergência. `CryptoAdapter` ganha `init(): Promise<void>` para acomodar o `await sodium.ready`.
+
+### Motivos
+
+Medido em `Intel i5-9400F @ 2.90 GHz`, Node v24.14.0: libsodium leva 55 ms em 19 MiB contra 1088 ms do `@noble/hashes` em JS puro, cerca de 20x. Como o custo do Argon2id fica no cliente (DEC-004), uma implementação lenta obriga a baixar o fator de trabalho, que é a única defesa contra o ataque descrito em `SECURITY.md` secao 8.2.
+
+O build sumo é obrigatório porque o `libsodium-wrappers` padrão declara `crypto_pwhash` no `.d.ts` mas não o expõe em runtime. A restrição ao ESM existe porque o build CommonJS traz um fallback `wasm2js` que devolve chave errada acima de cerca de 72 MiB sem lançar erro — medido, a mesma chave incorreta para 80, 96 e 128 MiB.
+
+### Rejeitado
+
+```text
+hash-wasm
+@noble/hashes em produção
+argon2-browser
+manter JS puro para não mexer na CSP
+```
+
+`hash-wasm` está sem commits desde novembro de 2024, e `CLAUDE.md` secao 59 exige dependência mantida. `@noble/hashes` é a mais bem mantida, mas 20x mais lenta, e por isso entra apenas como oráculo de teste. `argon2-browser` não publica desde 2021. Manter JS puro foi descartado pelo responsável do projeto, com o custo medido apresentado.
+
+### Consequências
+
+- fator de trabalho passa a ser escolhido por resistência, não pela lentidão da biblioteca;
+- a mesma implementação em C serve Web e Android, tornando a igualdade de bytes propriedade do build;
+- a CSP ganha `'wasm-unsafe-eval'`, estritamente mais estreito que `'unsafe-eval'`;
+- o bundle cresce cerca de 183 KiB gzip;
+- sem WebAssembly o aplicativo não funciona, por decisão;
+- a troca de biblioteca continua barata, porque as três candidatas são byte-idênticas em `p=1`.
+
+### ADR
+
+[`docs/decisions/0016-argon2id-libsodium-wasm.md`](decisions/0016-argon2id-libsodium-wasm.md)
+
+---
+
+## DEC-044 — Primitivas da Web por origem especializada
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+Cada primitiva vem da origem que a implementa melhor: CSPRNG de `crypto.getRandomValues`; Argon2id e XChaCha20-Poly1305 do `libsodium-wrappers-sumo`; HKDF-SHA-256 e X25519 do `crypto.subtle`.
+
+Os sealed boxes do libsodium estão proibidos. O envelope da `VaultKey` é composto no padrão do RFC 9180: X25519 efêmero, HKDF-SHA-256 e XChaCha20-Poly1305. `@noble/hashes` e `@noble/ciphers` entram como `devDependencies`, fixados em `2.2.0`, apenas como oráculo de vetores. `errors.ts` ganha `CryptoAuthenticationError`.
+
+### Motivos
+
+`PEND-002` supunha que existisse uma biblioteca libsodium capaz de cobrir tudo. Não existe: nenhum build do `libsodium.js` expõe HKDF chamável, apenas as constantes, e `CLAUDE.md` secao 8 exige HKDF-SHA-256.
+
+Pior, `crypto_box_curve25519xchacha20poly1305_seal_open` — a função cujo nome corresponde ao `"X25519-XCHACHA20-POLY1305"` que `docs/API.md` declara — **falha aberto**: com 200 ciphertexts adulterados devolveu conteúdo 200 vezes sem nunca lançar erro, enquanto `crypto_box_seal` lançou 200 de 200 e o AEAD lançou 50 de 50. Aceitar isso violaria `CLAUDE.md` secao 9.
+
+`crypto.subtle` entrega HKDF-SHA-256 e X25519 em código nativo constant-time, sem bundle e sem supply chain, com saída verificada byte a byte contra `@noble`. O responsável autorizou o desvio de `ARCHITECTURE.md` secao 3.6.
+
+### Rejeitado
+
+```text
+somente libsodium
+somente @noble
+@noble/ciphers para o AEAD
+biblioteca de HPKE pronta
+fallback em JS puro sem X25519 no WebCrypto
+```
+
+Somente libsodium é impossível, porque falta HKDF. Somente `@noble` foi rejeitada porque o próprio código documenta que o X25519 não é integralmente constant-time. `@noble/ciphers` duplicaria capacidade já carregada. Um fallback em JS puro anularia a razão de escolher o nativo.
+
+### Consequências
+
+- HKDF e X25519 saem nativos, constant-time, com zero bytes de bundle;
+- nenhum caminho de código toca função que falha aberto;
+- o envelope passa a ter a forma que `docs/API.md` já documenta;
+- um oráculo independente detecta mudança silenciosa de saída do libsodium;
+- três origens em vez de uma, o que aumenta o peso da suíte de vetores;
+- navegador sem X25519 no WebCrypto recebe falha declarada, com piso em Chrome 133, Firefox 130 e Safari 17;
+- a chave privada exige conversão entre `raw` e `pkcs8` por prefixo fixo de 16 bytes.
+
+### ADR
+
+[`docs/decisions/0017-web-crypto-primitives.md`](decisions/0017-web-crypto-primitives.md)
+
+---
+
+## DEC-045 — Parâmetros iniciais do Argon2id
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+Parâmetros padrão para contas novas, **provisórios** até a medição em Android na R0.7:
+
+```text
+memoryKib   = 65536      64 MiB
+iterations  = 3
+parallelism = 1
+salt        = 16 bytes aleatórios por usuário
+saída       = 32 bytes
+```
+
+Os parâmetros sintéticos de `GET /auth/parameters` precisam ser derivados do e-mail por HMAC com segredo do servidor, e emitir exatamente esse conjunto.
+
+### Motivos
+
+Custam 288 ms na máquina de referência do DEC-043, medidos em grade completa. Ficam acima do piso do OWASP para Argon2id e usam a memória e as passagens da segunda configuração recomendada pelo RFC 9106 secao 4; `p=1` vem da limitação do libsodium registrada no DEC-043, sem alterar memória nem número de passagens.
+
+64 MiB fica ainda **abaixo do ponto em que o fallback `wasm2js` corrompe a derivação**, cerca de 72 MiB, o que dá uma segunda camada de proteção. Os presets `MODERATE` e `SENSITIVE` do libsodium, 256 MiB e 1 GiB, caem dentro da faixa corrompida.
+
+Nenhum navegador e nenhum Android foram medidos: as medições usam o mesmo WebAssembly, mas em Node. `ARCHITECTURE.md` secao 43.3 exige as três superfícies, então a decisão sai declaradamente incompleta.
+
+### Rejeitado
+
+```text
+19 MiB com t=2, o piso do OWASP
+2 GiB com t=1, a primeira opção do RFC 9106
+96 MiB com t=3
+calibrar em tempo de execução no cadastro
+adiar até haver Android
+```
+
+O piso do OWASP deixaria fator de trabalho na mesa sem ganho perceptível. 2 GiB é inviável em aba de navegador. 96 MiB já entra na faixa corrompida do fallback. Calibrar no cadastro amarra o parâmetro ao aparelho usado naquele momento e vira sinal de fingerprinting no endpoint público. Adiar bloquearia a R0.2 inteira por uma medição que só existe na R0.7.
+
+### Consequências
+
+- contas novas nascem bem acima do piso recomendado, a 288 ms medidos em desktop;
+- a escolha fica fora da faixa em que o fallback do libsodium corrompe;
+- os números coincidem com os que `docs/API.md` já usava como exemplo;
+- 64 MiB é bastante memória para aba de celular, e isso não foi medido em celular nenhum;
+- os valores são provisórios, com gatilho de revisão preso à R0.7;
+- mudar o padrão obriga a atualizar o gerador de parâmetros sintéticos junto, sob risco de enumeração por valor.
+
+### ADR
+
+[`docs/decisions/0018-argon2id-parameters.md`](decisions/0018-argon2id-parameters.md)
+
+---
+
 # DECISÕES REJEITADAS
 
 ---
@@ -1854,10 +2012,10 @@ Aumenta o risco de vazamento, perda de dados e execução acidental em produçã
 
 | ID           | Tema                                          | Status               | Bloqueia         |
 | ------------ | --------------------------------------------- | -------------------- | ---------------- |
-| PEND-001     | Biblioteca Argon2id Web                       | REVIEW_REQUIRED      | Crypto           |
-| PEND-002     | Biblioteca libsodium Web                      | REVIEW_REQUIRED      | Crypto           |
+| ~~PEND-001~~ | ~~Biblioteca Argon2id Web~~                   | RESOLVIDA em DEC-043 | —                |
+| ~~PEND-002~~ | ~~Biblioteca libsodium Web~~                  | RESOLVIDA em DEC-044 | —                |
 | PEND-003     | Biblioteca libsodium Mobile                   | REVIEW_REQUIRED      | Mobile           |
-| PEND-004     | Parâmetros Argon2id                           | REVIEW_REQUIRED      | Login            |
+| ~~PEND-004~~ | ~~Parâmetros Argon2id~~                       | RESOLVIDA em DEC-045 | —                |
 | PEND-005     | UUIDv4 ou UUIDv7                              | REVIEW_REQUIRED      | Banco            |
 | PEND-006     | `CHAR(36)` ou `BINARY(16)`                    | REVIEW_REQUIRED      | Banco            |
 | PEND-007     | Duração do access token                       | REVIEW_REQUIRED      | Auth             |
