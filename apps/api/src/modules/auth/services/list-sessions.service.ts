@@ -1,5 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
+import { type SessionView } from '@crypta/contracts';
+
 import { ApiException } from '@/common/errors/api.exception';
 
 import { type RequestAuth } from '../mappers/request-auth';
@@ -7,19 +9,11 @@ import { SessionRepository } from '../repositories/session.repository';
 
 /**
  * `GET /sessions` e `DELETE /sessions/:sessionId` (docs/API.md secoes 30 e 31).
+ *
+ * `SessionView` vive em `@crypta/contracts` porque Web e Android consomem a
+ * mesma forma. Declará-la aqui obrigaria cada cliente a redigitá-la, e a
+ * primeira divergência apareceria em produção, não no typecheck.
  */
-
-export type SessionView = {
-  id: string;
-  clientType: string;
-  clientName: string | null;
-  ipAddress: string | null;
-  userAgent: string | null;
-  createdAt: string;
-  lastUsedAt: string;
-  /** Distingue "esta é a sessão que você está usando agora" na interface. */
-  isCurrent: boolean;
-};
 
 @Injectable()
 export class ListSessionsService {

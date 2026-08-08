@@ -97,6 +97,20 @@ export function useAuthActions() {
   );
 
   /**
+   * Desmonta a sessão **local**, sem falar com a API.
+   *
+   * Existe para o caso em que o servidor já derrubou a sessão e não há o que
+   * pedir: revogar a própria sessão na tela de sessões, ou encerrar todas. A
+   * limpeza do cache é obrigatória e não cosmética — ele guarda conteúdo
+   * descriptografado, e mantê-lo depois da sessão cair deixaria o cofre legível
+   * para quem chegasse depois (`CLAUDE.md` secao 21).
+   */
+  const endLocalSession = useCallback(() => {
+    clear();
+    queryClient.clear();
+  }, [clear, queryClient]);
+
+  /**
    * Encerra a sessão.
    *
    * A ordem importa: limpar o estado local acontece **sempre**, mesmo que a
@@ -107,10 +121,9 @@ export function useAuthActions() {
     try {
       await logoutRequest();
     } finally {
-      clear();
-      queryClient.clear();
+      endLocalSession();
     }
-  }, [clear, queryClient]);
+  }, [endLocalSession]);
 
-  return { setup, signIn, signOut };
+  return { setup, signIn, signOut, endLocalSession };
 }

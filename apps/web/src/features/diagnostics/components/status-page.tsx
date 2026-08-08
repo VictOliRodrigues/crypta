@@ -1,3 +1,5 @@
+import { Link } from 'react-router';
+
 import { buildInfo } from '@/lib/env';
 import { ApiRequestError } from '@/services/api-client';
 
@@ -81,6 +83,17 @@ export function StatusPage() {
             {describeError(readiness.error)}
           </p>
         ) : null}
+
+        {/*
+          Único caminho de navegação para o W24 enquanto o menu de perfil da
+          TELAS.md secao 31 não existe. Sem ele a rota só seria alcançável
+          digitando a URL.
+        */}
+        <nav className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-700">
+          <Link to="/configuracoes" className="text-sm text-sky-700 dark:text-sky-400">
+            Configurações da conta
+          </Link>
+        </nav>
       </section>
     </main>
   );

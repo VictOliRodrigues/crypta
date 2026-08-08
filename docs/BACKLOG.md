@@ -290,14 +290,14 @@ Por isso o formato criptográfico é fechado **antes** da primeira migration, e 
 | BLG-0901 | DONE    | `GET /sessions`, escopado ao dono e marcando a sessão atual.                                                                                                                             |
 | BLG-0902 | DONE    | `DELETE /sessions/:sessionId`, com `404` para sessão de outro usuário e teste de IDOR.                                                                                                   |
 | BLG-0903 | DONE    | `DELETE /sessions`, preservando a sessão que fez a chamada.                                                                                                                              |
-| BLG-0904 | BACKLOG | Interface de sessões na Web. **Fora das branches planejadas para a fase** — ver abaixo.                                                                                                  |
+| BLG-0904 | DONE    | Casca do W24 e aba Sessões, com o W25 em `<dialog>` nativo. `SessionView` passou para `@crypta/contracts`.                                                                               |
 
 ### Trabalho da fase fora das branches planejadas
 
-As branches previstas cobrem criptografia, schema, setup, autenticação, ciclo de sessão e as telas W01 e W02. Dois itens da fase ficam de fora, e são registrados aqui em vez de aparecerem como surpresa no fechamento:
+As branches previstas cobriam criptografia, schema, setup, autenticação, ciclo de sessão e as telas W01 e W02. Dois itens da fase ficavam de fora, e foram registrados aqui em vez de aparecerem como surpresa no fechamento:
 
-- **`BLG-0807` — alteração de senha.** Recriptografa a chave privada com uma `UserEncryptionKey` nova, substitui o `AuthSecret` e revoga as demais sessões, tudo em transação. Encosta em criptografia, banco, autenticação e sessões ao mesmo tempo.
-- **`BLG-0904` — interface de sessões na Web.** A API de sessões entra na fase; a tela que a consome, não.
+- **`BLG-0904` — interface de sessões na Web.** Recuperado em `feature/web-sessions-ui`. Além da tela, é o que dá à Web a primeira consulta autenticada recorrente — sem ela não havia requisição que pudesse receber `401`, e a linha "ciclo de refresh no navegador" do gate não tinha como ser exercitada.
+- **`BLG-0807` — alteração de senha.** Recriptografa a chave privada com uma `UserEncryptionKey` nova, substitui o `AuthSecret` e revoga as demais sessões, tudo em transação. Encosta em criptografia, banco, autenticação e sessões ao mesmo tempo. Segue em `feature/change-password`, empilhada sobre a anterior.
 
 O gate não fecha sem os dois. Reduzir o escopo da R0.2 para excluí-los é decisão de produto e exigiria atualizar `ROADMAP.md` secao 14 e `PROJECT_SCOPE.md` secao 5.
 
@@ -305,7 +305,7 @@ O gate não fecha sem os dois. Reduzir o escopo da R0.2 para excluí-los é deci
 
 - **`PEND-003`, biblioteca libsodium no Android.** Os vetores desta fase nascem exercitados só na Web. A compatibilidade com o Android é garantida por construção — parâmetros e algoritmos fixados nos ADRs 0016 e 0017 — e só será **medida** na R0.7. Um vetor que roda em uma plataforma só prova metade do que `SECURITY.md` secao 22 exige.
 - **Parâmetros do Argon2id.** O [ADR 0018](decisions/0018-argon2id-parameters.md) declara os valores provisórios até a medição em Android. Cada usuário guarda os próprios parâmetros na sua linha, então recalibrar depois não invalida conta nenhuma — foi exatamente para isso que eles ficaram por usuário.
-- **Check obrigatório novo.** O job de integração com MySQL cria um quarto nome de check. Enquanto ele não for registrado à mão nos rulesets (`GITHUB_RELEASE_FLOW.md` secoes 17 e 18), o job pode reprovar sem bloquear merge.
+- ~~**Check obrigatório novo.**~~ Resolvida em 8 de agosto de 2026: o check "Testes de integração com MySQL" foi registrado nos rulesets (`GITHUB_RELEASE_FLOW.md` secoes 17 e 18) e agora bloqueia merge.
 
 ---
 
@@ -1601,6 +1601,18 @@ O gate não fecha sem os dois. Reduzir o escopo da R0.2 para excluí-los é deci
 - **Tipo:** FEAT
 - **Prioridade:** P1
 - **Estimativa:** M
+
+### Tarefas
+
+- [x] Casca do W24 com abas. — Só as abas entregues; Perfil e Segurança entram com as features.
+- [x] Aba Sessões com dispositivo, navegador, sistema, IP, criação e último uso.
+- [x] Marcar a sessão atual.
+- [x] Modal W25 de confirmação, em `<dialog>` nativo.
+- [x] Revogar sessão, encerrar outras e encerrar todas.
+- [x] Desmontar o estado local ao derrubar a própria sessão.
+- [x] Estados de carregando, erro e vazio distinguíveis.
+- [x] Acessibilidade: tabela semântica, `aria-live`, nome acessível por linha.
+- [x] Testes.
 
 ---
 

@@ -5,6 +5,7 @@ import { LoginPage } from '@/features/auth/components/login-page';
 import { RequireSession } from '@/features/auth/components/require-session';
 import { SetupPage } from '@/features/auth/components/setup-page';
 import { StatusPage } from '@/features/diagnostics/components/status-page';
+import { SettingsPage } from '@/features/settings/components/settings-page';
 
 /**
  * Rotas da aplicação.
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
         children: [
           { path: '/', element: <StatusPage /> },
           { path: '/diagnostico', element: <StatusPage /> },
+          { path: '/configuracoes', element: <SettingsPage /> },
         ],
       },
       { path: '*', element: <Navigate to="/" replace /> },
