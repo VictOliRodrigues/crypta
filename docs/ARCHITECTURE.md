@@ -819,6 +819,12 @@ VaultKeyEnvelope
 
 Somente a chave privada correspondente poderá recuperar a `VaultKey`.
 
+A composição, fixada pelo [ADR 0023](decisions/0023-identity-aad-and-key-envelope.md), é a do RFC 9180: par X25519 efêmero por envelope, HKDF-SHA-256 sobre o segredo compartilhado mais as duas chaves públicas, e XChaCha20-Poly1305. Daí o nome `X25519-HKDF-SHA256-XCHACHA20-POLY1305`.
+
+O nonce **é derivado junto com a chave da AEAD e não trafega**: como o par efêmero é novo a cada envelope, a chave da AEAD nunca se repete e o nonce derivado tampouco.
+
+O enquadramento vive em `packages/crypto-core/src/format/key-envelope.ts`, que é o único lugar que conhece a fatia `ephemeralPublicKey || ciphertext` devolvida pelo adapter.
+
 ### 14.8 Criptografia dos conteúdos
 
 Cada payload será criptografado com XChaCha20-Poly1305.
@@ -828,6 +834,7 @@ Exemplo conceitual:
 ```json
 {
   "cryptoVersion": 1,
+  "schemaVersion": 1,
   "algorithm": "XCHACHA20-POLY1305",
   "nonce": "base64url",
   "ciphertext": "base64url"
@@ -836,17 +843,22 @@ Exemplo conceitual:
 
 ### 14.9 AAD
 
-A AAD deverá incluir dados como:
+A AAD tem dois escopos, sob o prefixo de domínio `crypta-aad/v2` ([ADR 0023](decisions/0023-identity-aad-and-key-envelope.md)):
 
 ```text
-entityType
-entityId
-vaultId
-schemaVersion
+escopo vault          escopo user
+--------------        -----------------
+scope                 scope
+entityType            entityType
+entityId              publicKey
+vaultId               schemaVersion
+schemaVersion         cryptoVersion
 cryptoVersion
 ```
 
 Isso dificulta a reutilização indevida de um ciphertext em outro contexto.
+
+O escopo `user` protege a chave privada do usuário, que não pertence a cofre nenhum. Ele amarra à **chave pública do próprio par**, e não a um `userId`: além de o id ainda não existir quando o cliente cifra (secao 15), o vínculo com a chave pública detecta a troca de `publicKey` por um servidor malicioso, que de outro modo faria envelopes futuros serem endereçados à chave errada.
 
 ### 14.10 Versionamento criptográfico
 
@@ -857,6 +869,8 @@ Todo payload deverá possuir:
 - algoritmo;
 - nonce;
 - ciphertext.
+
+`cryptoVersion: 1` identifica o conjunto completo: Argon2id, HKDF-SHA-256, XChaCha20-Poly1305, X25519, AAD `crypta-aad/v2` e envelope `X25519-HKDF-SHA256-XCHACHA20-POLY1305`. `schemaVersion` identifica a forma do objeto em texto claro, que existe apenas dentro do cliente.
 
 Mudanças criptográficas deverão possuir migração explícita.
 
@@ -2743,7 +2757,7 @@ docs/decisions/
 
 ## 51. ADRs registrados
 
-Os vinte e dois ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
+Os vinte e três ADRs abaixo estão em `ACCEPTED` e cobrem as decisões das quais o restante da
 arquitetura depende. As decisões ainda em aberto estão listadas como pendências em
 [`DECISIONS.md`](DECISIONS.md).
 
@@ -2769,6 +2783,7 @@ arquitetura depende. As decisões ainda em aberto estão listadas como pendênci
 - [`0020-deletion-policy.md`](decisions/0020-deletion-policy.md)
 - [`0021-session-token-lifetimes.md`](decisions/0021-session-token-lifetimes.md)
 - [`0022-server-side-credentials.md`](decisions/0022-server-side-credentials.md)
+- [`0023-identity-aad-and-key-envelope.md`](decisions/0023-identity-aad-and-key-envelope.md)
 
 ---
 

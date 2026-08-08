@@ -2,9 +2,9 @@
 
 # Crypta — Banco de Dados
 
-> **Status:** Estado da R0 — schema ainda sem entidades
-> **Versão:** 0.1.0
-> **Última atualização:** 5 de agosto de 2026
+> **Status:** Estado da R0.2 — identidade implementada; cofres entram na R0.3
+> **Versão:** 0.2.0
+> **Última atualização:** 8 de agosto de 2026
 
 ---
 
@@ -18,23 +18,24 @@ Ele é a fonte de verdade do schema. Toda alteração em `apps/api/prisma/schema
 
 ## 2. Estado atual
 
-**O schema não possui entidades ainda.**
+**O schema tem as três entidades de identidade e a tabela de idempotência.**
 
-`apps/api/prisma/schema.prisma` contém apenas `datasource` e `generator`. Não existe nenhuma migration.
+`apps/api/prisma/schema.prisma` define `User`, `UserKeyBundle`, `Session` e `IdempotencyRecord`. A primeira migration do projeto, `20260808181037_identity`, foi aplicada e testada em banco vazio e em banco com dados.
 
-Era intencional: as chaves primárias dependiam de três decisões abertas, e criá-las antes significaria uma migration destrutiva logo em seguida — em um banco que, a partir da R1.0, guarda material criptográfico insubstituível.
+Ficou parado até aqui de propósito: as chaves primárias dependiam de três decisões abertas, e criá-las antes significaria uma migration destrutiva logo em seguida — em um banco que, a partir da R1.0, guarda material criptográfico insubstituível.
 
-**As três foram fechadas em 7 de agosto de 2026 e o schema está desbloqueado:**
+**As três foram fechadas em 7 de agosto de 2026, e a estas se somaram as decisões de credencial:**
 
 | Pendência | Tema                                | Resolução                                                       |
 | --------- | ----------------------------------- | --------------------------------------------------------------- |
 | PEND-005  | UUIDv4 ou UUIDv7                    | UUIDv7 ([ADR 0019](decisions/0019-database-identifiers.md))     |
 | PEND-006  | `CHAR(36)` ou `BINARY(16)`          | `CHAR(36)` ([ADR 0019](decisions/0019-database-identifiers.md)) |
 | PEND-014  | Política de hard delete/soft delete | Exclusão física ([ADR 0020](decisions/0020-deletion-policy.md)) |
+| PEND-026  | Credenciais e tokens no servidor    | [ADR 0022](decisions/0022-server-side-credentials.md)           |
 
-As entidades entram na **R0.2** (identidade) e **R0.3** (cofres).
+As entidades de cofre entram na **R0.3**.
 
-O readiness probe (`GET /api/v1/health/ready`) verifica a conexão com `SELECT 1`, justamente por não depender de nenhuma tabela. A verificação do estado das migrations entra junto com a primeira migration.
+O readiness probe (`GET /api/v1/health/ready`) verifica a conexão com `SELECT 1` **e** o estado das migrations em `_prisma_migrations`. A segunda checagem passou a existir junto com esta migration: banco alcançável com schema errado é pior do que banco fora do ar, porque a instância aceitaria tráfego e falharia por dentro.
 
 ---
 
@@ -54,7 +55,42 @@ O readiness probe (`GET /api/v1/health/ready`) verifica a conexão com `SELECT 1
 
 Cada ambiente tem um recurso MySQL próprio no Coolify: `mysql-development`, `mysql-staging` e `mysql-production`. Eles não compartilham volume, credencial nem backup.
 
-O usuário de aplicação recebe privilégio mínimo. Ele não precisa de `SUPER`, `FILE` nem de permissão para criar outros usuários.
+O usuário de aplicação recebe privilégio mínimo. Ele não precisa de `SUPER`, `FILE` nem de permissão para criar outros usuários. Precisa de DDL no próprio banco, porque `prisma migrate deploy` roda no start do container (ADR 0015).
+
+### A collation não vem de graça
+
+**O Prisma emite `COLLATE utf8mb4_unicode_ci` em toda tabela MySQL que gera, e não existe forma de declarar outra collation no `schema.prisma`.** A tabela acima exige `utf8mb4_0900_ai_ci`, que é a default do MySQL 8.
+
+Isso significa que **toda migration precisa ser corrigida à mão** antes de entrar no pull request. Não é preferência: misturar as duas collations produz `Illegal mix of collations` em qualquer `JOIN` entre uma tabela de uma migration e outra de outra — um erro que só aparece na consulta que junta as duas, possivelmente meses depois.
+
+A correção é uma substituição:
+
+```sql
+-- gerado pelo Prisma
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- o que deve ir para o repositório
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+```
+
+`_prisma_migrations` é criada pelo próprio Prisma e permanece em `utf8mb4_unicode_ci`. É bookkeeping da ferramenta, nunca entra em `JOIN` com tabela do domínio, e não deve ser alterada.
+
+### Banco de testes
+
+Os testes de integração rodam contra MySQL real (`CLAUDE.md` secao 42), com a conexão em `TEST_DATABASE_URL` — separada de `DATABASE_URL` de propósito, porque a suíte apaga tabelas. O harness recusa rodar se o nome do banco não terminar em `_test`.
+
+```bash
+docker run -d --name crypta-mysql-test \
+  -e MYSQL_ROOT_PASSWORD=crypta_local_test -e MYSQL_DATABASE=crypta_test \
+  -p 3308:3306 mysql:8.0 \
+  --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci \
+  --default-time-zone=+00:00
+
+pnpm --filter @crypta/api run prisma:migrate:deploy
+pnpm --filter @crypta/api test:e2e
+```
+
+Não existe arquivo Docker Compose versionado, e não é distração: a ausência dele é item verificado do gate de saída da R0.1. Na CI o mesmo MySQL vem de um bloco `services:` no job `Testes de integração com MySQL`.
 
 ---
 
@@ -75,6 +111,11 @@ O usuário de aplicação recebe privilégio mínimo. Ele não precisa de `SUPER
 Esses valores existem apenas como blobs criptografados no cliente (ADR 0003). Uma coluna em texto aberto para qualquer um deles é um defeito de segurança, não uma otimização.
 
 O que o banco **pode** armazenar em texto aberto: identificadores, e-mail, nome de perfil, papel do membro, status de convite, timestamps, versões, chave pública, IP, user agent e eventos de auditoria.
+
+Duas colunas merecem nota porque parecem violar a regra e não violam:
+
+- **`users.auth_secret_hash`** não é o `AuthSecret`. É `HMAC-SHA-256(pepper, authSecret)`, com o pepper derivado de `AUTH_SERVER_SECRET` e mantido **fora do banco** (ADR 0022). Um dump não permite autenticar nem iniciar o ataque offline contra a senha.
+- **`user_key_bundles.public_key`** é pública por construção: é ela que os outros membros usam para endereçar envelopes. A metade privada está em `encrypted_private_key`, e a AAD do bundle amarra as duas (ADR 0023).
 
 ---
 
@@ -101,11 +142,19 @@ Chaves estrangeiras usam o mesmo tipo. A v7 embute o instante de criação em mi
 
 ### Timestamps
 
-Todas as tabelas relevantes têm `created_at` e `updated_at` em UTC.
+Todas as tabelas relevantes têm `created_at` e `updated_at` em UTC, em `DATETIME(3)`.
+
+`sessions` é a exceção deliberada: tem `created_at` e `last_used_at`, e não `updated_at`. As duas colunas são âncoras de prazo, não metadados de auditoria — `created_at` para o teto absoluto e `last_used_at` para a inatividade (ADR 0021).
+
+### Prazo não é coluna
+
+**Nenhum vencimento é gravado.** Inatividade e teto absoluto são calculados na consulta, a partir de `last_used_at` e `created_at` com os valores de ambiente vigentes.
+
+Gravar `expires_at` congelaria a configuração no instante do login: apertar `REFRESH_TOKEN_TTL` deixaria de valer para as sessões já abertas, e o ADR 0021 descreve exatamente o oposto — "sessões acima do novo limite passam a ser recusadas na próxima requisição".
 
 ### Versão
 
-`Vault`, `Site` e `Credential` têm coluna `version`, usada para concorrência otimista. Toda mutação bem-sucedida incrementa a versão exatamente uma vez; uma atualização só é aplicada quando `version` no banco é igual ao `expectedVersion` enviado pelo cliente.
+`Vault`, `Site` e `Credential` terão coluna `version`, usada para concorrência otimista. Toda mutação bem-sucedida incrementa a versão exatamente uma vez; uma atualização só é aplicada quando `version` no banco é igual ao `expectedVersion` enviado pelo cliente. Entra na R0.3.
 
 ---
 
@@ -129,7 +178,93 @@ erDiagram
     SITE ||--o{ CREDENTIAL : contains
 ```
 
-As colunas de cada entidade serão detalhadas aqui conforme forem implementadas.
+As colunas das entidades ainda não implementadas serão detalhadas aqui conforme forem entrando.
+
+---
+
+## 6.1 Entidades implementadas
+
+### `users`
+
+| Coluna                  | Tipo                  | Notas                                               |
+| ----------------------- | --------------------- | --------------------------------------------------- |
+| `id`                    | `CHAR(36)` PK         | UUIDv7                                              |
+| `name`                  | `VARCHAR(120)`        | nome de perfil; limite igual ao `displayNameSchema` |
+| `email`                 | `VARCHAR(254)` UNIQUE | normalizado em minúsculas antes de gravar           |
+| `auth_secret_hash`      | `CHAR(64)`            | `HMAC-SHA-256(pepper, authSecret)` em hexadecimal   |
+| `auth_secret_version`   | `SMALLINT UNSIGNED`   | versão do `AUTH_SERVER_SECRET` que gerou o hash     |
+| `is_active`             | `BOOLEAN`             | conta desativada não autentica                      |
+| `failed_login_attempts` | `SMALLINT UNSIGNED`   | falhas consecutivas; zera no sucesso                |
+| `locked_until`          | `DATETIME(3)` NULL    | instante de liberação; nunca permanente             |
+| `created_at`            | `DATETIME(3)`         |                                                     |
+| `updated_at`            | `DATETIME(3)`         |                                                     |
+
+`auth_secret_version` existe para que rotacionar o `AUTH_SERVER_SECRET` não exija que ninguém troque de senha: o login confere com a versão gravada na linha e regrava com a corrente quando divergem (ADR 0022).
+
+### `user_key_bundles`
+
+1:1 com `users`, por `UNIQUE` em `user_id`. `ON DELETE CASCADE`.
+
+| Coluna                  | Tipo                 | Notas                             |
+| ----------------------- | -------------------- | --------------------------------- |
+| `id`                    | `CHAR(36)` PK        | UUIDv7                            |
+| `user_id`               | `CHAR(36)` UNIQUE FK | → `users.id`, `Cascade`           |
+| `kdf_algorithm`         | `VARCHAR(32)`        | `ARGON2ID`                        |
+| `kdf_version`           | `SMALLINT UNSIGNED`  | versão do conjunto de parâmetros  |
+| `kdf_salt`              | `VARCHAR(32)`        | base64url de 16 bytes             |
+| `kdf_memory`            | `INT UNSIGNED`       | KiB; 64 MiB são 65536             |
+| `kdf_iterations`        | `SMALLINT UNSIGNED`  |                                   |
+| `kdf_parallelism`       | `SMALLINT UNSIGNED`  | fixo em 1 (ADR 0016)              |
+| `public_key`            | `VARCHAR(43)`        | X25519 em base64url               |
+| `encrypted_private_key` | `VARCHAR(255)`       | cifrada com a `UserEncryptionKey` |
+| `private_key_nonce`     | `VARCHAR(32)`        | base64url de 24 bytes             |
+| `crypto_version`        | `SMALLINT UNSIGNED`  |                                   |
+| `schema_version`        | `SMALLINT UNSIGNED`  |                                   |
+| `created_at`            | `DATETIME(3)`        |                                   |
+| `updated_at`            | `DATETIME(3)`        |                                   |
+
+Os parâmetros KDF ficam por usuário, e não em configuração global, por duas razões: o cliente precisa deles **antes** de autenticar, e recalibrar o Argon2id (ADR 0018) não pode invalidar conta existente.
+
+### `sessions`
+
+| Coluna                | Tipo                | Notas                                               |
+| --------------------- | ------------------- | --------------------------------------------------- |
+| `id`                  | `CHAR(36)` PK       | é o `sid` que o access token carrega                |
+| `user_id`             | `CHAR(36)` FK       | → `users.id`, `Cascade`; indexado                   |
+| `family_id`           | `CHAR(36)`          | agrupa as rotações; indexado                        |
+| `refresh_token_hash`  | `CHAR(64)` UNIQUE   | `SHA-256` em hexadecimal; a busca é por este índice |
+| `previous_token_hash` | `CHAR(64)` NULL     | janela de tolerância de 10 s; indexado              |
+| `rotated_at`          | `DATETIME(3)` NULL  | quando `previous_token_hash` foi rotacionado        |
+| `client_type`         | `VARCHAR(16)`       | `web`, `android` ou `extension`                     |
+| `client_name`         | `VARCHAR(120)` NULL | exibido na tela de sessões                          |
+| `ip_address`          | `VARCHAR(45)` NULL  | IPv6 cabe em 45 caracteres                          |
+| `user_agent`          | `VARCHAR(255)` NULL |                                                     |
+| `created_at`          | `DATETIME(3)`       | âncora do teto absoluto; nenhuma rotação a move     |
+| `last_used_at`        | `DATETIME(3)`       | âncora da inatividade; cada rotação a renova        |
+
+**Não existe coluna de revogação.** Revogar é apagar a linha (ADR 0020). Um `revoked_at` traria de volta o problema que a exclusão física resolve: bastaria um `findMany` sem o filtro para uma sessão revogada voltar a valer.
+
+> **Ponto em aberto para o `BLG-0805`.** O ADR 0021 diz que, dentro da janela de 10 segundos, o refresh "devolve o mesmo par que a rotação original emitiu". Devolver o mesmo _refresh token_ exigiria guardá-lo em texto aberto — o oposto do que `refresh_token_hash` existe para fazer, e um dump passaria a entregar sessões utilizáveis. As colunas acima suportam as duas leituras; qual delas vale precisa ser decidido antes de a rotação ser implementada, e a leitura literal exigiria emenda ao ADR 0021.
+
+### `idempotency_records`
+
+Sem chave estrangeira, pelo mesmo motivo do `AuditLog` no ADR 0020: o registro precisa sobreviver à exclusão da entidade que descreve.
+
+| Coluna            | Tipo                | Notas                                              |
+| ----------------- | ------------------- | -------------------------------------------------- |
+| `id`              | `CHAR(36)` PK       | UUIDv7                                             |
+| `scope`           | `VARCHAR(64)`       | operação a que a chave pertence; parte do `UNIQUE` |
+| `idempotency_key` | `VARCHAR(255)`      | valor do header; parte do `UNIQUE`                 |
+| `request_hash`    | `CHAR(64)`          | `SHA-256` do payload canônico                      |
+| `resource_id`     | `CHAR(36)` NULL     | recurso criado, quando houve um; sem FK            |
+| `response_status` | `SMALLINT UNSIGNED` |                                                    |
+| `created_at`      | `DATETIME(3)`       |                                                    |
+
+**Não guarda corpo de resposta.** O `POST /setup` responde com um access token, e gravá-lo transformaria esta tabela em depósito de credencial viva: um dump devolveria sessões utilizáveis. O replay reconstrói a resposta a partir de `resource_id` e emite um access token novo.
+
+Mesma chave com `request_hash` diferente é `409 IDEMPOTENCY_CONFLICT`, não um replay silencioso (`CLAUDE.md` secao 38).
+
+A tabela cresce sem limite e ninguém a limpa hoje. A retenção entra junto com a de auditoria, em `PEND-015`.
 
 ---
 
@@ -202,7 +337,12 @@ Retirado de `CLAUDE.md` secao 80:
 ## 11. Referências
 
 - `docs/ARCHITECTURE.md` secoes 12 e 32
-- `docs/decisions/0008-mysql-prisma.md`
-- `docs/decisions/0003-client-side-encryption.md`
-- `docs/DECISIONS.md` DEC-046, DEC-047 e PEND-015 (retenção de auditoria, ainda aberta)
+- `docs/decisions/0003-client-side-encryption.md` — por que o conteúdo é opaco ao servidor
+- `docs/decisions/0008-mysql-prisma.md` — MySQL com Prisma
+- `docs/decisions/0019-database-identifiers.md` — UUIDv7 em `CHAR(36)`
+- `docs/decisions/0020-deletion-policy.md` — exclusão física e o `onDelete` de cada FK
+- `docs/decisions/0021-session-token-lifetimes.md` — as duas âncoras de prazo em `sessions`
+- `docs/decisions/0022-server-side-credentials.md` — o verificador do `AuthSecret` e o bloqueio
+- `docs/decisions/0023-identity-aad-and-key-envelope.md` — o formato do key bundle
+- `docs/DECISIONS.md` DEC-046, DEC-047, DEC-049, DEC-050 e PEND-015 (retenção, ainda aberta)
 - `CLAUDE.md` secoes 41 a 45

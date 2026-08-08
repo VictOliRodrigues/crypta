@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { CryptoAlgorithmError, CryptoFormatError, CryptoVersionError } from '../errors';
-import { assertSupportedCryptoVersion, parseCipherPayload } from './crypto-payload';
+import {
+  AEAD_NONCE_BYTES,
+  assertSupportedCryptoVersion,
+  buildCipherPayload,
+  parseCipherPayload,
+} from './crypto-payload';
 
 const VALID_PAYLOAD = {
   cryptoVersion: 1,
@@ -62,5 +67,56 @@ describe('assertSupportedCryptoVersion', () => {
 
   it('fails closed for an unknown version', () => {
     expect(() => assertSupportedCryptoVersion(99)).toThrow(CryptoVersionError);
+  });
+});
+
+describe('buildCipherPayload', () => {
+  it('stamps the current version and algorithm, so a caller cannot declare the wrong one', () => {
+    const payload = buildCipherPayload({
+      schemaVersion: 1,
+      nonce: new Uint8Array(AEAD_NONCE_BYTES).fill(0x01),
+      ciphertext: new Uint8Array([1, 2, 3, 4]),
+    });
+
+    expect(payload.cryptoVersion).toBe(1);
+    expect(payload.algorithm).toBe('XCHACHA20-POLY1305');
+  });
+
+  it('produces a payload that parseCipherPayload accepts', () => {
+    const payload = buildCipherPayload({
+      schemaVersion: 2,
+      nonce: new Uint8Array(AEAD_NONCE_BYTES).fill(0x02),
+      ciphertext: new Uint8Array([9, 8, 7]),
+    });
+
+    expect(parseCipherPayload(payload)).toEqual(payload);
+  });
+
+  it('rejects an empty nonce or ciphertext', () => {
+    expect(() =>
+      buildCipherPayload({
+        schemaVersion: 1,
+        nonce: new Uint8Array(0),
+        ciphertext: new Uint8Array([1]),
+      }),
+    ).toThrow(CryptoFormatError);
+
+    expect(() =>
+      buildCipherPayload({
+        schemaVersion: 1,
+        nonce: new Uint8Array([1]),
+        ciphertext: new Uint8Array(0),
+      }),
+    ).toThrow(CryptoFormatError);
+  });
+
+  it('rejects a non-positive schemaVersion', () => {
+    expect(() =>
+      buildCipherPayload({
+        schemaVersion: 0,
+        nonce: new Uint8Array([1]),
+        ciphertext: new Uint8Array([1]),
+      }),
+    ).toThrow(CryptoFormatError);
   });
 });

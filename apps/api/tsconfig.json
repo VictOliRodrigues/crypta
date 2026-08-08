@@ -1,8 +1,6 @@
 {
   "extends": "@crypta/tsconfig/node.json",
   "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
@@ -16,5 +14,9 @@
     // Decorators de propriedade do Nest atribuem valores fora do construtor.
     "strictPropertyInitialization": false
   },
+
+  // `rootDir` e `outDir` vivem apenas no `tsconfig.build.json`. Aqui o programa
+  // inclui `test/`, que fica fora de `src/` — declarar `rootDir: ./src` neste
+  // arquivo faria o typecheck recusar a própria suíte de e2e (TS6059).
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

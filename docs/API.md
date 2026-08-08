@@ -464,6 +464,10 @@ Recursos mutáveis utilizam `version`.
 - base64url válido;
 - API valida estrutura, não conteúdo descriptografado.
 
+A validação estrutural é a de `parseCipherPayload`, em `@crypta/crypto-core`. A API usa a mesma função que os clientes: um formato aceito aqui e recusado lá seria um blob gravado que ninguém abre.
+
+`cryptoVersion: 1` identifica o conjunto de algoritmos, incluindo a AAD `crypta-aad/v2` ([ADR 0023](decisions/0023-identity-aad-and-key-envelope.md)). A AAD não trafega — ela é reconstruída pelo cliente a partir do contexto da entidade, e é justamente por isso que amarra.
+
 ---
 
 ## 15. Estrutura de envelope de chave
@@ -472,12 +476,22 @@ Recursos mutáveis utilizam `version`.
 {
   "keyVersion": 1,
   "cryptoVersion": 1,
-  "algorithm": "X25519-XCHACHA20-POLY1305",
+  "algorithm": "X25519-HKDF-SHA256-XCHACHA20-POLY1305",
   "ephemeralPublicKey": "base64url",
-  "nonce": "base64url",
   "encryptedVaultKey": "base64url"
 }
 ```
+
+### Regras
+
+- `ephemeralPublicKey` tem exatamente 32 bytes decodificados;
+- `encryptedVaultKey` precisa ser maior que a tag de 16 bytes;
+- algoritmo permitido pela versão;
+- validado por `parseKeyEnvelope`, em `@crypta/crypto-core`.
+
+**Não existe campo `nonce`**, e a ausência é decisão, não omissão ([ADR 0023](decisions/0023-identity-aad-and-key-envelope.md)). O nonce é derivado do segredo compartilhado junto com a chave da AEAD; como o par efêmero é novo a cada envelope, ele nunca se repete. Transmiti-lo criaria uma segunda fonte de verdade, e um receptor que confiasse no valor recebido estaria aceitando um nonce escolhido por quem enviou.
+
+O nome do algoritmo descreve a composição real, com o HKDF. A forma anterior deste documento dizia `X25519-XCHACHA20-POLY1305` e trazia um `nonce` que implementação nenhuma jamais produziu — o nome sugeria a família de sealed box que o [ADR 0017](decisions/0017-web-crypto-primitives.md) proibiu, e `parseKeyEnvelope` o recusa explicitamente.
 
 ---
 
@@ -713,6 +727,14 @@ Idempotency-Key: <uuid>
   }
 }
 ```
+
+### Validação do key bundle
+
+`INVALID_KEY_BUNDLE` é o que `parseUserKeyBundle`, de `@crypta/crypto-core`, recusa: salt fora de 16 bytes, chave pública fora de 32, nonce fora de 24, versão criptográfica não suportada ou algoritmo de KDF desconhecido.
+
+A API valida **estrutura**, nunca conteúdo. Ela não tem como conferir que `encryptedPrivateKey` de fato contém a chave privada correspondente a `publicKey` — quem confere isso é o cliente, no primeiro desbloqueio, porque a AAD do escopo `user` amarra o ciphertext à chave pública ([ADR 0023](decisions/0023-identity-aad-and-key-envelope.md)).
+
+O DTO aceita apenas os campos acima. Um `privateKey` em texto aberto no corpo é recusado com `400`, e não silenciosamente ignorado.
 
 ### Erros
 

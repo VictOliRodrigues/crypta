@@ -182,7 +182,7 @@ describe('AEAD XChaCha20-Poly1305', () => {
   const key = new Uint8Array(32).fill(0x11);
   const nonce = new Uint8Array(24).fill(0x22);
   const plaintext = new TextEncoder().encode('conteudo-do-cofre');
-  const aad = new TextEncoder().encode('vault-aad/v1|5:vault');
+  const aad = new TextEncoder().encode('crypta-aad/v2|5:vault');
 
   it('concorda com o oráculo @noble/ciphers', async () => {
     const mine = await webAeadAdapter.encrypt({ key, nonce, plaintext, aad });
@@ -215,7 +215,7 @@ describe('AEAD XChaCha20-Poly1305', () => {
         key,
         nonce,
         ciphertext,
-        aad: new TextEncoder().encode('vault-aad/v1|4:site'),
+        aad: new TextEncoder().encode('crypta-aad/v2|5:vault|4:site'),
       }),
     );
   });

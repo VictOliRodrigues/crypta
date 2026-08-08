@@ -791,6 +791,29 @@ Toda alteração de comportamento deve incluir teste.
 - banco real MySQL;
 - Supertest.
 
+**Os testes de integração exigem um MySQL de verdade.** SQLite não é substituto: o schema depende de comportamento específico do MySQL, incluindo a collation que a migration fixa à mão (`CLAUDE.md` secao 42, `DATABASE.md` secao 3).
+
+Suba um descartável, na 3308 para não conflitar com um MySQL local:
+
+```bash
+docker run -d --name crypta-mysql-test \
+  -e MYSQL_ROOT_PASSWORD=crypta_local_test -e MYSQL_DATABASE=crypta_test \
+  -p 3308:3306 mysql:8.0 \
+  --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci \
+  --default-time-zone=+00:00
+```
+
+Depois, com `TEST_DATABASE_URL` no `.env` da raiz:
+
+```bash
+pnpm --filter @crypta/api run prisma:migrate:deploy
+pnpm --filter @crypta/api test:e2e
+```
+
+`TEST_DATABASE_URL` é separada de `DATABASE_URL` de propósito: a suíte apaga tabelas, e o harness **recusa rodar** se o nome do banco não terminar em `_test`. Não aponte as duas para o mesmo banco.
+
+`pnpm test` e `pnpm verify` **não** rodam a suíte de integração — ela precisa do banco no ar. Na CI ela é um job próprio, `Testes de integração com MySQL`, com o MySQL vindo de um bloco `services:`.
+
 ### 16.3 Web
 
 - componentes;

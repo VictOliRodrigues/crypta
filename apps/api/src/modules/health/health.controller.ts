@@ -50,6 +50,12 @@ export class HealthController {
       throw new ServiceUnavailableException();
     }
 
+    // Banco alcançável com schema errado é pior do que banco fora do ar: a
+    // instância aceitaria tráfego e falharia por dentro (docs/API.md secao 17).
+    if (!(await this.healthService.areMigrationsApplied())) {
+      throw new ServiceUnavailableException();
+    }
+
     return { data: { status: 'ready', database: 'ok' } };
   }
 }

@@ -110,5 +110,67 @@ jobs:
       # dependência bloqueia o merge (ROADMAP.md secao 42).
       - name: Auditar vulnerabilidades
         run: pnpm audit --audit-level high
-# Os testes de integração com MySQL entram como job separado quando o primeiro
-# schema existir (R0.2).
+
+  integration:
+    name: Testes de integração com MySQL
+    runs-on: ubuntu-latest
+
+    # SQLite não é substituto aceitável: o schema depende de comportamento
+    # específico do MySQL, incluindo a collation utf8mb4_0900_ai_ci que a
+    # migration fixa à mão (CLAUDE.md secao 42, DATABASE.md secao 3).
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: crypta_ci
+          MYSQL_DATABASE: crypta_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pcrypta_ci"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v6
+        with:
+          # Mesmo motivo do job `validate`: `pnpm install` executa scripts de
+          # terceiros, e sem isto o token do job fica legível no filesystem do
+          # runner durante essa janela.
+          persist-credentials: false
+
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      # A API resolve `@crypta/*` pelo `dist` publicado no workspace, não pelo
+      # código-fonte. Em um clone limpo esse `dist` não existe.
+      - name: Construir packages compartilhados
+        run: pnpm build:packages
+
+      # O mesmo comando que o entrypoint do container roda em cada ambiente
+      # (ADR 0015). Se a migration falhar aqui, ela falharia no deploy.
+      - name: Aplicar migrations
+        env:
+          DATABASE_URL: mysql://root:crypta_ci@127.0.0.1:3306/crypta_test
+        run: pnpm --filter @crypta/api run prisma:migrate:deploy
+
+      # A senha do MySQL de CI é descartável e vive só neste job. Ela não é
+      # secret porque não protege nada: o serviço só existe durante o run e não
+      # é alcançável de fora do runner.
+      - name: Executar testes de integração
+        env:
+          TEST_DATABASE_URL: mysql://root:crypta_ci@127.0.0.1:3306/crypta_test
+        run: pnpm --filter @crypta/api test:e2e

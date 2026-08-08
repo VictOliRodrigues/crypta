@@ -36,6 +36,7 @@ Um ADR publicado não é reescrito. Quando uma decisão muda, cria-se um novo AD
 | [0020](0020-deletion-policy.md)               | Exclusão física com auditoria preservada      | ACCEPTED |
 | [0021](0021-session-token-lifetimes.md)       | Duração dos tokens e cookie de refresh        | ACCEPTED |
 | [0022](0022-server-side-credentials.md)       | Credenciais e tokens no servidor              | ACCEPTED |
+| [0023](0023-identity-aad-and-key-envelope.md) | AAD de identidade e envelope de chave         | ACCEPTED |
 
 ## Decisões ainda em aberto
 
