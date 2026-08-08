@@ -4,7 +4,7 @@
 
 > **Status:** Documento inicial para revisão  
 > **Versão:** 0.2.0  
-> **Última atualização:** 31 de julho de 2026
+> **Última atualização:** 8 de agosto de 2026
 
 ---
 
@@ -953,20 +953,23 @@ sequenceDiagram
 
 ## 17. Sessões e tokens
 
+Prazos e atributos estão fixados pelo [ADR 0021](decisions/0021-session-token-lifetimes.md).
+
 ### 17.1 Access token
 
-- curta duração;
+- 15 minutos, configurável entre `1m` e `60m`;
 - JWT assinado;
 - enviado em `Authorization: Bearer`;
 - mantido somente em memória;
-- não armazenado em localStorage.
+- não armazenado em localStorage;
+- carrega o identificador da sessão (`sid`), verificado a cada requisição — a revogação é imediata e não espera a expiração.
 
 ### 17.2 Refresh token
 
 - aleatório e opaco;
-- longa duração controlada;
+- 7 dias de inatividade e 30 dias absolutos, os dois limites simultâneos;
 - hash armazenado no banco;
-- rotacionado a cada uso;
+- rotacionado a cada uso, com janela de tolerância de 10 segundos para rotação concorrente;
 - revogável;
 - associado a sessão e dispositivo.
 
@@ -974,8 +977,10 @@ sequenceDiagram
 
 - refresh token em cookie `HttpOnly`;
 - `Secure`;
-- escopo apenas da API;
-- política `SameSite` compatível;
+- `Path=/api/v1/auth`;
+- `SameSite=Strict` por padrão, configurável;
+- sem atributo `Domain` — host-only, sem compartilhamento entre ambientes;
+- cookie duplicado na mesma requisição é rejeitado;
 - validação de origem;
 - access token em memória.
 

@@ -4,7 +4,7 @@
 
 > **Status:** Documento inicial para revisão  
 > **Versão:** 0.2.0  
-> **Última atualização:** 31 de julho de 2026
+> **Última atualização:** 8 de agosto de 2026
 
 ---
 
@@ -1017,11 +1017,15 @@ Requisitos:
 - nenhuma informação sensível;
 - chave fora do repositório.
 
-Sugestão inicial:
+Duração, fixada pelo [ADR 0021](docs/decisions/0021-session-token-lifetimes.md):
 
 ```text
 15 minutos
 ```
+
+Configurável por `ACCESS_TOKEN_TTL`, entre `1m` e `60m`. Fora da faixa, a API não sobe.
+
+**A expiração não é o mecanismo de revogação.** O token carrega o identificador da sessão (`sid`), e a autorização recusa `sid` revogado a cada requisição, conforme `CLAUDE.md` secao 32. Revogar sessão, revogar as demais e alterar a senha têm efeito imediato. Os 15 minutos limitam apenas o uso de uma cópia contra um caminho que porventura não consulte a sessão.
 
 ---
 
@@ -1039,18 +1043,33 @@ Requisitos:
 - expiração;
 - detecção de reutilização.
 
+Duração, fixada pelo [ADR 0021](docs/decisions/0021-session-token-lifetimes.md) — os dois limites valem ao mesmo tempo:
+
+| Limite      | Padrão  | Variável                     | Faixa       |
+| ----------- | ------- | ---------------------------- | ----------- |
+| Inatividade | 7 dias  | `REFRESH_TOKEN_TTL`          | `1h`–`90d`  |
+| Absoluto    | 30 dias | `REFRESH_TOKEN_ABSOLUTE_TTL` | `1d`–`365d` |
+
+O limite de inatividade é renovado a cada rotação. O absoluto conta da criação da sessão e nenhuma rotação o estende, o que impede sessão perpétua em cliente que renova sozinho.
+
+**Janela de tolerância de 10 segundos.** Um refresh token rotacionado há 10 segundos ou menos é aceito e devolve o mesmo par emitido pela rotação original, sem rotacionar de novo e sem estender a inatividade. Existe para que duas abas renovando ao mesmo tempo não sejam tratadas como reutilização. Fora da janela, é reutilização e a sessão cai.
+
 ---
 
 ## 31. Web
 
 Refresh token:
 
-- cookie `HttpOnly`;
-- `Secure`;
-- Path restrito;
-- SameSite restritivo;
-- Domain não excessivo;
-- sem acesso por JavaScript.
+```http
+Set-Cookie: refresh_token=<opaco>; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth
+```
+
+- cookie `HttpOnly`, sem acesso por JavaScript;
+- `Secure` sempre, em todos os ambientes;
+- `Path=/api/v1/auth` — fora das rotas de autenticação o cookie não é enviado;
+- `SameSite=Strict` por padrão; configurável por `REFRESH_COOKIE_SAMESITE` para `Lax` ou `None`, necessário apenas quando Web e API ficam em domínios registráveis distintos. Com `None`, a validação de `Origin` passa a ser a única barreira de CSRF (secao 76 do `API.md`);
+- **sem atributo `Domain`** — cookie host-only. Não existe `REFRESH_COOKIE_DOMAIN`. Um `Domain` no apex enviaria o cookie a todo subdomínio, compartilhando sessão entre `development`, `staging` e `production`, contra o `CLAUDE.md` secao 65;
+- **mais de uma ocorrência do cookie na mesma requisição é rejeitada com `401`**, sem escolher entre elas. Cobre a gravação de um `refresh_token` de escopo mais amplo por subdomínio irmão comprometido ou sequestrado.
 
 Access token:
 

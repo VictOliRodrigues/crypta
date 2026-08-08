@@ -4,7 +4,7 @@
 
 > **Status:** Documento inicial para revisão  
 > **Versão:** 0.2.0  
-> **Última atualização:** 31 de julho de 2026
+> **Última atualização:** 8 de agosto de 2026
 
 ---
 
@@ -152,7 +152,11 @@ O refresh token será enviado por cookie:
 Set-Cookie: refresh_token=...; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth
 ```
 
-A política exata de `SameSite` poderá ser ajustada conforme os domínios finais.
+Os atributos estão fixados pelo [ADR 0021](decisions/0021-session-token-lifetimes.md):
+
+- **sem atributo `Domain`** — cookie host-only, para que a sessão não trafegue entre ambientes;
+- `SameSite=Strict` por padrão, configurável por `REFRESH_COOKIE_SAMESITE` apenas para deployments em que Web e API fiquem em domínios registráveis distintos;
+- requisição que apresentar **mais de um** cookie `refresh_token` recebe `401`, sem que a API escolha entre os valores.
 
 ### Refresh token Android
 

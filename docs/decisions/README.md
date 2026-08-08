@@ -34,14 +34,14 @@ Um ADR publicado não é reescrito. Quando uma decisão muda, cria-se um novo AD
 | [0018](0018-argon2id-parameters.md)           | Parâmetros iniciais do Argon2id               | ACCEPTED |
 | [0019](0019-database-identifiers.md)          | Identificadores UUIDv7 em `CHAR(36)`          | ACCEPTED |
 | [0020](0020-deletion-policy.md)               | Exclusão física com auditoria preservada      | ACCEPTED |
+| [0021](0021-session-token-lifetimes.md)       | Duração dos tokens e cookie de refresh        | ACCEPTED |
 
 ## Decisões ainda em aberto
 
 As pendências estão listadas em [`../DECISIONS.md`](../DECISIONS.md) secao 7. Cada uma precisa virar ADR antes da implementação que ela bloqueia.
 
-As mais urgentes, porque ainda bloqueiam a R0.2:
+**Nenhuma pendência bloqueia a R0.2.** As três últimas — `PEND-007` e `PEND-008`, duração dos tokens, e `PEND-009`, `SameSite` e domínio do cookie — foram fechadas pelo [ADR 0021](0021-session-token-lifetimes.md).
 
-- `PEND-007` / `PEND-008` — duração dos tokens;
-- `PEND-009` — SameSite e domínio do cookie.
+Histórico do desbloqueio da fase: `PEND-001`, `PEND-002` e `PEND-004` foram fechadas pelos ADRs 0016, 0017 e 0018, liberando `@crypta/crypto-web`. `PEND-005`, `PEND-006` e `PEND-014` foram fechadas pelos ADRs 0019 e 0020, liberando o `schema.prisma`.
 
-`PEND-001`, `PEND-002` e `PEND-004` foram fechadas pelos ADRs 0016, 0017 e 0018. `PEND-005`, `PEND-006` e `PEND-014` foram fechadas pelos ADRs 0019 e 0020, o que desbloqueou o `schema.prisma`. `PEND-003`, a biblioteca do Android, continua aberta e entra na R0.7 — os ADRs 0016 e 0017 registram as invariantes que a escolha do Android precisa respeitar para manter os vetores compatíveis.
+`PEND-003`, a biblioteca do Android, continua aberta e entra na R0.7 — os ADRs 0016 e 0017 registram as invariantes que a escolha do Android precisa respeitar para manter os vetores compatíveis. As demais pendências abertas dizem respeito a fases posteriores.

@@ -189,6 +189,7 @@ Uma decisão deverá gerar ADR quando:
 | DEC-045 | Parâmetros iniciais do Argon2id                     | ACCEPTED   | ADR 0018   |
 | DEC-046 | Identificadores UUIDv7 em `CHAR(36)`                | ACCEPTED   | ADR 0019   |
 | DEC-047 | Exclusão física com auditoria preservada            | ACCEPTED   | ADR 0020   |
+| DEC-048 | Duração dos tokens e cookie de refresh host-only    | ACCEPTED   | ADR 0021   |
 
 ---
 
@@ -1924,6 +1925,58 @@ Soft delete converte invariante estrutural em disciplina de consulta. Soft delet
 
 ---
 
+## DEC-048 — Duração dos tokens e cookie de refresh host-only
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+Access token de 15 minutos. Refresh token com dois limites simultâneos: 7 dias de inatividade, renovados a cada rotação, e 30 dias absolutos contados da criação da sessão, que nenhuma rotação estende. Um refresh token rotacionado há 10 segundos ou menos é aceito e devolve o mesmo par emitido pela rotação original, sem rotacionar de novo e sem estender a inatividade.
+
+Cookie da Web: `refresh_token`, `HttpOnly`, `Secure`, `SameSite=Strict`, `Path=/api/v1/auth`, **sem atributo `Domain`**. Mais de uma ocorrência do cookie na mesma requisição é rejeitada com `401`. `SameSite` é configurável para `None`, necessário quando Web e API ficam em domínios registráveis distintos.
+
+Os três prazos são variáveis de ambiente com faixa validada na partida: `ACCESS_TOKEN_TTL` (`1m`–`60m`), `REFRESH_TOKEN_TTL` (`1h`–`90d`) e `REFRESH_TOKEN_ABSOLUTE_TTL` (`1d`–`365d`, nunca menor que o anterior). Fora da faixa, a API não sobe. `REFRESH_COOKIE_DOMAIN` deixa de existir.
+
+### Motivos
+
+A `UserEncryptionKey` vive só em memória e deriva da senha por Argon2id, então sessão válida autentica mas não descriptografa: quem rouba o refresh token lê metadata e destrói conteúdo, mas recebe blobs que não abre. Isso corta os dois lados da balança — prazo longo não vaza credencial, e também não poupa o usuário de digitar a senha, que ele digita de qualquer forma em toda carga limpa da aplicação.
+
+Os 15 minutos só se sustentam porque a revogação não depende deles: o access token carrega o `sid` e a policy recusa sessão revogada a cada requisição, como o `CLAUDE.md` secao 32 já exige. Revogação é imediata.
+
+`Strict` é viável porque `crypta-dev` e `crypta-api-dev` são hosts distintos sob o mesmo domínio registrável — cross-origin, mas same-site. Cookie host-only impede estruturalmente que a sessão vaze entre `development`, `staging` e `production`, o que um `Domain` no apex faria, contra o `CLAUDE.md` secao 65.
+
+### Rejeitado
+
+```text
+prefixo __Host- no nome do cookie
+access token de 5 minutos ou de 1 hora
+refresh token só com limite de inatividade
+refresh token só com limite absoluto
+SameSite=Lax fixo
+Domain no apex
+sem janela de tolerância
+```
+
+`__Host-` é a opção mais forte contra cookie tossing, mas obriga `Path=/` e colide com o Path restrito exigido pelo `SECURITY.md` secao 31, que está acima dos ADRs na hierarquia do `CLAUDE.md` secao 2. Fica como melhoria possível, com emenda explícita e ADR próprio. Só inatividade produz sessão perpétua; só absoluto mantém viva uma sessão abandonada. Sem tolerância, duas abas renovando juntas derrubam o usuário legítimo.
+
+### Consequências
+
+- o módulo `auth` da R0.2 fica desbloqueado, e era o último bloqueio formal da fase;
+- revogação é imediata por decisão explícita, não em até 15 minutos;
+- nenhuma sessão sobrevive a 30 dias sem que a senha reapareça;
+- a tabela de sessões precisa de `created_at` e `last_used_at`, e entra na migration de identidade;
+- a proteção contra cookie tossing passa a ser código no servidor, não garantia do navegador, e precisa de teste próprio;
+- escolher `SameSite=None` num deployment torna a validação de `Origin` a única barreira de CSRF;
+- os valores vêm do modelo de ameaça, não de telemetria, e são revisáveis dentro das faixas sem novo ADR.
+
+### ADR
+
+[`docs/decisions/0021-session-token-lifetimes.md`](decisions/0021-session-token-lifetimes.md)
+
+---
+
 # DECISÕES REJEITADAS
 
 ---
@@ -2112,9 +2165,9 @@ Aumenta o risco de vazamento, perda de dados e execução acidental em produçã
 | ~~PEND-004~~ | ~~Parâmetros Argon2id~~                       | RESOLVIDA em DEC-045 | —                |
 | ~~PEND-005~~ | ~~UUIDv4 ou UUIDv7~~                          | RESOLVIDA em DEC-046 | —                |
 | ~~PEND-006~~ | ~~`CHAR(36)` ou `BINARY(16)`~~                | RESOLVIDA em DEC-046 | —                |
-| PEND-007     | Duração do access token                       | REVIEW_REQUIRED      | Auth             |
-| PEND-008     | Duração do refresh token                      | REVIEW_REQUIRED      | Auth             |
-| PEND-009     | SameSite e domínio do cookie                  | REVIEW_REQUIRED      | Deploy           |
+| ~~PEND-007~~ | ~~Duração do access token~~                   | RESOLVIDA em DEC-048 | —                |
+| ~~PEND-008~~ | ~~Duração do refresh token~~                  | RESOLVIDA em DEC-048 | —                |
+| ~~PEND-009~~ | ~~SameSite e domínio do cookie~~              | RESOLVIDA em DEC-048 | —                |
 | PEND-010     | Limites de CSV                                | REVIEW_REQUIRED      | Importação       |
 | PEND-011     | Expiração de convite                          | REVIEW_REQUIRED      | Compartilhamento |
 | PEND-012     | Estratégia de envio do convite                | REVIEW_REQUIRED      | Compartilhamento |
