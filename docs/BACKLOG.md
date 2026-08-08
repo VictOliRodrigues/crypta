@@ -165,7 +165,7 @@ Fora do gate, herdado para a R0.1: `staging` e `main` continuam no baseline ante
 de CI e recebem esse conteúdo na promoção da `release/0.1.0`; as variables `WEB_IMAGE` e
 `API_IMAGE` e os secrets do Coolify entram junto do primeiro deploy real.
 
-Nenhuma tarefa da R0.2 em diante foi iniciada.
+O estado da R0.2 é rastreado na secao 7, que passou a existir quando `@crypta/crypto-web` (PR #16) adiantou parte do ÉPICO 07. Nenhuma tarefa da R0.3 em diante foi iniciada.
 
 ---
 
@@ -230,6 +230,82 @@ Também verificado, fora do gate: preflight `OPTIONS` devolve `204`; origem não
 | Migrations não tinham lugar definido para rodar                                                             | ADR 0015, entrypoint do container |
 
 As armadilhas de configuração manual encontradas nesta fase estão registradas em `config_user.md` secao 41.1.
+
+---
+
+## 7. Estado da R0.2
+
+> Atualizado em 8 de agosto de 2026.
+
+A R0.2 constrói a fundação de confiança do produto: identidade, sessões e o material criptográfico que protege todo o conteúdo das fases seguintes.
+
+Nada da fase foi implementado ainda. O que já existe é a base sobre a qual ela é construída: `@crypta/crypto-web` com os adapters e a suíte de vetores diferenciais (PR #16), e os ADRs 0016 a 0021, que fecharam biblioteca, parâmetros, identificadores, exclusão e duração de tokens.
+
+Esta secao é o **gate único** da fase. Cada linha nasce `PENDENTE` e só vira `OK` acompanhada da evidência que a comprova, no pull request que a produziu. Não existe segundo lugar para conferir.
+
+### Gate de segurança da R0.2
+
+Conforme `ROADMAP.md` secao 17. Os itens do roadmap são objetivos; a coluna do meio é o que os torna verificáveis — um item sem forma de medir não é gate, é intenção.
+
+Os nove primeiros vêm da secao 17. O décimo vem do [ADR 0021](decisions/0021-session-token-lifetimes.md), que atribuiu explicitamente ao gate desta fase a validação do ciclo completo de refresh, e não apenas do login.
+
+| Item do gate                     | Critério verificável                                                                                                                                                                                                                   | Estado                                           |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Senha original não enviada à API | O corpo de `POST /setup` e de `POST /auth/login` carrega `authSecret` e nenhum campo derivado da senha. Teste na Web espiona o adapter do axios; o DTO da API rejeita qualquer campo fora dele.                                        | PENDENTE — depende das branches de auth e de Web |
+| AuthSecret não logado            | O `LogFields` fechado do `StructuredLogger` não admite o campo, então não existe caminho para registrá-lo; e2e confirma que o log de uma requisição de auth não contém o valor.                                                        | PENDENTE — depende da branch do módulo de auth   |
+| Private key nunca enviada aberta | O DTO de `POST /setup` aceita `encryptedPrivateKey` e `privateKeyNonce`; `forbidNonWhitelisted` responde `400` a um campo `privateKey`.                                                                                                | PENDENTE — depende da branch do módulo de auth   |
+| Vetores passam                   | `pnpm --filter @crypta/crypto-core test` e `pnpm --filter @crypta/crypto-web test` verdes, incluindo os vetores de derivação de identidade, do payload da chave privada e do envelope.                                                 | PENDENTE — depende da branch de AAD e envelope   |
+| Ciphertext adulterado falha      | Loop byte a byte sobre o payload de identidade e sobre o envelope: toda posição alterada resulta em `CryptoAuthenticationError`, no padrão que o ADR 0017 já exigiu do envelope.                                                       | PENDENTE — depende da branch de AAD e envelope   |
+| AAD incorreta falha              | Decrypt com escopo, `entityType` ou `entityId` trocados falha fechado, sem devolver conteúdo parcial.                                                                                                                                  | PENDENTE — depende da branch de AAD e envelope   |
+| Refresh reuse revoga sessão      | e2e: rotaciona, apresenta o token antigo fora da janela de 10 s do ADR 0021, recebe `401` e a família deixa de existir. Dentro da janela, duas rotações concorrentes devolvem o mesmo par.                                             | PENDENTE — depende da branch do ciclo de sessão  |
+| localStorage não contém segredo  | O eslint da Web já proíbe `localStorage` e `sessionStorage` por `no-restricted-globals`; mais teste de que o store de sessão vive só em memória e não sobrevive ao reload.                                                             | PENDENTE — depende da branch de Web              |
+| Arquitetura revisada             | Checklist do `BLG-0707` executado e o resultado registrado nesta secao, item a item.                                                                                                                                                   | PENDENTE — último passo da fase                  |
+| Ciclo de refresh no navegador    | Login, expiração do access token e refresh bem-sucedido exercitados em navegador real contra development. O `SameSite=Strict` entre `crypta-dev` e `crypta-api-dev` foi deduzido da especificação e nunca exercitado; jsdom não cobre. | PENDENTE — depende do deploy da branch de Web    |
+
+### Por que a ordem das branches é essa
+
+`SECURITY.md` secao 18 registra que mudar o formato da AAD "hoje ainda é barato, porque nenhum cofre existe; depois do primeiro conteúdo gravado, não é". A mesma janela vale para o envelope de chave, cuja forma em `docs/API.md` secao 15 ainda não corresponde ao que `@crypta/crypto-web` produz.
+
+Por isso o formato criptográfico é fechado **antes** da primeira migration, e a migration vem antes de qualquer endpoint que grave. Inverter a ordem transformaria uma decisão de projeto em migração de dado criptografado.
+
+### Tarefas da R0.2
+
+| Item     | Status  | Observação                                                                                                                         |
+| -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| BLG-0502 | BACKLOG | `User`, `UserKeyBundle` e `Session`. Primeira migration do projeto; abre também o harness e2e com MySQL real.                      |
+| BLG-0701 | PARCIAL | ADRs 0016, 0017 e 0018 fecharam a Web. Faltam a biblioteca do Android (`PEND-003`) e o Keystore, ambos na R0.7.                    |
+| BLG-0702 | PARCIAL | Payload versionado, AAD e erros existem. Faltam envelope, serialização determinística e o escopo de identidade.                    |
+| BLG-0703 | PARCIAL | Os adapters de Argon2id e HKDF existem e têm vetores. Falta a orquestração de `RootKey` para `AuthSecret` e `UserEncryptionKey`.   |
+| BLG-0704 | PARCIAL | `generateKeyPair` existe em `@crypta/crypto-web`. Faltam a proteção da chave privada e o desbloqueio.                              |
+| BLG-0705 | PARCIAL | `sealForPublicKey` e `openWithPrivateKey` existem. Faltam o formato do envelope com `keyVersion` e a reconciliação com a `API.md`. |
+| BLG-0706 | BACKLOG | Depende do formato fechado. Vault, site e credential só ganham payload real a partir da R0.3.                                      |
+| BLG-0707 | BACKLOG | Revisão criptográfica interna. É o último item do gate e bloqueia o uso real.                                                      |
+| BLG-0801 | BACKLOG | `GET /setup/status`.                                                                                                               |
+| BLG-0802 | BACKLOG | Tela W01 e `POST /setup`, em transação e com idempotência.                                                                         |
+| BLG-0803 | BACKLOG | `GET /auth/parameters`. Os parâmetros sintéticos precisam ser estáveis por e-mail, ou viram oráculo de enumeração.                 |
+| BLG-0804 | BACKLOG | Tela W02 e `POST /auth/login`.                                                                                                     |
+| BLG-0805 | BACKLOG | Rotação, família e detecção de reuso, com a janela de 10 s do ADR 0021.                                                            |
+| BLG-0806 | BACKLOG | Logout e logout global.                                                                                                            |
+| BLG-0807 | BACKLOG | Alteração de senha. **Fora das branches planejadas para a fase** — ver abaixo.                                                     |
+| BLG-0901 | BACKLOG | `GET /sessions`.                                                                                                                   |
+| BLG-0902 | BACKLOG | `DELETE /sessions/:sessionId`, com teste de IDOR obrigatório.                                                                      |
+| BLG-0903 | BACKLOG | `DELETE /sessions`.                                                                                                                |
+| BLG-0904 | BACKLOG | Interface de sessões na Web. **Fora das branches planejadas para a fase** — ver abaixo.                                            |
+
+### Trabalho da fase fora das branches planejadas
+
+As branches previstas cobrem criptografia, schema, setup, autenticação, ciclo de sessão e as telas W01 e W02. Dois itens da fase ficam de fora, e são registrados aqui em vez de aparecerem como surpresa no fechamento:
+
+- **`BLG-0807` — alteração de senha.** Recriptografa a chave privada com uma `UserEncryptionKey` nova, substitui o `AuthSecret` e revoga as demais sessões, tudo em transação. Encosta em criptografia, banco, autenticação e sessões ao mesmo tempo.
+- **`BLG-0904` — interface de sessões na Web.** A API de sessões entra na fase; a tela que a consome, não.
+
+O gate não fecha sem os dois. Reduzir o escopo da R0.2 para excluí-los é decisão de produto e exigiria atualizar `ROADMAP.md` secao 14 e `PROJECT_SCOPE.md` secao 5.
+
+### Pendências que atravessam a fase
+
+- **`PEND-003`, biblioteca libsodium no Android.** Os vetores desta fase nascem exercitados só na Web. A compatibilidade com o Android é garantida por construção — parâmetros e algoritmos fixados nos ADRs 0016 e 0017 — e só será **medida** na R0.7. Um vetor que roda em uma plataforma só prova metade do que `SECURITY.md` secao 22 exige.
+- **Parâmetros do Argon2id.** O [ADR 0018](decisions/0018-argon2id-parameters.md) declara os valores provisórios até a medição em Android. Cada usuário guarda os próprios parâmetros na sua linha, então recalibrar depois não invalida conta nenhuma — foi exatamente para isso que eles ficaram por usuário.
+- **Check obrigatório novo.** O job de integração com MySQL cria um quarto nome de check. Enquanto ele não for registrado à mão nos rulesets (`GITHUB_RELEASE_FLOW.md` secoes 17 e 18), o job pode reprovar sem bloquear merge.
 
 ---
 

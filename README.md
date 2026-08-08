@@ -330,7 +330,7 @@ Não serão utilizados inicialmente:
 │   └── tsconfig/       base, node e react
 │
 ├── docs/
-│   ├── decisions/      ADRs 0001 a 0012
+│   ├── decisions/      ADRs 0001 a 0021
 │   ├── telas/          mockups gerados na fase de design
 │   ├── API.md
 │   ├── ARCHITECTURE.md
@@ -906,9 +906,9 @@ membership bloqueado
 O projeto está dividido nas releases:
 
 ```text
-R0   — Fundação                    ← estamos aqui
-R0.1 — Deploy antecipado
-R0.2 — Identidade e criptografia
+R0   — Fundação                    concluída
+R0.1 — Deploy antecipado           concluída
+R0.2 — Identidade e criptografia   ← estamos aqui
 R0.3 — Cofres privados
 R0.4 — Sites e credenciais
 R0.5 — Compartilhamento
@@ -927,16 +927,17 @@ Consulte [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - `@crypta/contracts` — envelopes, códigos de erro e contratos de health e version;
 - `@crypta/validation` — schemas compartilhados;
 - `@crypta/crypto-core` — formato de payload versionado, AAD determinística, base64url e UTF-8 portáveis, e as interfaces dos adapters;
+- `@crypta/crypto-web` — Argon2id, HKDF-SHA-256, XChaCha20-Poly1305 e X25519 no navegador, com vetores diferenciais contra `@noble/*`;
 - API NestJS com validação de ambiente no startup, logger estruturado, request ID, filtro global de erros e os endpoints de health e version;
 - Web React + Vite com a tela de diagnóstico da integração;
 - `Dockerfile` multi-stage para Web e API;
 - workflows de CI, validação do fluxo de PR, limpeza de branches, início de release e deploy de development;
-- ADRs 0001 a 0012.
+- ADRs 0001 a 0021.
 
 ### O que ainda não existe
 
 - **nenhuma entidade no banco** — desbloqueado pelos ADRs 0019 e 0020; as tabelas entram na R0.2 ([`docs/DATABASE.md`](docs/DATABASE.md));
-- **nenhuma implementação criptográfica** — `@crypta/crypto-web` foi desbloqueado pelos ADRs 0016 a 0018 e entra na R0.2; `@crypta/crypto-mobile` continua bloqueado por `PEND-003`, na R0.7;
+- **nenhuma criptografia no Android** — `@crypta/crypto-mobile` continua bloqueado por `PEND-003`, na R0.7. Os vetores da Web só serão confirmados em outra plataforma lá;
 - autenticação, cofres, sites, credenciais, convites e importação;
 - `apps/mobile` — entra na R0.7;
 - `publish-prerelease.yml` e `publish-production.yml` — entram na R0.8, junto com os projetos Coolify de staging e production;
@@ -1027,7 +1028,7 @@ Os destinos de pull request são validados por GitHub Actions. Não promova feat
 Consulte:
 
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — índice das decisões, status e pendências abertas
-- [`docs/decisions/`](docs/decisions/) — os 12 ADRs registrados, do 0001 ao 0012
+- [`docs/decisions/`](docs/decisions/) — os 21 ADRs registrados, do 0001 ao 0021
 
 Mudanças relevantes exigem ADR.
 
