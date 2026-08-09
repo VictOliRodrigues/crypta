@@ -167,13 +167,73 @@ export async function createUserKeyBundle(input: {
   parameters: Argon2idParameters;
 }): Promise<{ bundle: UserKeyBundle; keyPair: KeyPair }> {
   const keyPair = await input.keyExchange.generateKeyPair();
-  const publicKey = toBase64Url(keyPair.publicKey);
+
+  return { keyPair, bundle: await sealKeyPair({ ...input, keyPair }) };
+}
+
+/**
+ * Reprotege o **mesmo** par com uma `UserEncryptionKey` nova.
+ *
+ * É o caminho da troca de senha (docs/API.md secao 29). A senha nova produz uma
+ * `RootKey` nova e, com ela, uma `UserEncryptionKey` nova; a chave privada
+ * precisa passar a ser cifrada por essa chave sem que o par mude.
+ *
+ * **O par não pode mudar, e a razão não é conveniência.** A chave pública é o
+ * endereço para o qual todo `VaultKeyEnvelope` existente foi selado. Gerar um
+ * par novo aqui tornaria ilegível todo cofre que o usuário já tem ou que
+ * compartilharam com ele, e trocar senha passaria a significar perder o
+ * conteúdo. Por isso a API recusa um bundle cuja `publicKey` mudou, em vez de
+ * aceitar e descobrir o estrago depois.
+ *
+ * Não é mudança de formato: a AAD, o enquadramento e as versões são os mesmos
+ * de `createUserKeyBundle`, e o ADR 0023 continua valendo integralmente. O que
+ * muda é a origem do par — recebido em vez de gerado.
+ */
+export async function resealUserKeyBundle(input: {
+  aead: AeadAdapter;
+  random: RandomSource;
+  keyPair: KeyPair;
+  userEncryptionKey: KeyMaterial;
+  parameters: Argon2idParameters;
+}): Promise<UserKeyBundle> {
+  if (input.keyPair.publicKey.length !== X25519_KEY_BYTES) {
+    throw new CryptoFormatError('Chave pública a reproteger não tem 32 bytes.');
+  }
+
+  if (input.keyPair.privateKey.length !== X25519_KEY_BYTES) {
+    throw new CryptoFormatError('Chave privada a reproteger não tem 32 bytes.');
+  }
+
+  return sealKeyPair(input);
+}
+
+/**
+ * Cifra a metade privada e monta o bundle.
+ *
+ * Um único lugar produz a forma, de propósito: o dia em que a criação e a
+ * reproteção divergirem em nonce, AAD ou versão, o bundle escrito por um
+ * caminho deixa de abrir pelo outro, e a falha aparece na próxima troca de
+ * senha — não no teste que só exercitou o primeiro caminho.
+ */
+async function sealKeyPair(input: {
+  aead: AeadAdapter;
+  random: RandomSource;
+  keyPair: KeyPair;
+  userEncryptionKey: KeyMaterial;
+  parameters: Argon2idParameters;
+}): Promise<UserKeyBundle> {
+  const publicKey = toBase64Url(input.keyPair.publicKey);
+
+  // Nonce novo a cada selagem. Reproteger com o nonce anterior sob uma chave
+  // nova não repetiria o par (chave, nonce), mas depender disso seria apostar
+  // que a chave é sempre diferente — e a mesma senha produz a mesma chave
+  // quando o salt não muda.
   const nonce = input.random.getRandomBytes(AEAD_NONCE_BYTES);
 
   const encryptedPrivateKey = await input.aead.encrypt({
     key: input.userEncryptionKey,
     nonce,
-    plaintext: keyPair.privateKey,
+    plaintext: input.keyPair.privateKey,
     aad: buildAad({
       scope: 'user',
       entityType: 'user-key-bundle',
@@ -184,20 +244,17 @@ export async function createUserKeyBundle(input: {
   });
 
   return {
-    keyPair,
-    bundle: {
-      kdfAlgorithm: KDF_ALGORITHM,
-      kdfVersion: KDF_VERSION,
-      kdfSalt: input.parameters.salt,
-      kdfMemory: input.parameters.memoryKib,
-      kdfIterations: input.parameters.iterations,
-      kdfParallelism: input.parameters.parallelism,
-      publicKey,
-      encryptedPrivateKey: toBase64Url(encryptedPrivateKey),
-      privateKeyNonce: toBase64Url(nonce),
-      cryptoVersion: CURRENT_CRYPTO_VERSION,
-      schemaVersion: USER_KEY_BUNDLE_SCHEMA_VERSION,
-    },
+    kdfAlgorithm: KDF_ALGORITHM,
+    kdfVersion: KDF_VERSION,
+    kdfSalt: input.parameters.salt,
+    kdfMemory: input.parameters.memoryKib,
+    kdfIterations: input.parameters.iterations,
+    kdfParallelism: input.parameters.parallelism,
+    publicKey,
+    encryptedPrivateKey: toBase64Url(encryptedPrivateKey),
+    privateKeyNonce: toBase64Url(nonce),
+    cryptoVersion: CURRENT_CRYPTO_VERSION,
+    schemaVersion: USER_KEY_BUNDLE_SCHEMA_VERSION,
   };
 }
 

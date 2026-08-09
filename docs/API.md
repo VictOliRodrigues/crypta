@@ -1119,21 +1119,42 @@ Atualizar segredo autenticador e recriptografar a chave privada.
 204 No Content
 ```
 
+`revokeOtherSessions` é opcional e vale `true` por omissão. O caso normal de troca de senha é o de quem suspeita que alguém mais tem acesso, e manter as demais sessões vivas por padrão contrariaria o motivo da troca.
+
+A sessão que faz a chamada **sempre** sobrevive. Derrubá-la junto transformaria a operação bem-sucedida em aparência de falha.
+
 ### Regras
 
-- chave pública deve permanecer igual, salvo fluxo específico;
-- novo salt obrigatório;
-- validar segredo atual;
-- usar transação;
-- revogar outras sessões quando solicitado.
+- a chave pública precisa permanecer **exatamente** igual;
+- o `kdfSalt` precisa ser diferente do atual;
+- o `currentAuthSecret` é validado antes de qualquer escrita;
+- as duas escritas e a revogação acontecem na mesma transação;
+- um bloqueio por tentativas em curso é zerado.
+
+### Por que a chave pública é imutável aqui
+
+Ela é o endereço para o qual todo `VaultKeyEnvelope` existente foi selado. Aceitar uma nova tornaria ilegível todo cofre que o usuário tem ou que compartilharam com ele, e o estrago apareceria apenas na próxima abertura — depois do commit. Trocar o par é outra operação, que a V1 não tem ([SECURITY.md](../SECURITY.md) secao 28).
+
+O cliente reprotege o **mesmo** par com a `UserEncryptionKey` nova, por `resealUserKeyBundle` em `@crypta/crypto-core`. Formato, AAD e versões são idênticos aos de `POST /setup`: é um segundo escritor, não um formato novo.
+
+### Por que o salt precisa mudar
+
+Mantê-lo faria a senha nova derivar sob o mesmo material da antiga, e qualquer trabalho pré-computado contra aquele salt continuaria valendo. Custo e paralelismo, ao contrário, são preservados: recalibrá-los é decisão do [ADR 0018](decisions/0018-argon2id-parameters.md), não efeito colateral de trocar a senha.
+
+### Por que exigir o `AuthSecret` atual
+
+[SECURITY.md](../SECURITY.md) secao 27 proíbe alterar a senha apenas com um access token. Um token roubado dá a sessão; deixá-lo trocar a senha daria a conta, e o dono perderia o acesso sem ter errado nada. O `currentAuthSecret` é a confirmação adicional que a regra exige.
 
 ### Erros
 
 ```text
-CURRENT_CREDENTIAL_INVALID
-PUBLIC_KEY_CHANGE_NOT_ALLOWED
-INVALID_KEY_BUNDLE
+CURRENT_CREDENTIAL_INVALID    401 — senha atual errada
+PUBLIC_KEY_CHANGE_NOT_ALLOWED 409 — o bundle novo traz outra chave pública
+INVALID_KEY_BUNDLE            400 — salt reaproveitado, ou bundle atual ausente
+ACCOUNT_DISABLED              401 — conta inativa
 ```
+
+`CURRENT_CREDENTIAL_INVALID` é distinto de `INVALID_CREDENTIALS`: aqui não há oráculo de enumeração a evitar, porque quem chama já está autenticado e a conta é a dele.
 
 ---
 

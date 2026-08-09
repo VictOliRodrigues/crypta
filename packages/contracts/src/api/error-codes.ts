@@ -37,6 +37,15 @@ export const API_ERROR_CODES = [
   'INVALID_CREDENTIALS',
   'ACCOUNT_DISABLED',
   'ACCOUNT_LOCKED',
+
+  // Alteração de senha (docs/API.md secao 29).
+  //
+  // `CURRENT_CREDENTIAL_INVALID` é distinto de `INVALID_CREDENTIALS` porque
+  // aqui não há oráculo a evitar: quem chama já está autenticado, e a conta é
+  // a dele. Reaproveitar o código do login faria o cliente exibir "e-mail ou
+  // senha inválidos" numa tela que não tem campo de e-mail.
+  'CURRENT_CREDENTIAL_INVALID',
+  'PUBLIC_KEY_CHANGE_NOT_ALLOWED',
 ] as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];

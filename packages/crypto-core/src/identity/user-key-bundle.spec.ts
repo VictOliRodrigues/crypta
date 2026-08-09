@@ -16,6 +16,7 @@ import {
   kdfParametersFromBundle,
   openUserKeyBundle,
   parseUserKeyBundle,
+  resealUserKeyBundle,
   USER_KEY_BUNDLE_SCHEMA_VERSION,
 } from './user-key-bundle';
 
@@ -238,5 +239,132 @@ describe('kdfParametersFromBundle', () => {
     const { bundle } = await createBundle();
 
     expect(kdfParametersFromBundle(bundle)).toEqual(PARAMETERS);
+  });
+});
+
+describe('resealUserKeyBundle', () => {
+  const NEW_PARAMETERS: Argon2idParameters = {
+    memoryKib: 98304,
+    iterations: 4,
+    parallelism: 1,
+    salt: toBase64Url(new Uint8Array(16).fill(0x02)),
+  };
+
+  const NEW_USER_ENCRYPTION_KEY = new Uint8Array(32).fill(0xdd);
+
+  async function reseal(overrides: Partial<Parameters<typeof resealUserKeyBundle>[0]> = {}) {
+    const { aead, random, aadSeen } = stubs();
+
+    const bundle = await resealUserKeyBundle({
+      aead,
+      random,
+      keyPair: { publicKey: PUBLIC_KEY, privateKey: PRIVATE_KEY },
+      userEncryptionKey: NEW_USER_ENCRYPTION_KEY,
+      parameters: NEW_PARAMETERS,
+      ...overrides,
+    });
+
+    return { bundle, aadSeen };
+  }
+
+  it('keeps the public key, which is the address every envelope was sealed to', async () => {
+    const { bundle: original } = await createBundle();
+    const { bundle: resealed } = await reseal();
+
+    expect(resealed.publicKey).toBe(original.publicKey);
+  });
+
+  it('produces a bundle that parseUserKeyBundle accepts', async () => {
+    const { bundle } = await reseal();
+
+    expect(() => parseUserKeyBundle(bundle)).not.toThrow();
+  });
+
+  it('records the new KDF parameters, so the next login reproduces the new derivation', async () => {
+    const { bundle } = await reseal();
+
+    expect(kdfParametersFromBundle(bundle)).toEqual(NEW_PARAMETERS);
+  });
+
+  it('builds the very same AAD as creation, byte for byte', async () => {
+    const { aadSeen: created } = await createBundle();
+    const { aadSeen: resealed } = await reseal();
+
+    expect(resealed[0]).toBe(created[0]);
+    expect(resealed[0]).toBe(
+      serializeAad({
+        scope: 'user',
+        entityType: 'user-key-bundle',
+        publicKey: toBase64Url(PUBLIC_KEY),
+        schemaVersion: USER_KEY_BUNDLE_SCHEMA_VERSION,
+        cryptoVersion: 1,
+      }),
+    );
+  });
+
+  it('does not change the declared versions: this is a second writer, not a new format', async () => {
+    const { bundle: original } = await createBundle();
+    const { bundle: resealed } = await reseal();
+
+    expect(resealed.cryptoVersion).toBe(original.cryptoVersion);
+    expect(resealed.schemaVersion).toBe(original.schemaVersion);
+    expect(resealed.kdfAlgorithm).toBe(KDF_ALGORITHM);
+  });
+
+  it('takes a fresh nonce from the CSPRNG on every reseal', async () => {
+    let counter = 0;
+    const counting: RandomSource = {
+      getRandomBytes: (length) => {
+        counter += 1;
+
+        return new Uint8Array(length).fill(counter);
+      },
+    };
+
+    const first = await reseal({ random: counting });
+    const second = await reseal({ random: counting });
+
+    expect(first.bundle.privateKeyNonce).not.toBe(second.bundle.privateKeyNonce);
+    expect(fromBase64Url(first.bundle.privateKeyNonce)).toHaveLength(AEAD_NONCE_BYTES);
+  });
+
+  it('never puts the private key in the bundle in the clear', async () => {
+    const { bundle } = await reseal();
+
+    expect(bundle.encryptedPrivateKey).not.toBe(toBase64Url(PRIVATE_KEY));
+    expect(JSON.stringify(bundle)).not.toContain(toBase64Url(PRIVATE_KEY));
+  });
+
+  it('refuses a public key that is not 32 bytes instead of sealing to a bad address', async () => {
+    await expect(
+      reseal({ keyPair: { publicKey: new Uint8Array(16), privateKey: PRIVATE_KEY } }),
+    ).rejects.toThrow(CryptoFormatError);
+  });
+
+  it('refuses a private key that is not 32 bytes', async () => {
+    await expect(
+      reseal({ keyPair: { publicKey: PUBLIC_KEY, privateKey: new Uint8Array(31) } }),
+    ).rejects.toThrow(CryptoFormatError);
+  });
+
+  it('round-trips the pair through openUserKeyBundle with the new key', async () => {
+    const { aead, random } = stubs();
+
+    const bundle = await resealUserKeyBundle({
+      aead,
+      random,
+      keyPair: { publicKey: PUBLIC_KEY, privateKey: PRIVATE_KEY },
+      userEncryptionKey: NEW_USER_ENCRYPTION_KEY,
+      parameters: NEW_PARAMETERS,
+    });
+
+    const reopened = await openUserKeyBundle({
+      aead,
+      userEncryptionKey: NEW_USER_ENCRYPTION_KEY,
+      bundle,
+    });
+
+    expect(reopened.publicKey).toEqual(PUBLIC_KEY);
+    expect(reopened.privateKey).toEqual(PRIVATE_KEY);
   });
 });

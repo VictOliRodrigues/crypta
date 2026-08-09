@@ -64,6 +64,7 @@ export {
   kdfParametersFromBundle,
   openUserKeyBundle,
   parseUserKeyBundle,
+  resealUserKeyBundle,
   USER_KEY_BUNDLE_SCHEMA_VERSION,
   type UserKeyBundle,
 } from './identity/user-key-bundle';

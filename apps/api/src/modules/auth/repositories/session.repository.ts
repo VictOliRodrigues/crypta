@@ -164,8 +164,18 @@ export class SessionRepository {
     await this.prisma.session.deleteMany({ where: { familyId } });
   }
 
-  async deleteAllForUser(userId: string, exceptSessionId?: string): Promise<number> {
-    const { count } = await this.prisma.session.deleteMany({
+  /**
+   * O `executor` existe para a troca de senha, que revoga as demais sessões
+   * dentro da mesma transação que grava a credencial nova. Fora dela, uma falha
+   * depois da revogação deixaria o usuário deslogado de tudo com a senha antiga
+   * ainda válida.
+   */
+  async deleteAllForUser(
+    userId: string,
+    exceptSessionId?: string,
+    executor: PrismaExecutor = this.prisma,
+  ): Promise<number> {
+    const { count } = await executor.session.deleteMany({
       where: {
         userId,
         ...(exceptSessionId === undefined ? {} : { NOT: { id: exceptSessionId } }),

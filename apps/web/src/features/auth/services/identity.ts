@@ -4,6 +4,7 @@ import {
   deriveIdentitySecrets,
   type KeyPair,
   openUserKeyBundle,
+  resealUserKeyBundle,
   toBase64Url,
   type UserKeyBundle,
 } from '@crypta/crypto-core';
@@ -67,6 +68,24 @@ export async function generateKdfParameters(): Promise<Argon2idParameters> {
 }
 
 /**
+ * Salt novo preservando os demais parâmetros da conta.
+ *
+ * Usado na troca de senha. O salt **precisa** mudar: mantê-lo faria a senha nova
+ * derivar sob o mesmo material da antiga, e qualquer trabalho pré-computado
+ * contra aquele salt continuaria valendo. Custo e paralelismo, ao contrário,
+ * são preservados — recalibrá-los é decisão do ADR 0018, não efeito colateral
+ * de trocar a senha.
+ */
+export async function rotateKdfSalt(parameters: Argon2idParameters): Promise<Argon2idParameters> {
+  await webCryptoAdapter.init();
+
+  return {
+    ...parameters,
+    salt: toBase64Url(webRandomSource.getRandomBytes(ARGON2ID_SALT_BYTES)),
+  };
+}
+
+/**
  * Gera o par do usuário e protege a metade privada.
  *
  * Devolve as duas partes: o bundle vai para a API, o par aberto fica em memória
@@ -103,5 +122,28 @@ export async function openKeyBundle(input: {
     aead: webAeadAdapter,
     userEncryptionKey: input.userEncryptionKey,
     bundle: input.bundle,
+  });
+}
+
+/**
+ * Reprotege o par já aberto com uma `UserEncryptionKey` nova.
+ *
+ * O par é o mesmo, e precisa ser: a chave pública é o endereço de todo
+ * `VaultKeyEnvelope` existente. Gerar um par novo aqui tornaria ilegível tudo o
+ * que o usuário tem, e a API recusa justamente por isso.
+ */
+export async function resealKeyBundle(input: {
+  keyPair: KeyPair;
+  userEncryptionKey: Uint8Array;
+  parameters: Argon2idParameters;
+}): Promise<UserKeyBundle> {
+  await webCryptoAdapter.init();
+
+  return resealUserKeyBundle({
+    aead: webAeadAdapter,
+    random: webRandomSource,
+    keyPair: input.keyPair,
+    userEncryptionKey: input.userEncryptionKey,
+    parameters: input.parameters,
   });
 }
