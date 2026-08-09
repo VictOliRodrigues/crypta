@@ -12,6 +12,7 @@ import { sha256 } from '@noble/hashes/sha2.js';
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildAad,
   buildKeyEnvelope,
   createUserKeyBundle,
   CryptoAuthenticationError,
@@ -26,6 +27,7 @@ import {
   serializeAad,
   toBase64Url,
   USER_KEY_BUNDLE_AAD_VECTOR,
+  type VaultAadContext,
 } from '@crypta/crypto-core';
 
 import { webAeadAdapter } from './aead';
@@ -240,6 +242,117 @@ describe('key bundle do usuário', () => {
     const second = await createBundle();
 
     expect(first.bundle.privateKeyNonce).not.toBe(second.bundle.privateKeyNonce);
+  });
+});
+
+/**
+ * A AAD do escopo `vault`, exercitada num decrypt real.
+ *
+ * Até o `BLG-0707` este escopo só tinha teste de **serialização**: `aad.spec.ts`
+ * prova que a string muda quando o contexto muda. Isso não é a mesma coisa que
+ * provar que a AEAD recusa o conteúdo — e a linha "AAD incorreta falha" do gate
+ * fala em decrypt, não em serialização.
+ *
+ * Não há cofre nem credencial ainda: `BLG-0706` é da R0.3. O conteúdo abaixo é
+ * sintético, e é justamente esse o motivo de o teste existir agora — o formato
+ * está congelado, e descobrir na R0.3 que a amarração não segura obrigaria a
+ * migrar dado cifrado em vez de corrigir uma decisão de projeto.
+ */
+describe('AAD do escopo vault', () => {
+  const vaultKey = webRandomSource.getRandomBytes(32);
+
+  const CONTEXT: VaultAadContext = {
+    scope: 'vault',
+    entityType: 'credential',
+    vaultId: '0198f0c2-0000-7000-8000-00000000va01',
+    entityId: '0198f0c2-0000-7000-8000-00000000cr01',
+    schemaVersion: 1,
+    cryptoVersion: 1,
+  };
+
+  async function sealContent(context: VaultAadContext = CONTEXT) {
+    await initSodium();
+
+    const nonce = webRandomSource.getRandomBytes(24);
+    const plaintext = new TextEncoder().encode('conteudo-sintetico');
+
+    const ciphertext = await webAeadAdapter.encrypt({
+      key: vaultKey,
+      nonce,
+      plaintext,
+      aad: buildAad(context),
+    });
+
+    return { nonce, ciphertext, plaintext };
+  }
+
+  function openWith(
+    sealed: { nonce: Uint8Array; ciphertext: Uint8Array },
+    context: VaultAadContext,
+  ) {
+    return webAeadAdapter.decrypt({
+      key: vaultKey,
+      nonce: sealed.nonce,
+      ciphertext: sealed.ciphertext,
+      aad: buildAad(context),
+    });
+  }
+
+  it('abre com o contexto exato', async () => {
+    const sealed = await sealContent();
+
+    expect(await openWith(sealed, CONTEXT)).toEqual(sealed.plaintext);
+  });
+
+  /** Escopo trocado: o conteúdo de cofre não pode se passar por material de identidade. */
+  it('falha fechado com o escopo trocado', async () => {
+    const sealed = await sealContent();
+
+    await expectAuthenticationFailure(
+      webAeadAdapter.decrypt({
+        key: vaultKey,
+        nonce: sealed.nonce,
+        ciphertext: sealed.ciphertext,
+        aad: buildAad({
+          scope: 'user',
+          entityType: 'user-key-bundle',
+          publicKey: toBase64Url(webRandomSource.getRandomBytes(32)),
+          schemaVersion: 1,
+          cryptoVersion: 1,
+        }),
+      }),
+    );
+  });
+
+  /** Um ciphertext de credencial não pode ser relido como se fosse de site. */
+  it('falha fechado com o entityType trocado', async () => {
+    const sealed = await sealContent();
+
+    await expectAuthenticationFailure(openWith(sealed, { ...CONTEXT, entityType: 'site' }));
+  });
+
+  /** Mover o ciphertext para outro registro do mesmo cofre não funciona. */
+  it('falha fechado com o entityId trocado', async () => {
+    const sealed = await sealContent();
+
+    await expectAuthenticationFailure(
+      openWith(sealed, { ...CONTEXT, entityId: '0198f0c2-0000-7000-8000-00000000cr02' }),
+    );
+  });
+
+  /** Nem movê-lo para outro cofre. */
+  it('falha fechado com o vaultId trocado', async () => {
+    const sealed = await sealContent();
+
+    await expectAuthenticationFailure(
+      openWith(sealed, { ...CONTEXT, vaultId: '0198f0c2-0000-7000-8000-00000000va02' }),
+    );
+  });
+
+  it('falha fechado com a versão de schema trocada', async () => {
+    const sealed = await sealContent();
+
+    await expectAuthenticationFailure(openWith(sealed, { ...CONTEXT, schemaVersion: 2 }));
   });
 });
 

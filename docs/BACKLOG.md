@@ -239,7 +239,7 @@ As armadilhas de configuração manual encontradas nesta fase estão registradas
 
 A R0.2 constrói a fundação de confiança do produto: identidade, sessões e o material criptográfico que protege todo o conteúdo das fases seguintes.
 
-Nada da fase foi implementado ainda. O que já existe é a base sobre a qual ela é construída: `@crypta/crypto-web` com os adapters e a suíte de vetores diferenciais (PR #16), e os ADRs 0016 a 0021, que fecharam biblioteca, parâmetros, identificadores, exclusão e duração de tokens.
+Todo o escopo da fase está implementado. Falta **uma** linha do gate, e ela não depende de código: o ciclo de refresh precisa ser exercitado em navegador real contra o ambiente de development.
 
 Esta secao é o **gate único** da fase. Cada linha nasce `PENDENTE` e só vira `OK` acompanhada da evidência que a comprova, no pull request que a produziu. Não existe segundo lugar para conferir.
 
@@ -253,14 +253,59 @@ Os nove primeiros vêm da secao 17. O décimo vem do [ADR 0021](decisions/0021-s
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Senha original não enviada à API | O corpo de `POST /setup` e de `POST /auth/login` carrega `authSecret` e nenhum campo derivado da senha. Teste na Web sobre a fronteira de derivação; o DTO da API rejeita qualquer campo fora dele.                                    | OK — `identity.test.ts` confere que nada devolvido por `deriveIdentity` contém a senha; `setup.e2e-spec.ts` recusa `password` no corpo                                                                                                     |
 | AuthSecret não logado            | O `LogFields` fechado do `StructuredLogger` não admite o campo, então não existe caminho para registrá-lo; e2e confirma que o log de uma requisição de auth não contém o valor.                                                        | OK — o tipo `LogFields` não tem campo livre, e `session-lifecycle.e2e-spec.ts` confere que o `AuthSecret` não aparece na resposta                                                                                                          |
-| Private key nunca enviada aberta | O DTO de `POST /setup` aceita `encryptedPrivateKey` e `privateKeyNonce`; `forbidNonWhitelisted` responde `400` a um campo `privateKey`.                                                                                                | PENDENTE — depende da branch do módulo de auth                                                                                                                                                                                             |
-| Vetores passam                   | `pnpm --filter @crypta/crypto-core test` e `pnpm --filter @crypta/crypto-web test` verdes, incluindo os vetores de derivação de identidade, do payload da chave privada e do envelope.                                                 | PENDENTE — depende da branch de AAD e envelope                                                                                                                                                                                             |
-| Ciphertext adulterado falha      | Loop byte a byte sobre o payload de identidade e sobre o envelope: toda posição alterada resulta em `CryptoAuthenticationError`, no padrão que o ADR 0017 já exigiu do envelope.                                                       | PENDENTE — depende da branch de AAD e envelope                                                                                                                                                                                             |
-| AAD incorreta falha              | Decrypt com escopo, `entityType` ou `entityId` trocados falha fechado, sem devolver conteúdo parcial.                                                                                                                                  | PENDENTE — depende da branch de AAD e envelope                                                                                                                                                                                             |
-| Refresh reuse revoga sessão      | e2e: rotaciona, apresenta o token antigo fora da janela de 10 s do ADR 0021, recebe `401` e a família deixa de existir. Dentro da janela, duas rotações concorrentes devolvem o mesmo par.                                             | PENDENTE — depende da branch do ciclo de sessão                                                                                                                                                                                            |
+| Private key nunca enviada aberta | O DTO de `POST /setup` aceita `encryptedPrivateKey` e `privateKeyNonce`; `forbidNonWhitelisted` responde `400` a um campo `privateKey`.                                                                                                | OK — `setup.e2e-spec.ts` recusa `privateKey` no bundle, e `change-password.e2e-spec.ts` faz o mesmo na segunda rota que grava material                                                                                                     |
+| Vetores passam                   | `pnpm --filter @crypta/crypto-core test` e `pnpm --filter @crypta/crypto-web test` verdes, incluindo os vetores de derivação de identidade, do payload da chave privada e do envelope.                                                 | OK — 126 e 55 testes verdes, com o vetor `identity-argon2id-64mib-t3` congelado e conferido contra `@noble/hashes`                                                                                                                         |
+| Ciphertext adulterado falha      | Loop byte a byte sobre o payload de identidade e sobre o envelope: toda posição alterada resulta em `CryptoAuthenticationError`, no padrão que o ADR 0017 já exigiu do envelope.                                                       | OK — cinco loops byte a byte em `identity.spec.ts`: chave privada, nonce, chave pública efêmera, `VaultKey` cifrada e o bundle reprotegido                                                                                                 |
+| AAD incorreta falha              | Decrypt com escopo, `entityType` ou `entityId` trocados falha fechado, sem devolver conteúdo parcial.                                                                                                                                  | OK — escopo `user` já coberto; o escopo `vault` ganhou decrypt real na revisão, com escopo, `entityType`, `entityId`, `vaultId` e `schemaVersion` trocados um a um                                                                         |
+| Refresh reuse revoga sessão      | e2e: rotaciona, apresenta o token antigo fora da janela de 10 s do ADR 0021, recebe `401` e a família deixa de existir. Dentro da janela, duas rotações concorrentes devolvem o mesmo par.                                             | OK — `session-lifecycle.e2e-spec.ts` cobre os dois lados da janela e confere que só a família comprometida cai                                                                                                                             |
 | localStorage não contém segredo  | O eslint da Web já proíbe `localStorage` e `sessionStorage` por `no-restricted-globals`; mais teste de que o store de sessão vive só em memória e não sobrevive ao reload.                                                             | OK — `session-store` sem `persist`, e `api-client.auth.test.ts` confere os dois storages vazios após um ciclo completo. O bundle contém uma referência a `sessionStorage`, do react-router, que guarda posição de rolagem e nenhum segredo |
-| Arquitetura revisada             | Checklist do `BLG-0707` executado e o resultado registrado nesta secao, item a item.                                                                                                                                                   | PENDENTE — último passo da fase                                                                                                                                                                                                            |
+| Arquitetura revisada             | Checklist do `BLG-0707` executado e o resultado registrado nesta secao, item a item.                                                                                                                                                   | OK — resultado logo abaixo, com os dois achados e o que foi feito com cada um                                                                                                                                                              |
 | Ciclo de refresh no navegador    | Login, expiração do access token e refresh bem-sucedido exercitados em navegador real contra development. O `SameSite=Strict` entre `crypta-dev` e `crypta-api-dev` foi deduzido da especificação e nunca exercitado; jsdom não cobre. | PENDENTE — depende do deploy da branch de Web                                                                                                                                                                                              |
+
+### Revisão criptográfica interna — `BLG-0707`
+
+> Executada em 8 de agosto de 2026, sobre `security/crypto-review`.
+
+Cada eixo do `BLG-0707`, o que foi conferido e o que se encontrou. Um eixo sem achado é registrado assim mesmo: "não encontrei nada" só vale se estiver dito qual foi a busca.
+
+| Eixo                 | O que foi conferido                                                                                                                 | Resultado                                                                                                                                                                                            |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fluxos               | Setup, login, refresh, abertura do bundle e troca de senha. Onde cada segredo nasce, vive e morre.                                  | Sem achado. A senha entra em `identity.ts` e não sai: a varredura por `password` na Web só encontra formulários e hooks que a repassam para lá, e a API não tem o campo em rota nenhuma              |
+| Nonce                | Toda origem de bytes aleatórios do repositório.                                                                                     | Sem achado. Um único ponto gera nonce de AEAD (`sealKeyPair`), sempre do CSPRNG e no tamanho da primitiva; o refresh token usa `randomBytes` do Node; `Math.random()` não aparece fora de comentário |
+| Nonce do envelope    | O nonce derivado do ADR 0023, que não trafega.                                                                                      | Sem achado. Par efêmero novo por envelope faz a chave da AEAD nunca se repetir, e o nonce derivado junto dela tampouco                                                                               |
+| AAD                  | Todo `buildAad` de produção e o par encrypt/decrypt correspondente.                                                                 | **Achado 1** — o escopo `vault` só tinha teste de serialização. Corrigido nesta branch                                                                                                               |
+| Separação de domínio | Os dois HKDF da `RootKey` e os dois do segredo do servidor.                                                                         | Sem achado. `auth` e `user-encryption` divergem e estão congelados em vetor; `auth-secret-pepper` e `kdf-parameters-decoy` seguem o mesmo padrão                                                     |
+| Logs                 | `LogFields`, todo `logger.*` do repositório e o filtro global de exceções.                                                          | Sem achado. O tipo não tem campo livre, nenhuma chamada passa material sensível, e nenhuma resposta de erro carrega stack, query ou path interno                                                     |
+| Storage              | `localStorage`, `sessionStorage`, IndexedDB, Cache Storage e `document.cookie` no código da Web; o que o `clear` do store desmonta. | **Achado 2** — o lint cobria dois dos cinco meios que a `SECURITY.md` secao 52 proíbe. Corrigido nesta branch                                                                                        |
+| Cache HTTP           | `Cache-Control: no-store` nas rotas que devolvem material sensível.                                                                 | Sem achado. Toda rota com corpo tem o header; as que não têm devolvem `204`                                                                                                                          |
+
+#### Achado 1 — o escopo `vault` da AAD nunca passou por um decrypt
+
+`aad.spec.ts` provava que a string canônica muda quando o contexto muda. Isso não é a mesma coisa que provar que a AEAD **recusa** o conteúdo, e a linha do gate fala em decrypt.
+
+A lacuna existia porque `BLG-0706` é da R0.3: não há cofre nem credencial para cifrar ainda. Mas o formato está congelado agora, e descobrir na R0.3 que a amarração não segura obrigaria a migrar dado cifrado em vez de corrigir uma decisão de projeto — exatamente o que a `SECURITY.md` secao 18 manda evitar.
+
+Fechado com conteúdo sintético e primitivas reais, em `crypto-web/src/identity.spec.ts`: escopo, `entityType`, `entityId`, `vaultId` e `schemaVersion` trocados um a um, todos falhando fechado.
+
+#### Achado 2 — o lint cobria dois dos cinco meios de persistência proibidos
+
+`SECURITY.md` secao 52 proíbe `localStorage`, `sessionStorage`, **IndexedDB**, cache persistente e cache de service worker. O `no-restricted-globals` da Web listava os dois primeiros.
+
+Nada usava IndexedDB — o comentário do `query-provider` até o cita como coisa a evitar. Mas a proteção era um comentário, não uma barreira: o primeiro uso passaria pelo lint sem uma palavra, e a `SECURITY.md` cita IndexedDB **por nome**.
+
+`indexedDB` e `caches` entraram na regra, com mensagem apontando a secao. Verificado com um arquivo de sondagem que o lint agora reprova.
+
+#### Higiene de memória, fora do checklist
+
+O `clear` do store soltava a referência do material de chave sem sobrescrever os bytes. Passou a zerar a `UserEncryptionKey` e a chave privada antes de soltar.
+
+O comentário no código diz o que isso **não** garante, e vale repetir aqui: não prova que o segredo sumiu da memória. O motor pode ter copiado o buffer ao movê-lo entre gerações, e a senha é uma `string` imutável, que não há como sobrescrever em JavaScript. É defesa em profundidade; a garantia real continua sendo não persistir nada.
+
+#### Liberação para uso real
+
+Com os dois achados corrigidos, **a revisão libera o uso real do material criptográfico** e desbloqueia a R0.3.
+
+A liberação tem um limite explícito, que não é ressalva de formalidade: os vetores foram exercitados **apenas na Web**. `PEND-003` mantém o Android por medir até a R0.7, e a `SECURITY.md` secao 22 exige as duas plataformas. A compatibilidade é garantida por construção — algoritmos e parâmetros fixados nos ADRs 0016 e 0017 — mas garantida não é o mesmo que medida.
 
 ### Por que a ordem das branches é essa
 
@@ -279,7 +324,7 @@ Por isso o formato criptográfico é fechado **antes** da primeira migration, e 
 | BLG-0704 | DONE    | `createUserKeyBundle` e `openUserKeyBundle`, com AAD amarrada à chave pública e adulteração testada byte a byte.                                                                         |
 | BLG-0705 | PARCIAL | Formato do envelope fechado e testado. Geração da `VaultKey` e envelopes OWNER/EDITOR entram na R0.3, com o cofre.                                                                       |
 | BLG-0706 | BACKLOG | Depende do formato fechado. Vault, site e credential só ganham payload real a partir da R0.3.                                                                                            |
-| BLG-0707 | BACKLOG | Revisão criptográfica interna. É o último item do gate e bloqueia o uso real.                                                                                                            |
+| BLG-0707 | DONE    | Revisão executada e registrada acima. Dois achados, os dois corrigidos. Uso real liberado, com o limite de que os vetores só foram medidos na Web.                                       |
 | BLG-0801 | DONE    | `GET /setup/status`, devolvendo só o booleano.                                                                                                                                           |
 | BLG-0802 | DONE    | Tela W01 e `POST /setup`, em transação e com idempotência.                                                                                                                               |
 | BLG-0803 | DONE    | `GET /auth/parameters`, com parâmetros sintéticos derivados do e-mail e estáveis entre chamadas.                                                                                         |
@@ -1438,13 +1483,13 @@ Nenhum escopo da fase precisou ser reduzido.
 
 ### Tarefas
 
-- [ ] Revisar fluxos.
-- [ ] Revisar nonce.
-- [ ] Revisar AAD.
-- [ ] Revisar separação.
-- [ ] Revisar logs.
-- [ ] Revisar storage.
-- [ ] Bloquear uso real até aprovação.
+- [x] Revisar fluxos. — Setup, login, refresh, abertura do bundle e troca de senha.
+- [x] Revisar nonce. — Uma origem só, sempre CSPRNG; o do envelope é derivado e não trafega.
+- [x] Revisar AAD. — **Achado:** o escopo `vault` só tinha teste de serialização. Corrigido.
+- [x] Revisar separação. — Os dois HKDF da `RootKey` e os dois do segredo do servidor.
+- [x] Revisar logs. — `LogFields` fechado, nenhuma chamada com segredo, filtro sem stack.
+- [x] Revisar storage. — **Achado:** o lint cobria 2 dos 5 meios proibidos. Corrigido.
+- [x] Bloquear uso real até aprovação. — Liberado; limite registrado: vetores só medidos na Web.
 
 ---
 
