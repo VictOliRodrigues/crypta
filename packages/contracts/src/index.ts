@@ -38,4 +38,5 @@ export {
   type ReadinessData,
   type ReadinessResponse,
 } from './health/health.contract';
+export { type SessionListResponse, type SessionView } from './session/session.contract';
 export { type VersionData, type VersionResponse } from './system/version.contract';

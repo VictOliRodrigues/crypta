@@ -8,13 +8,13 @@ import {
 } from '@nestjs/swagger';
 import { type Request } from 'express';
 
-import { type ApiSuccessResponse } from '@crypta/contracts';
+import { type ApiSuccessResponse, type SessionView } from '@crypta/contracts';
 import { uuidSchema } from '@crypta/validation';
 
 import { ZodValidationPipe } from '@/common/validation/zod-validation.pipe';
 
 import { requireAuth } from '../mappers/request-auth';
-import { ListSessionsService, type SessionView } from '../services/list-sessions.service';
+import { ListSessionsService } from '../services/list-sessions.service';
 import { RotateSessionService } from '../services/rotate-session.service';
 
 /**

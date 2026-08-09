@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { type ReadinessData, type VersionData } from '@crypta/contracts';
@@ -32,9 +33,13 @@ function renderPage(): void {
     defaultOptions: { queries: { retry: false } },
   });
 
+  // `MemoryRouter` porque a tela passou a ter um `Link` para o W24, e `Link`
+  // fora de router lança.
   render(
     <QueryClientProvider client={queryClient}>
-      <StatusPage />
+      <MemoryRouter>
+        <StatusPage />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }

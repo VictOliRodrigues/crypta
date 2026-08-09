@@ -1154,17 +1154,31 @@ Listar sessões do usuário.
   "data": [
     {
       "id": "uuid",
-      "deviceName": "Firefox no Windows",
-      "platform": "web",
+      "clientType": "web",
+      "clientName": null,
       "ipAddress": "192.0.2.10",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) …",
+      "createdAt": "2026-07-30T22:00:00.000Z",
       "lastUsedAt": "2026-07-30T22:00:00.000Z",
-      "expiresAt": "2026-08-29T22:00:00.000Z",
-      "isCurrent": true,
-      "status": "ACTIVE"
+      "isCurrent": true
     }
   ]
 }
 ```
+
+O tipo é `SessionView`, em `@crypta/contracts`.
+
+### Por que não há `expiresAt` nem `status`
+
+Sessão revogada é **apagada**, não marcada ([ADR 0020](decisions/0020-deletion-policy.md)): toda linha desta lista está viva, e uma coluna `status` só poderia repetir isso.
+
+A expiração é derivada de duas âncoras — `createdAt` mais o teto absoluto e `lastUsedAt` mais a inatividade ([ADR 0021](decisions/0021-session-token-lifetimes.md)). Um `expiresAt` materializado seria uma terceira fonte de verdade, capaz de discordar das outras duas depois de qualquer mudança de configuração.
+
+### Por que `userAgent` cru, e não `deviceName` e `platform`
+
+Interpretar o `User-Agent` é decisão de apresentação, e o servidor não a toma em nome de nenhum cliente. A Web deriva navegador e sistema em `describe-session.ts`; o Android exibirá o que fizer sentido lá.
+
+`clientName`, `ipAddress` e `userAgent` vêm do cliente e **não são confiáveis** — nenhum participa de decisão de autorização. Existem para o dono reconhecer o que revogar.
 
 ### Segurança
 
@@ -1197,13 +1211,13 @@ SESSION_ALREADY_REVOKED
 
 ### Objetivo
 
-Revogar todas as outras sessões.
+Revogar todas as outras sessões. A que fez a chamada permanece.
 
 ### Query
 
-```http
-DELETE /sessions?keepCurrent=true
-```
+Nenhuma. A rota **sempre** preserva a sessão atual, e não aceita parâmetro para mudar isso.
+
+O `?keepCurrent=true` que esta secao documentava antes nunca foi implementado, e não deve ser: um parâmetro cujo único valor aceito é o padrão convida a mandar `false` e receber comportamento que não existe. Para derrubar a própria sessão junto das demais, use `POST /auth/logout-all`, que é explícito sobre isso.
 
 ### Response
 
