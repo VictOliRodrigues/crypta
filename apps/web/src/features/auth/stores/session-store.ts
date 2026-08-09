@@ -73,9 +73,35 @@ export const useSessionStore = create<SessionState>((set) => ({
    * sessão cair.
    */
   clear: () => {
-    set({ ...EMPTY });
+    set((state) => {
+      zeroize(state.userEncryptionKey);
+      zeroize(state.keyPair?.privateKey);
+
+      return { ...EMPTY };
+    });
   },
 }));
+
+/**
+ * Sobrescreve os bytes antes de soltar a referência.
+ *
+ * **O que isto faz:** remove o valor do buffer que ainda estiver vivo quando o
+ * GC demorar a coletá-lo, encurtando a janela em que um heap dump depois do
+ * logout ainda traria a chave.
+ *
+ * **O que isto não faz, e não deve ser lido como se fizesse:** garantir que o
+ * segredo sumiu da memória. O motor pode ter copiado o buffer ao movê-lo entre
+ * gerações, e a senha em si é uma `string` imutável — não há como sobrescrevê-la
+ * em JavaScript. A garantia real continua sendo não persistir nada
+ * (`SECURITY.md` secao 52), e esta função é defesa em profundidade, não
+ * substituto.
+ *
+ * Só é seguro porque `clear` é terminal: quem ainda tivesse referência a estes
+ * bytes já não tem sessão para usá-los.
+ */
+function zeroize(bytes: Uint8Array | null | undefined): void {
+  bytes?.fill(0);
+}
 
 /**
  * Leitura fora de componente React, para o interceptor do Axios.
