@@ -65,15 +65,61 @@ function runSelfTest(instance: Sodium): void {
 }
 
 /**
+ * Teto para o carregamento do WebAssembly.
+ *
+ * A inicialização real leva dezenas de milissegundos, e um aparelho lento não
+ * chega perto disto. O valor não é uma estimativa de duração: é o ponto a
+ * partir do qual "ainda carregando" deixa de ser uma explicação plausível.
+ */
+const INIT_TIMEOUT_MS = 10_000;
+
+/**
+ * `sodium.ready` que **sempre** termina.
+ *
+ * Quando o navegador recusa compilar o WebAssembly — CSP sem
+ * `'wasm-unsafe-eval'`, extensão interferindo, política corporativa —
+ * `libsodium-wrappers` deixa a promise `ready` **pendente para sempre** em vez
+ * de rejeitá-la. Sem este teto, quem chamou fica esperando indefinidamente: na
+ * Web isso significa um botão preso em "Entrando…", sem erro, sem requisição e
+ * sem nada no console que aponte para a causa.
+ *
+ * Falhar fechado aqui é o que o `CLAUDE.md` secao 9 exige. Um cofre que não
+ * consegue derivar chave precisa dizer isso, não parecer lento.
+ */
+async function awaitSodiumReady(): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  const timeout = new Promise<never>((_resolve, reject) => {
+    timer = setTimeout(() => {
+      reject(
+        new CryptoInitializationError(
+          'O navegador não concluiu o carregamento do WebAssembly criptográfico. ' +
+            'A causa mais comum é a execução de WebAssembly estar bloqueada — por ' +
+            'extensão do navegador ou por política de segurança. Tente numa janela ' +
+            'privativa, sem extensões.',
+        ),
+      );
+    }, INIT_TIMEOUT_MS);
+  });
+
+  try {
+    await Promise.race([sodium.ready, timeout]);
+  } finally {
+    // Sem isto o timer segura o processo vivo no Node e vaza entre testes.
+    clearTimeout(timer);
+  }
+}
+
+/**
  * Carrega o libsodium, roda o self-test e devolve a instância.
  *
  * Idempotente: chamadas concorrentes compartilham a mesma promise. Se o
- * self-test falhar, a promise é rejeitada e descartada, para que uma nova
- * tentativa não receba um resultado inválido em cache.
+ * self-test ou o carregamento falhar, a promise é rejeitada e descartada, para
+ * que uma nova tentativa não receba um resultado inválido em cache.
  */
 export async function initSodium(): Promise<Sodium> {
   readyPromise ??= (async (): Promise<Sodium> => {
-    await sodium.ready;
+    await awaitSodiumReady();
     runSelfTest(sodium);
     return sodium;
   })().catch((error: unknown) => {

@@ -97,6 +97,46 @@ describe('GET /auth/parameters', () => {
   });
 
   /**
+   * A **ordem** das chaves, e não só o conjunto.
+   *
+   * O teste acima chama `.sort()`, e é justamente o `.sort()` que o tornava cego
+   * ao vazamento real: `JSON.stringify` preserva a ordem de inserção, e os dois
+   * caminhos emitiam `kdfSalt` em posições diferentes — terceiro para conta
+   * real, último para o decoy. Nenhum valor diferia; a posição entregava a
+   * existência da conta com 100% de precisão, em uma requisição.
+   *
+   * Este caso compara sem ordenar. Manter os dois é deliberado: o de cima
+   * protege o conjunto de campos, este protege a serialização.
+   */
+  it('responde com as chaves na MESMA ordem nos dois casos', async () => {
+    await createAccount('alice@example.test');
+
+    const existing = await getParameters('alice@example.test');
+    const missing = await getParameters('ninguem@example.test');
+
+    expect(Object.keys(readData(missing))).toEqual(Object.keys(readData(existing)));
+  });
+
+  /**
+   * O mesmo, sobre o corpo cru.
+   *
+   * `Object.keys` já pegaria a regressão, mas o que trafega é texto: comparar o
+   * JSON serializado é o que prova que dois corpos só diferem onde precisam
+   * diferir — nos valores do salt.
+   */
+  it('só difere no valor do salt, byte a byte, entre conta real e inexistente', async () => {
+    await createAccount('alice@example.test');
+
+    const existing = await getParameters('alice@example.test');
+    const missing = await getParameters('ninguem@example.test');
+
+    const normalize = (response: request.Response): string =>
+      JSON.stringify(response.body).replace(/"kdfSalt":"[^"]+"/, '"kdfSalt":"<salt>"');
+
+    expect(normalize(missing)).toBe(normalize(existing));
+  });
+
+  /**
    * O oráculo mais fácil de introduzir sem perceber: sortear o salt a cada
    * requisição. Duas consultas ao mesmo endereço devolveriam valores diferentes,
    * e isso sozinho distingue conta inexistente de conta real.

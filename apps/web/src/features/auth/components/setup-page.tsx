@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { CryptoInitializationError } from '@crypta/crypto-web';
 import { displayNameSchema, emailSchema } from '@crypta/validation';
 
 import { ApiRequestError } from '@/services/api-client';
@@ -48,6 +49,14 @@ const setupSchema = z
 type SetupForm = z.infer<typeof setupSchema>;
 
 function messageFor(error: unknown): string {
+  /**
+   * O navegador recusou carregar o WebAssembly. Sem ele não há derivação, e a
+   * ação de contorno é específica — não adianta "tentar novamente".
+   */
+  if (error instanceof CryptoInitializationError) {
+    return error.message;
+  }
+
   if (!(error instanceof ApiRequestError)) {
     return 'Não foi possível concluir a configuração. Tente novamente.';
   }

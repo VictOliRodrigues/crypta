@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { CryptoInitializationError } from '@crypta/crypto-web';
+
 import { ApiRequestError } from '@/services/api-client';
 
 import { useChangePassword, VaultLockedError } from '../hooks/use-change-password';
@@ -54,6 +56,11 @@ function messageFor(error: unknown): string {
    */
   if (error instanceof VaultLockedError) {
     return 'Sua sessão perdeu o acesso ao cofre. Entre de novo para alterar a senha.';
+  }
+
+  /** O navegador recusou carregar o WebAssembly; sem ele não há como rederivar. */
+  if (error instanceof CryptoInitializationError) {
+    return error.message;
   }
 
   if (!(error instanceof ApiRequestError)) {
