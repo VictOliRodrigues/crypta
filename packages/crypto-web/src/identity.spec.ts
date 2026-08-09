@@ -21,6 +21,7 @@ import {
   kdfParametersFromBundle,
   openUserKeyBundle,
   parseKeyEnvelope,
+  resealUserKeyBundle,
   sealedBytesFromEnvelope,
   serializeAad,
   toBase64Url,
@@ -239,6 +240,152 @@ describe('key bundle do usuário', () => {
     const second = await createBundle();
 
     expect(first.bundle.privateKeyNonce).not.toBe(second.bundle.privateKeyNonce);
+  });
+});
+
+describe('reproteção do key bundle na troca de senha', () => {
+  const originalKey = webRandomSource.getRandomBytes(32);
+  const newKey = webRandomSource.getRandomBytes(32);
+
+  const NEW_PARAMETERS = {
+    ...VECTOR.parameters,
+    salt: toBase64Url(webRandomSource.getRandomBytes(16)),
+  };
+
+  async function createThenReseal() {
+    await initSodium();
+
+    const created = await createUserKeyBundle({
+      aead: webAeadAdapter,
+      keyExchange: webKeyExchangeAdapter,
+      random: webRandomSource,
+      userEncryptionKey: originalKey,
+      parameters: VECTOR.parameters,
+    });
+
+    const resealed = await resealUserKeyBundle({
+      aead: webAeadAdapter,
+      random: webRandomSource,
+      keyPair: created.keyPair,
+      userEncryptionKey: newKey,
+      parameters: NEW_PARAMETERS,
+    });
+
+    return { ...created, resealed };
+  }
+
+  it('abre com a UserEncryptionKey nova e devolve o mesmo par', async () => {
+    const { keyPair, resealed } = await createThenReseal();
+
+    const opened = await openUserKeyBundle({
+      aead: webAeadAdapter,
+      userEncryptionKey: newKey,
+      bundle: resealed,
+    });
+
+    expect(opened.privateKey).toEqual(keyPair.privateKey);
+    expect(opened.publicKey).toEqual(keyPair.publicKey);
+  });
+
+  /**
+   * A propriedade que dá sentido à troca de senha.
+   *
+   * Sem ela, quem tivesse a senha antiga continuaria abrindo a chave privada
+   * depois da troca, e trocar a senha seria teatro.
+   */
+  it('deixa de abrir com a UserEncryptionKey antiga', async () => {
+    const { resealed } = await createThenReseal();
+
+    await expectAuthenticationFailure(
+      openUserKeyBundle({
+        aead: webAeadAdapter,
+        userEncryptionKey: originalKey,
+        bundle: resealed,
+      }),
+    );
+  });
+
+  /**
+   * A propriedade que impede a troca de senha de destruir os cofres.
+   *
+   * A chave pública é o endereço de todo `VaultKeyEnvelope` já selado. Se ela
+   * mudasse aqui, o usuário sairia da troca sem conseguir abrir nada do que
+   * tinha, e a causa só apareceria no primeiro cofre aberto depois.
+   */
+  it('preserva a chave pública, que é o endereço dos envelopes existentes', async () => {
+    const { bundle, resealed } = await createThenReseal();
+
+    expect(resealed.publicKey).toBe(bundle.publicKey);
+  });
+
+  it('registra os parâmetros novos, e não os antigos', async () => {
+    const { resealed } = await createThenReseal();
+
+    expect(kdfParametersFromBundle(resealed)).toEqual(NEW_PARAMETERS);
+  });
+
+  it('produz ciphertext e nonce diferentes dos originais', async () => {
+    const { bundle, resealed } = await createThenReseal();
+
+    expect(resealed.privateKeyNonce).not.toBe(bundle.privateKeyNonce);
+    expect(resealed.encryptedPrivateKey).not.toBe(bundle.encryptedPrivateKey);
+  });
+
+  it('falha fechado com o ciphertext reprotegido adulterado, byte a byte', async () => {
+    const { resealed } = await createThenReseal();
+    const ciphertext = fromBase64Url(resealed.encryptedPrivateKey);
+
+    for (let index = 0; index < ciphertext.length; index += 1) {
+      await expectAuthenticationFailure(
+        openUserKeyBundle({
+          aead: webAeadAdapter,
+          userEncryptionKey: newKey,
+          bundle: {
+            ...resealed,
+            encryptedPrivateKey: toBase64Url(flipByte(ciphertext, index)),
+          },
+        }),
+      );
+    }
+  });
+
+  it('falha fechado quando a chave pública do bundle reprotegido é trocada', async () => {
+    const { resealed } = await createThenReseal();
+    const intruder = await webKeyExchangeAdapter.generateKeyPair();
+
+    await expectAuthenticationFailure(
+      openUserKeyBundle({
+        aead: webAeadAdapter,
+        userEncryptionKey: newKey,
+        bundle: { ...resealed, publicKey: toBase64Url(intruder.publicKey) },
+      }),
+    );
+  });
+
+  /**
+   * Misturar os dois bundles não abre nada.
+   *
+   * Um servidor que devolvesse o nonce novo com o ciphertext antigo, ou o
+   * contrário, estaria montando um bundle que nunca existiu. A AEAD recusa.
+   */
+  it('falha fechado ao misturar ciphertext e nonce dos dois bundles', async () => {
+    const { bundle, resealed } = await createThenReseal();
+
+    await expectAuthenticationFailure(
+      openUserKeyBundle({
+        aead: webAeadAdapter,
+        userEncryptionKey: newKey,
+        bundle: { ...resealed, privateKeyNonce: bundle.privateKeyNonce },
+      }),
+    );
+
+    await expectAuthenticationFailure(
+      openUserKeyBundle({
+        aead: webAeadAdapter,
+        userEncryptionKey: newKey,
+        bundle: { ...resealed, encryptedPrivateKey: bundle.encryptedPrivateKey },
+      }),
+    );
   });
 });
 

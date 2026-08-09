@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { fetchSessions } from '@/features/sessions/services/sessions-api';
@@ -59,14 +60,15 @@ describe('SettingsPage', () => {
 
     const tabs = screen.getAllByRole('tab');
 
-    expect(tabs).toHaveLength(1);
-    expect(tabs[0]).toHaveAccessibleName('Sessões');
+    // Perfil não aparece: a feature não existe, e uma aba vazia prometeria na
+    // interface o que o produto não entrega.
+    expect(tabs.map((tab) => tab.textContent)).toEqual(['Segurança', 'Sessões']);
   });
 
   it('liga a aba ativa ao painel correspondente', () => {
     renderPage();
 
-    const tab = screen.getByRole('tab', { name: 'Sessões' });
+    const tab = screen.getByRole('tab', { name: 'Segurança' });
     const panel = screen.getByRole('tabpanel');
 
     expect(tab).toHaveAttribute('aria-selected', 'true');
@@ -74,9 +76,29 @@ describe('SettingsPage', () => {
     expect(panel).toHaveAttribute('aria-labelledby', tab.id);
   });
 
-  it('mostra o painel de sessões dentro da aba', () => {
+  it('abre na aba Segurança', () => {
     renderPage();
 
+    expect(screen.getByRole('heading', { name: 'Alterar senha', level: 2 })).toBeInTheDocument();
+  });
+
+  it('troca para o painel de sessões ao clicar na aba', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getByRole('tab', { name: 'Sessões' }));
+
     expect(screen.getByRole('heading', { name: 'Sessões', level: 2 })).toBeInTheDocument();
+  });
+
+  /** Setas navegam entre abas; é o que o padrão de tabs exige. */
+  it('navega entre abas pelo teclado', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    screen.getByRole('tab', { name: 'Segurança' }).focus();
+    await user.keyboard('{ArrowRight}');
+
+    expect(screen.getByRole('tab', { name: 'Sessões' })).toHaveAttribute('aria-selected', 'true');
   });
 });

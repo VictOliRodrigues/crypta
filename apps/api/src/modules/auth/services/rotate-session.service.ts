@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { AppConfigService } from '@/config/app-config.service';
 
+import { type PrismaExecutor } from '../repositories/auth.repository';
 import { SessionRepository } from '../repositories/session.repository';
 import { AccessTokenService } from './access-token.service';
 import { RefreshTokenService } from './refresh-token.service';
@@ -112,8 +113,11 @@ export class RotateSessionService {
   }
 
   /** Revoga todas as sessões do usuário, opcionalmente preservando a atual. */
-  async revokeAll(input: { userId: string; exceptSessionId?: string }): Promise<number> {
-    return this.sessions.deleteAllForUser(input.userId, input.exceptSessionId);
+  async revokeAll(
+    input: { userId: string; exceptSessionId?: string },
+    executor?: PrismaExecutor,
+  ): Promise<number> {
+    return this.sessions.deleteAllForUser(input.userId, input.exceptSessionId, executor);
   }
 
   /**

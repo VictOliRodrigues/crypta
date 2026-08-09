@@ -286,7 +286,7 @@ Por isso o formato criptográfico é fechado **antes** da primeira migration, e 
 | BLG-0804 | DONE    | Tela W02 e `POST /auth/login`, com bloqueio progressivo, cookie de refresh e fila de refresh no cliente.                                                                                 |
 | BLG-0805 | DONE    | Rotação, família e detecção de reuso, com a janela de 10 s lida conforme o ADR 0024.                                                                                                     |
 | BLG-0806 | DONE    | `POST /auth/logout` e `POST /auth/logout-all`, com limpeza do cookie.                                                                                                                    |
-| BLG-0807 | BACKLOG | Alteração de senha. **Fora das branches planejadas para a fase** — ver abaixo.                                                                                                           |
+| BLG-0807 | DONE    | `POST /users/me/change-password` e a aba Segurança do W24. `resealUserKeyBundle` reprotege o mesmo par; a API recusa troca de chave pública e salt reaproveitado.                        |
 | BLG-0901 | DONE    | `GET /sessions`, escopado ao dono e marcando a sessão atual.                                                                                                                             |
 | BLG-0902 | DONE    | `DELETE /sessions/:sessionId`, com `404` para sessão de outro usuário e teste de IDOR.                                                                                                   |
 | BLG-0903 | DONE    | `DELETE /sessions`, preservando a sessão que fez a chamada.                                                                                                                              |
@@ -294,12 +294,12 @@ Por isso o formato criptográfico é fechado **antes** da primeira migration, e 
 
 ### Trabalho da fase fora das branches planejadas
 
-As branches previstas cobriam criptografia, schema, setup, autenticação, ciclo de sessão e as telas W01 e W02. Dois itens da fase ficavam de fora, e foram registrados aqui em vez de aparecerem como surpresa no fechamento:
+As branches previstas cobriam criptografia, schema, setup, autenticação, ciclo de sessão e as telas W01 e W02. Dois itens da fase ficavam de fora, e foram registrados aqui em vez de aparecerem como surpresa no fechamento. **Os dois foram recuperados**, em branches empilhadas sobre `develop`:
 
-- **`BLG-0904` — interface de sessões na Web.** Recuperado em `feature/web-sessions-ui`. Além da tela, é o que dá à Web a primeira consulta autenticada recorrente — sem ela não havia requisição que pudesse receber `401`, e a linha "ciclo de refresh no navegador" do gate não tinha como ser exercitada.
-- **`BLG-0807` — alteração de senha.** Recriptografa a chave privada com uma `UserEncryptionKey` nova, substitui o `AuthSecret` e revoga as demais sessões, tudo em transação. Encosta em criptografia, banco, autenticação e sessões ao mesmo tempo. Segue em `feature/change-password`, empilhada sobre a anterior.
+- **`BLG-0904` — interface de sessões na Web**, em `feature/web-sessions-ui`. Além da tela, é o que dá à Web a primeira consulta autenticada recorrente — sem ela não havia requisição que pudesse receber `401`, e a linha "ciclo de refresh no navegador" do gate não tinha como ser exercitada.
+- **`BLG-0807` — alteração de senha**, em `feature/change-password`. Recriptografa a chave privada com uma `UserEncryptionKey` nova, substitui o `AuthSecret` e revoga as demais sessões, tudo em transação.
 
-O gate não fecha sem os dois. Reduzir o escopo da R0.2 para excluí-los é decisão de produto e exigiria atualizar `ROADMAP.md` secao 14 e `PROJECT_SCOPE.md` secao 5.
+Nenhum escopo da fase precisou ser reduzido.
 
 ### Pendências que atravessam a fase
 
@@ -1557,14 +1557,14 @@ O gate não fecha sem os dois. Reduzir o escopo da R0.2 para excluí-los é deci
 
 ### Tarefas
 
-- [ ] Tela.
-- [ ] Validar senha atual.
-- [ ] Novo KDF salt.
-- [ ] Novo AuthSecret.
-- [ ] Recriptografar chave privada.
-- [ ] Transação.
-- [ ] Revogar sessões.
-- [ ] Testes.
+- [x] Tela. — W24, aba Segurança.
+- [x] Validar senha atual. — `currentAuthSecret`, antes de qualquer escrita.
+- [x] Novo KDF salt. — `rotateKdfSalt`; a API recusa salt reaproveitado.
+- [x] Novo AuthSecret. — Gravado sempre na versão corrente do segredo do servidor.
+- [x] Recriptografar chave privada. — `resealUserKeyBundle`, preservando a chave pública.
+- [x] Transação. — Credencial, bundle e revogação em uma só.
+- [x] Revogar sessões. — Padrão `true`; a sessão que chamou sobrevive.
+- [x] Testes. — 10 em `crypto-core`, 8 em `crypto-web`, 18 e2e, 21 na Web.
 
 ---
 

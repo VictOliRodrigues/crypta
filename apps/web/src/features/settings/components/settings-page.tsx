@@ -1,5 +1,6 @@
 import { type ReactNode, useId, useState } from 'react';
 
+import { ChangePasswordForm } from '@/features/auth/components/change-password-form';
 import { SessionsPanel } from '@/features/sessions/components/sessions-panel';
 
 /**
@@ -20,6 +21,7 @@ type SettingsTab = {
 };
 
 const TABS: readonly SettingsTab[] = [
+  { id: 'seguranca', label: 'Segurança', render: () => <ChangePasswordForm /> },
   { id: 'sessoes', label: 'Sessões', render: () => <SessionsPanel /> },
 ];
 

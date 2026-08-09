@@ -151,4 +151,65 @@ export class AuthRepository {
       select: { id: true, name: true, email: true },
     });
   }
+
+  async findIdentityById(
+    id: string,
+    executor: PrismaExecutor = this.prisma,
+  ): Promise<UserIdentity | null> {
+    return executor.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        isActive: true,
+        authSecretHash: true,
+        authSecretVersion: true,
+        failedLoginAttempts: true,
+        lockedUntil: true,
+      },
+    });
+  }
+
+  /**
+   * Troca verificador e key bundle na mesma transação (docs/API.md secao 29).
+   *
+   * Os dois lados são um par: o verificador prova a senha nova, e o bundle é
+   * legível pela `UserEncryptionKey` que essa mesma senha deriva. Gravar um sem
+   * o outro produz uma conta que autentica e não abre, ou que abre e não
+   * autentica — nos dois casos sem caminho de volta, porque a senha antiga já
+   * não vale para metade do par.
+   *
+   * O `executor` é obrigatório aqui, ao contrário dos leitores acima: não existe
+   * uso legítimo desta escrita fora de uma transação.
+   */
+  async replaceCredential(
+    input: {
+      userId: string;
+      authSecretHash: string;
+      authSecretVersion: number;
+      keyBundle: StoredKeyBundle;
+    },
+    executor: PrismaExecutor,
+  ): Promise<void> {
+    await executor.user.update({
+      where: { id: input.userId },
+      data: {
+        authSecretHash: input.authSecretHash,
+        authSecretVersion: input.authSecretVersion,
+        // A troca de senha bem-sucedida encerra qualquer bloqueio em curso: quem
+        // apresentou a credencial atual provou ser o dono, e manter a contagem
+        // puniria a vítima de um ataque que ela acabou de responder.
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+      },
+      select: { id: true },
+    });
+
+    await executor.userKeyBundle.update({
+      where: { userId: input.userId },
+      data: input.keyBundle,
+      select: { userId: true },
+    });
+  }
 }

@@ -1053,6 +1053,21 @@ Exigir:
 
 Não permitir alteração somente com access token roubado sem confirmação adicional.
 
+### Estado da implementação
+
+`POST /users/me/change-password` (`docs/API.md` secao 29), entregue no `BLG-0807`.
+
+| Exigência                   | Estado                                                                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Sessão autenticada          | OK — rota protegida pelo `AccessTokenGuard`; o `sid` é verificado a cada requisição                                         |
+| Segredo atual               | OK — `currentAuthSecret` conferido em tempo constante antes de qualquer escrita. É a confirmação adicional que a regra pede |
+| Novo bundle                 | OK — montado no cliente por `resealUserKeyBundle`; a API recusa chave pública diferente e salt reaproveitado                |
+| Transação                   | OK — credencial, key bundle e revogação em uma só; e2e confere que uma recusa não deixa metade gravada                      |
+| Revogação de outras sessões | OK — padrão `true`; a sessão que fez a chamada sobrevive                                                                    |
+| Auditoria                   | **PENDENTE** — não existe tabela de auditoria. Entra com o `BLG-1701`                                                       |
+
+A auditoria é a única exigência aberta, e é a única do produto inteiro nesta situação: nenhuma operação tem registro auditável hoje, porque o serviço de auditoria é de um épico posterior. Registrar aqui em vez de silenciar, porque uma troca de senha sem trilha é exatamente o evento que uma investigação procuraria primeiro.
+
 ---
 
 ## 28. Recuperação

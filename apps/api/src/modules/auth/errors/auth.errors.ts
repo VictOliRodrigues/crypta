@@ -92,3 +92,39 @@ export class RefreshTokenReusedException extends ApiException {
     super('SESSION_REVOKED', HttpStatus.UNAUTHORIZED, 'Sua sessão foi encerrada por segurança.');
   }
 }
+
+/**
+ * `POST /users/me/change-password` com o `AuthSecret` atual errado.
+ *
+ * Distinta de `InvalidCredentialsException`, e a diferença é deliberada: aqui
+ * não existe oráculo de enumeração a evitar. Quem chama já está autenticado, a
+ * conta é a dele, e a tela não tem campo de e-mail para o texto do login fazer
+ * sentido.
+ */
+export class CurrentCredentialInvalidException extends ApiException {
+  constructor() {
+    super('CURRENT_CREDENTIAL_INVALID', HttpStatus.UNAUTHORIZED, 'A senha atual está incorreta.');
+  }
+}
+
+/**
+ * Tentativa de trocar a chave pública durante a alteração de senha.
+ *
+ * A chave pública é o endereço para o qual todo `VaultKeyEnvelope` existente
+ * foi selado. Aceitar uma nova aqui tornaria ilegível todo cofre que o usuário
+ * tem ou que compartilharam com ele, e o estrago só apareceria na próxima
+ * abertura — depois de a transação ter sido confirmada.
+ *
+ * A troca de senha reprotege o **mesmo** par com uma `UserEncryptionKey` nova.
+ * Substituir o par é outra operação, que a V1 não tem (`SECURITY.md` secao 28).
+ */
+export class PublicKeyChangeNotAllowedException extends ApiException {
+  constructor() {
+    super(
+      'PUBLIC_KEY_CHANGE_NOT_ALLOWED',
+      HttpStatus.CONFLICT,
+      'A alteração de senha não pode trocar seu par de chaves.',
+      [{ field: 'newKeyBundle.publicKey', code: 'IMMUTABLE' }],
+    );
+  }
+}

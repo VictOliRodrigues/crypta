@@ -12,6 +12,7 @@ import { AccessTokenGuard } from './guards/access-token.guard';
 import { AuthRepository } from './repositories/auth.repository';
 import { SessionRepository } from './repositories/session.repository';
 import { AccessTokenService } from './services/access-token.service';
+import { ChangePasswordService } from './services/change-password.service';
 import { CreateFirstUserService } from './services/create-first-user.service';
 import { GetKdfParametersService } from './services/get-kdf-parameters.service';
 import { GetKeyBundleService } from './services/get-key-bundle.service';
@@ -60,6 +61,7 @@ import { SetupStatusService } from './services/setup-status.service';
     RotateSessionService,
     SetupStatusService,
     CreateFirstUserService,
+    ChangePasswordService,
     GetKdfParametersService,
     GetKeyBundleService,
     LoginService,

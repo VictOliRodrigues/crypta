@@ -102,3 +102,22 @@ export async function logout(): Promise<void> {
     throw normalizeApiError(error);
   }
 }
+
+/**
+ * `POST /users/me/change-password` (docs/API.md secao 29).
+ *
+ * O corpo carrega dois `AuthSecret` derivados no cliente e o bundle já
+ * reprotegido. A senha, em nenhuma das duas versões, chega aqui.
+ */
+export async function changePassword(input: {
+  currentAuthSecret: string;
+  newAuthSecret: string;
+  newKeyBundle: UserKeyBundle;
+  revokeOtherSessions: boolean;
+}): Promise<void> {
+  try {
+    await apiClient.post('/users/me/change-password', input);
+  } catch (error) {
+    throw normalizeApiError(error);
+  }
+}
