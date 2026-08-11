@@ -307,6 +307,23 @@ Com os dois achados corrigidos, **a revisão libera o uso real do material cript
 
 A liberação tem um limite explícito, que não é ressalva de formalidade: os vetores foram exercitados **apenas na Web**. `PEND-003` mantém o Android por medir até a R0.7, e a `SECURITY.md` secao 22 exige as duas plataformas. A compatibilidade é garantida por construção — algoritmos e parâmetros fixados nos ADRs 0016 e 0017 — mas garantida não é o mesmo que medida.
 
+### Defeitos encontrados no primeiro uso real
+
+| Defeito                                                                                                                                         | Correção                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| **Login bem-sucedido não saía da tela de login.** `RequireSession` mandava quem não tinha sessão para `/login`, e não existia o caminho inverso | `bugfix/post-login-redirect`     |
+| `GET /auth/parameters` distinguia conta existente pela **ordem das chaves** do JSON, um oráculo de enumeração                                   | `security/kdf-parameters-oracle` |
+| `initSodium` esperava `sodium.ready` sem teto: um bloqueio de WebAssembly travava a interface em silêncio                                       | `security/kdf-parameters-oracle` |
+| A sonda de JIT do Zod disparava violação de CSP na tela de login                                                                                | `security/kdf-parameters-oracle` |
+
+O primeiro merece registro além da linha da tabela, porque o modo de falhar foi pior do que o defeito.
+
+O `signIn` completava inteiro — parâmetros, `POST /auth/login`, key bundle, desbloqueio — e a tela continuava sendo o formulário. Não havia erro para exibir, então **autenticar com sucesso ficava indistinguível de errar a senha**: o botão voltava de "Entrando…" para "Entrar" e nada mais acontecia. O mesmo valia depois do `POST /setup`.
+
+Nenhum teste reprovava. Os testes de W01 e W02 dublam o `useAuthActions`, então nunca exercitam o que vem depois do sucesso, e nenhum teste montava o grafo de rotas. Testar as guardas isoladamente também não teria pego: o que faltava era a guarda **no roteador**. Por isso o grafo passou a viver em `routes.tsx`, montável por `useRoutes` num teste.
+
+Custou quatro rodadas de diagnóstico contra hipóteses erradas — WebAssembly bloqueado, extensão, CSP, autopreenchimento — todas descartadas com medida antes de a instrumentação de `XMLHttpRequest` no navegador mostrar as quatro requisições saindo normalmente. A lição que fica registrada: **um sintoma silencioso na interface esconde um caminho feliz que funcionou**, e a primeira pergunta deveria ter sido "a requisição sai?", não "o que está bloqueando?".
+
 ### Por que a ordem das branches é essa
 
 `SECURITY.md` secao 18 registra que mudar o formato da AAD "hoje ainda é barato, porque nenhum cofre existe; depois do primeiro conteúdo gravado, não é". A mesma janela vale para o envelope de chave, cuja forma em `docs/API.md` secao 15 ainda não corresponde ao que `@crypta/crypto-web` produz.
@@ -328,7 +345,7 @@ Por isso o formato criptográfico é fechado **antes** da primeira migration, e 
 | BLG-0801 | DONE    | `GET /setup/status`, devolvendo só o booleano.                                                                                                                                           |
 | BLG-0802 | DONE    | Tela W01 e `POST /setup`, em transação e com idempotência.                                                                                                                               |
 | BLG-0803 | DONE    | `GET /auth/parameters`, com parâmetros sintéticos derivados do e-mail e estáveis entre chamadas.                                                                                         |
-| BLG-0804 | DONE    | Tela W02 e `POST /auth/login`, com bloqueio progressivo, cookie de refresh e fila de refresh no cliente.                                                                                 |
+| BLG-0804 | DONE    | Tela W02 e `POST /auth/login`, com bloqueio progressivo, cookie de refresh e fila de refresh no cliente. Faltava sair da tela após o sucesso; corrigido em `bugfix/post-login-redirect`. |
 | BLG-0805 | DONE    | Rotação, família e detecção de reuso, com a janela de 10 s lida conforme o ADR 0024.                                                                                                     |
 | BLG-0806 | DONE    | `POST /auth/logout` e `POST /auth/logout-all`, com limpeza do cookie.                                                                                                                    |
 | BLG-0807 | DONE    | `POST /users/me/change-password` e a aba Segurança do W24. `resealUserKeyBundle` reprotege o mesmo par; a API recusa troca de chave pública e salt reaproveitado.                        |
@@ -1548,15 +1565,16 @@ Nenhum escopo da fase precisou ser reduzido.
 
 ### Tarefas
 
-- [ ] Tela W02.
-- [ ] Derivação no cliente.
-- [ ] AuthSecret.
-- [ ] Access token.
-- [ ] Refresh cookie.
-- [ ] Key bundle.
-- [ ] Desbloqueio.
-- [ ] Erros.
-- [ ] Testes.
+- [x] Tela W02.
+- [x] Derivação no cliente.
+- [x] AuthSecret.
+- [x] Access token.
+- [x] Refresh cookie.
+- [x] Key bundle.
+- [x] Desbloqueio.
+- [x] Erros.
+- [x] Sair da tela de login após o sucesso. — Faltava; era o defeito silencioso.
+- [x] Testes. — Inclui o grafo de rotas montado, que é o que reprova sem a guarda.
 
 ---
 

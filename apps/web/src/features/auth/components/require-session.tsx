@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Navigate } from 'react-router';
+import { Navigate, useLocation } from 'react-router';
 
 import { useSessionStore } from '../stores/session-store';
 
@@ -15,9 +15,14 @@ import { useSessionStore } from '../stores/session-store';
  */
 export function RequireSession({ children }: { children: ReactNode }): React.JSX.Element {
   const accessToken = useSessionStore((state) => state.accessToken);
+  const location = useLocation();
 
   if (accessToken === null) {
-    return <Navigate to="/login" replace />;
+    // A rota tentada viaja no `state` para que `RedirectAuthenticated` devolva o
+    // usuário a ela depois do login, em vez de largá-lo na raiz. Vai só o
+    // caminho, nunca o objeto inteiro: `location` carrega também o `search`, e
+    // um dia isso significaria copiar um parâmetro sensível para o histórico.
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
   return <>{children}</>;

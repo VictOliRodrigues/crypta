@@ -1,47 +1,15 @@
-import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 
-import { AuthGate } from '@/features/auth/components/auth-gate';
-import { LoginPage } from '@/features/auth/components/login-page';
-import { RequireSession } from '@/features/auth/components/require-session';
-import { SetupPage } from '@/features/auth/components/setup-page';
-import { StatusPage } from '@/features/diagnostics/components/status-page';
-import { SettingsPage } from '@/features/settings/components/settings-page';
+import { routes } from './routes';
 
 /**
- * Rotas da aplicação.
+ * O grafo de rotas vive em `routes.tsx`, separado deste arquivo.
  *
- * `AuthGate` decide, antes de qualquer rota, se a instalação ainda precisa de
- * configuração inicial. Sem isso, uma instalação nova cairia no login e
- * mostraria "e-mail ou senha inválidos" para alguém que não tem conta a criar.
- *
- * Cofres, sites e credenciais entram a partir da R0.3, sob `RequireSession`.
+ * Dois motivos: um teste precisa montá-lo com `useRoutes`, porque o data router
+ * do React Router não navega sob jsdom; e o fast refresh só funciona quando um
+ * módulo exporta apenas componentes.
  */
-const router = createBrowserRouter([
-  {
-    element: (
-      <AuthGate>
-        <Outlet />
-      </AuthGate>
-    ),
-    children: [
-      { path: '/setup', element: <SetupPage /> },
-      { path: '/login', element: <LoginPage /> },
-      {
-        element: (
-          <RequireSession>
-            <Outlet />
-          </RequireSession>
-        ),
-        children: [
-          { path: '/', element: <StatusPage /> },
-          { path: '/diagnostico', element: <StatusPage /> },
-          { path: '/configuracoes', element: <SettingsPage /> },
-        ],
-      },
-      { path: '*', element: <Navigate to="/" replace /> },
-    ],
-  },
-]);
+const router = createBrowserRouter(routes);
 
 export function AppRouter() {
   return <RouterProvider router={router} />;
