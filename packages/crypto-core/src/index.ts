@@ -69,6 +69,13 @@ export {
   type UserKeyBundle,
 } from './identity/user-key-bundle';
 export {
+  createVaultKey,
+  createVaultKeyEnvelope,
+  INITIAL_KEY_VERSION,
+  openVaultKeyEnvelope,
+  VAULT_KEY_BYTES,
+} from './vault/vault-key';
+export {
   IDENTITY_PRODUCTION_VECTOR,
   type IdentityVector,
   USER_KEY_BUNDLE_AAD_VECTOR,
