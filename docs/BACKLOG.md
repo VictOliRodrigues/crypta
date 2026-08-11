@@ -165,7 +165,7 @@ Fora do gate, herdado para a R0.1: `staging` e `main` continuam no baseline ante
 de CI e recebem esse conteúdo na promoção da `release/0.1.0`; as variables `WEB_IMAGE` e
 `API_IMAGE` e os secrets do Coolify entram junto do primeiro deploy real.
 
-O estado da R0.2 é rastreado na secao 7, que passou a existir quando `@crypta/crypto-web` (PR #16) adiantou parte do ÉPICO 07. Nenhuma tarefa da R0.3 em diante foi iniciada.
+O estado da R0.2 é rastreado na secao 7, que passou a existir quando `@crypta/crypto-web` (PR #16) adiantou parte do ÉPICO 07. O da R0.3 está na secao 8. Nenhuma tarefa da R0.4 em diante foi iniciada.
 
 ---
 
@@ -402,6 +402,58 @@ Nenhum escopo da fase precisou ser reduzido.
 - **`PEND-003`, biblioteca libsodium no Android.** Os vetores desta fase nascem exercitados só na Web. A compatibilidade com o Android é garantida por construção — parâmetros e algoritmos fixados nos ADRs 0016 e 0017 — e só será **medida** na R0.7. Um vetor que roda em uma plataforma só prova metade do que `SECURITY.md` secao 22 exige.
 - **Parâmetros do Argon2id.** O [ADR 0018](decisions/0018-argon2id-parameters.md) declara os valores provisórios até a medição em Android. Cada usuário guarda os próprios parâmetros na sua linha, então recalibrar depois não invalida conta nenhuma — foi exatamente para isso que eles ficaram por usuário.
 - ~~**Check obrigatório novo.**~~ Resolvida em 8 de agosto de 2026: o check "Testes de integração com MySQL" foi registrado nos rulesets (`GITHUB_RELEASE_FLOW.md` secoes 17 e 18) e agora bloqueia merge.
+
+---
+
+## 8. Estado da R0.3
+
+> Aberta em 11 de agosto de 2026.
+
+A R0.3 entrega o primeiro conteúdo que o usuário cria: um cofre privado, cujo nome o servidor não pode conhecer. É onde o material criptográfico fechado na R0.2 passa a proteger dado real.
+
+Esta secao é o **gate único** da fase, no mesmo regime da secao 7: cada linha nasce `PENDENTE` e só vira `OK` acompanhada da evidência que a comprova, no pull request que a produziu. A tabela é escrita **antes** do código, não no fechamento — foi ter o critério verificável definido desde o começo que fez a R0.2 fechar sem discussão.
+
+### Gate de saída da R0.3
+
+Conforme `ROADMAP.md` secao 21. Os seis primeiros itens vêm de lá. O sétimo vem do [ADR 0020](decisions/0020-deletion-policy.md), cuja decisão de exclusão física só se sustenta se a auditoria sobreviver à entidade — é a razão de o `AuditLog` ter sido puxado para o `BLG-0503`.
+
+| Item do gate                   | Critério verificável                                                                                                                                                                                                                                       | Estado   |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| API não conhece nome do cofre  | Nenhuma coluna de `vaults` guarda texto claro. O DTO de `POST /vaults` e de `PATCH /vaults/:vaultId` aceita apenas `encryptedMetadata`, e `forbidNonWhitelisted` responde `400` a um campo `name`. e2e confere que nenhuma resposta de cofre carrega nome. | PENDENTE |
+| OWNER único                    | Constraint no banco recusa um segundo `OWNER` no mesmo cofre — teste de integração tenta inserir e recebe erro do MySQL, não da aplicação. A criação sempre grava o criador como `OWNER`.                                                                  | PENDENTE |
+| Acesso cruzado negado          | As cinco rotas de cofre exercitadas com cofre de outro usuário devolvem `404`, nunca `403`: a existência do recurso não vaza. Inclui membership ausente e ID cruzado entre dois cofres do mesmo chamador.                                                  | PENDENTE |
+| Version conflict testado       | `PATCH` e `DELETE` com `expectedVersion` defasado devolvem `409 VERSION_CONFLICT` **sem gravar**. Duas escritas concorrentes partindo da mesma versão: uma vence, a outra recebe o conflito.                                                               | PENDENTE |
+| Snapshot protegido             | `GET /vaults/:vaultId/snapshot` exige membro ativo; não-membro recebe `404`. O envelope devolvido é o do chamador e de nenhum outro membro.                                                                                                                | PENDENTE |
+| Logs sanitizados               | `LogFields` continua sem campo livre. Nenhuma chamada de log recebe `encryptedMetadata`, envelope ou ciphertext, e o e2e confere que o log de criação de cofre carrega apenas identificadores.                                                             | PENDENTE |
+| Auditoria sobrevive à exclusão | Excluir um cofre remove a linha de `vaults` e mantém o registro em `audit_logs`, que não tem chave estrangeira para ela. Teste de integração confere as duas metades: a entidade some, o registro fica.                                                    | PENDENTE |
+
+### Decisões fechadas antes do código
+
+| Decisão                                                 | Onde                                               |
+| ------------------------------------------------------- | -------------------------------------------------- |
+| `AuditLog` sai do `BLG-0506` e entra no `BLG-0503`      | `BLG-0503`, com a justificativa                    |
+| `BLG-1005` deixa de pedir soft delete e purge           | `BLG-1005`, pela hierarquia da `CLAUDE.md` secao 2 |
+| Envelope de chave corrigido nas rotas que o transportam | `API.md` secoes 34, 38, 48 e 68                    |
+
+### Tarefas da R0.3
+
+| Item     | Status  | Observação                                                                                                    |
+| -------- | ------- | ------------------------------------------------------------------------------------------------------------- |
+| BLG-0503 | BACKLOG | `vaults`, `vault_members`, `vault_key_envelopes` e `audit_logs`.                                              |
+| BLG-0705 | PARCIAL | Falta o que a R0.2 deixou explícito: geração da `VaultKey`, envelope OWNER e `keyVersion`.                    |
+| BLG-0706 | BACKLOG | Na R0.3 só a metadata do cofre. Site e credential entram na R0.4.                                             |
+| BLG-1001 | BACKLOG | Modal W06, `POST /vaults`, transação, idempotência e auditoria.                                               |
+| BLG-1002 | BACKLOG | `GET /vaults` e dashboard W05, com a decifragem da metadata no cliente.                                       |
+| BLG-1003 | BACKLOG | `GET /vaults/:vaultId`.                                                                                       |
+| BLG-1004 | BACKLOG | Modal W07, `PATCH /vaults/:vaultId`, OWNER only e `expectedVersion`.                                          |
+| BLG-1005 | BACKLOG | Modal W08 e `DELETE /vaults/:vaultId`, com exclusão física e auditoria preservada.                            |
+| BLG-1006 | BACKLOG | `GET /vaults/:vaultId/snapshot`. Devolve envelope e membros; `sites` e `credentials` ficam vazios até a R0.4. |
+
+### Limites conhecidos da fase
+
+- **O snapshot nasce parcial.** `BLG-1006` prevê sites e credenciais, que só existem na R0.4. Na R0.3 o endpoint responde com as listas vazias — e isso é entrega, não pendência: o cursor e os limites precisam existir antes de haver conteúdo para paginar.
+- **`EDITOR` fica declarado e não exercitado.** O papel existe no schema desde o `BLG-0503`, mas convite, membership e envelope por membro são da R0.5. A linha "acesso cruzado negado" do gate cobre não-membro, não o `EDITOR`.
+- **`MAX_VAULTS_PER_USER=100`** é o valor sugerido em `API.md` secao 74 e sustenta o `VAULT_LIMIT_REACHED`. Continua sugerido até a configuração por ambiente.
 
 ---
 
@@ -1171,6 +1223,15 @@ Nenhum escopo da fase precisou ser reduzido.
 - [ ] Vault.
 - [ ] VaultMember.
 - [ ] VaultKeyEnvelope.
+- [ ] AuditLog. — Puxado do `BLG-0506` em 11 de agosto de 2026.
+
+### Por que o `AuditLog` entra aqui
+
+`ROADMAP.md` secao 19 lista auditoria entre as entregas da R0.3, e o `BLG-1001` a exige já na criação do cofre. A tabela estava no `BLG-0506`, junto de `ImportJob` e `ImportVaultBatch`, que são da R0.6.
+
+Deixá-la lá obrigaria a R0.3 a gravar cofre sem trilha e a acrescentar a trilha depois, sobre dado existente. O [ADR 0020](decisions/0020-deletion-policy.md) fez a exclusão ser física justamente contando com uma auditoria que sobrevive à entidade: sem a tabela, excluir um cofre não deixa registro nenhum.
+
+O `BLG-0506` permanece, com as duas entidades de importação.
 
 ---
 
@@ -1185,7 +1246,7 @@ Nenhum escopo da fase precisou ser reduzido.
 - [ ] Site.
 - [ ] Credential.
 - [ ] Versionamento.
-- [ ] Soft delete técnico.
+- [ ] Exclusão física, sem `deleted_at`. — Corrigido em 11 de agosto de 2026; dizia "soft delete técnico", contra o [ADR 0020](decisions/0020-deletion-policy.md).
 
 ---
 
@@ -1212,7 +1273,7 @@ Nenhum escopo da fase precisou ser reduzido.
 
 - [ ] ImportJob.
 - [ ] ImportVaultBatch.
-- [ ] AuditLog.
+- ~~AuditLog.~~ — Passou para o `BLG-0503` em 11 de agosto de 2026, porque a R0.3 já grava auditoria.
 
 ---
 
@@ -1784,12 +1845,19 @@ Nenhum escopo da fase precisou ser reduzido.
 
 ### Tarefas
 
-- [ ] Modal destrutivo.
+- [ ] Modal destrutivo W08.
 - [ ] OWNER only.
-- [ ] Soft delete técnico.
-- [ ] Purge.
-- [ ] Auditoria.
+- [ ] Exclusão física do cofre e do que depende dele.
+- [ ] Registro de auditoria que sobrevive à exclusão.
 - [ ] Testes.
+
+### Correção de 11 de agosto de 2026
+
+As tarefas diziam "soft delete técnico" e "purge". O [ADR 0020](decisions/0020-deletion-policy.md), aceito em 7 de agosto, decidiu **exclusão física, sem `deleted_at` e sem filtro de exclusão em consulta** — e `DATABASE.md` secao 7 já refletia a decisão.
+
+Pela hierarquia da `CLAUDE.md` secao 2, o ADR prevalece sobre o backlog. Implementar o item como estava escrito manteria `encryptedPayload` recuperável por uma consulta que esquecesse o filtro, que é exatamente a primeira restrição que o ADR fecha.
+
+O que substitui o par soft delete/purge é a assimetria do ADR: a entidade some do banco, o `AuditLog` fica, sem chave estrangeira para ela.
 
 ---
 
