@@ -437,17 +437,17 @@ Conforme `ROADMAP.md` secao 21. Os seis primeiros itens vêm de lá. O sétimo v
 
 ### Tarefas da R0.3
 
-| Item     | Status  | Observação                                                                                                    |
-| -------- | ------- | ------------------------------------------------------------------------------------------------------------- |
-| BLG-0503 | BACKLOG | `vaults`, `vault_members`, `vault_key_envelopes` e `audit_logs`.                                              |
-| BLG-0705 | PARCIAL | Falta o que a R0.2 deixou explícito: geração da `VaultKey`, envelope OWNER e `keyVersion`.                    |
-| BLG-0706 | BACKLOG | Na R0.3 só a metadata do cofre. Site e credential entram na R0.4.                                             |
-| BLG-1001 | BACKLOG | Modal W06, `POST /vaults`, transação, idempotência e auditoria.                                               |
-| BLG-1002 | BACKLOG | `GET /vaults` e dashboard W05, com a decifragem da metadata no cliente.                                       |
-| BLG-1003 | BACKLOG | `GET /vaults/:vaultId`.                                                                                       |
-| BLG-1004 | BACKLOG | Modal W07, `PATCH /vaults/:vaultId`, OWNER only e `expectedVersion`.                                          |
-| BLG-1005 | BACKLOG | Modal W08 e `DELETE /vaults/:vaultId`, com exclusão física e auditoria preservada.                            |
-| BLG-1006 | BACKLOG | `GET /vaults/:vaultId/snapshot`. Devolve envelope e membros; `sites` e `credentials` ficam vazios até a R0.4. |
+| Item     | Status  | Observação                                                                                                                  |
+| -------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| BLG-0503 | DONE    | Migration `20260811203308_vaults`, testada em banco vazio e em banco com dados. Um dono por cofre virou restrição de banco. |
+| BLG-0705 | PARCIAL | Falta o que a R0.2 deixou explícito: geração da `VaultKey`, envelope OWNER e `keyVersion`.                                  |
+| BLG-0706 | BACKLOG | Na R0.3 só a metadata do cofre. Site e credential entram na R0.4.                                                           |
+| BLG-1001 | BACKLOG | Modal W06, `POST /vaults`, transação, idempotência e auditoria.                                                             |
+| BLG-1002 | BACKLOG | `GET /vaults` e dashboard W05, com a decifragem da metadata no cliente.                                                     |
+| BLG-1003 | BACKLOG | `GET /vaults/:vaultId`.                                                                                                     |
+| BLG-1004 | BACKLOG | Modal W07, `PATCH /vaults/:vaultId`, OWNER only e `expectedVersion`.                                                        |
+| BLG-1005 | BACKLOG | Modal W08 e `DELETE /vaults/:vaultId`, com exclusão física e auditoria preservada.                                          |
+| BLG-1006 | BACKLOG | `GET /vaults/:vaultId/snapshot`. Devolve envelope e membros; `sites` e `credentials` ficam vazios até a R0.4.               |
 
 ### Limites conhecidos da fase
 

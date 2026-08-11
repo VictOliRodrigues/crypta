@@ -1,10 +1,12 @@
 // Schema Prisma do cofre de senhas.
 //
-// ESTADO ATUAL (R0.2): identidade. Cofres entram na R0.3.
+// ESTADO ATUAL (R0.3): identidade e cofres.
 //
 // Convenções fixadas e não negociáveis sem ADR:
 //
-//   - identificador público é UUIDv7 em CHAR(36), gerado pelo Prisma (ADR 0019);
+//   - identificador público é UUIDv7 em CHAR(36) (ADR 0019), gerado pelo Prisma,
+//     exceto nas entidades que o cliente cifra, onde quem gera é o cliente e a
+//     coluna não tem `@default` (ADR 0025);
 //   - exclusão é física, sem `deleted_at` e sem filtro de exclusão em consulta,
 //     e o comportamento de cada FK está declarado no ADR 0020;
 //   - tabelas no plural em snake_case, colunas em snake_case (DATABASE.md secao 5);
@@ -68,8 +70,10 @@ model User {
   createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
 
-  keyBundle UserKeyBundle?
-  sessions  Session[]
+  keyBundle    UserKeyBundle?
+  sessions     Session[]
+  memberships  VaultMember[]
+  keyEnvelopes VaultKeyEnvelope[]
 
   @@map("users")
 }
@@ -208,4 +212,182 @@ model IdempotencyRecord {
 
   @@unique([scope, idempotencyKey])
   @@map("idempotency_records")
+}
+
+/// Papel de um membro dentro de um cofre (PROJECT_SCOPE.md, papéis da V1).
+///
+/// `READER` e transferência de propriedade estão fora do escopo da V1
+/// (CLAUDE.md secao 11). Acrescentar valor aqui é mudança de escopo.
+enum VaultRole {
+  OWNER
+  EDITOR
+}
+
+/// Cofre.
+///
+/// O servidor não sabe como o cofre se chama. Nome e descrição vivem cifrados
+/// com a `VaultKey`, que ele nunca recebe (ADR 0003, ADR 0005).
+///
+/// O `id` NÃO tem `@default`, e a ausência é a decisão do ADR 0025: quem gera é
+/// o cliente, porque a AAD da metadata amarra a este valor e o conteúdo é
+/// cifrado antes do `POST`. Com um default aqui, um `INSERT` sem id gravaria uma
+/// linha cujo conteúdo ninguém consegue abrir.
+model Vault {
+  id String @id @db.Char(36)
+
+  /// Nonce da XChaCha20-Poly1305 em base64url. 24 bytes viram 32 caracteres.
+  metadataNonce String @map("metadata_nonce") @db.VarChar(32)
+
+  /// Nome e descrição cifrados, em base64url.
+  ///
+  /// `Text` e não `VarChar`: o limite do formato — 200 caracteres de nome e
+  /// 2000 de descrição — chega a cerca de 12 mil caracteres depois de UTF-8,
+  /// tag e base64url, e uma `VarChar` desse tamanho competiria com o limite de
+  /// linha do InnoDB.
+  metadataCiphertext String @map("metadata_ciphertext") @db.Text
+
+  /// Algoritmo declarado do payload, para que a resposta o devolva sem inferir.
+  metadataAlgorithm String @map("metadata_algorithm") @db.VarChar(32)
+
+  cryptoVersion Int @map("crypto_version") @db.UnsignedSmallInt
+  schemaVersion Int @map("schema_version") @db.UnsignedSmallInt
+
+  /// Concorrência otimista (DATABASE.md secao 5, API.md secao 13). Toda mutação
+  /// bem-sucedida incrementa exatamente uma vez.
+  version Int @default(1) @db.UnsignedInt
+
+  /// Geração da `VaultKey`. Incrementa a cada rekey (R0.5).
+  keyVersion Int @default(1) @map("key_version") @db.UnsignedInt
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  members   VaultMember[]
+  envelopes VaultKeyEnvelope[]
+
+  @@map("vaults")
+}
+
+/// Associação entre usuário e cofre.
+///
+/// `User` → `VaultMember` é `Restrict` (ADR 0020): excluir quem ainda é `OWNER`
+/// deixaria o cofre sem dono e os demais membros sem quem faça rekey. A
+/// exclusão precisa falhar e obrigar a apagar o cofre antes.
+///
+/// **`OWNER` único por cofre é garantido pelo banco, não pela aplicação.**
+///
+/// MySQL não tem índice único parcial, e a coluna gerada que o substituiria não
+/// é permitida aqui: uma FK com `ON DELETE CASCADE` não pode incidir sobre a
+/// coluna base de uma coluna `STORED`, e `vault_id` é as duas coisas ao mesmo
+/// tempo. A tentativa falha com o erro 1215 do MySQL, não com um aviso.
+///
+/// O que sustenta a garantia é `ownerVaultId`: vale `vaultId` na linha do
+/// `OWNER` e é nulo nas demais. O índice único recusa o segundo `OWNER` do
+/// mesmo cofre e ignora os nulos; um `CHECK` na migration recusa qualquer
+/// combinação em que a coluna discorde de `role` e `vaultId`. Escrever o valor
+/// é responsabilidade do repositório — mentir nele é que não é possível.
+model VaultMember {
+  id String @id @default(uuid(7)) @db.Char(36)
+
+  vaultId String @map("vault_id") @db.Char(36)
+  vault   Vault  @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id") @db.Char(36)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  role VaultRole
+
+  /// Espelho de `vaultId`, apenas na linha do `OWNER`. Ver a nota acima: é o
+  /// que torna "um dono por cofre" uma restrição de banco.
+  ownerVaultId String? @unique @map("owner_vault_id") @db.Char(36)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  @@unique([vaultId, userId])
+  @@index([userId])
+  @@map("vault_members")
+}
+
+/// `VaultKey` cifrada para a chave pública de um membro (ADR 0005, ADR 0023).
+///
+/// O servidor guarda o envelope e não tem como abri-lo: ele é selado para uma
+/// chave pública cuja metade privada nunca sai do cliente.
+///
+/// Não existe coluna `nonce`, e a ausência é decisão: o nonce é derivado junto
+/// com a chave da AEAD e não trafega. Transmiti-lo criaria uma segunda fonte de
+/// verdade capaz de discordar da primeira.
+model VaultKeyEnvelope {
+  id String @id @default(uuid(7)) @db.Char(36)
+
+  vaultId String @map("vault_id") @db.Char(36)
+  vault   Vault  @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+
+  /// `Restrict` porque a relação não está na tabela do ADR 0020, e o padrão
+  /// conservador do `CLAUDE.md` secao 45 é não propagar exclusão sem decisão.
+  /// Na prática a exclusão de conta já é bloqueada antes, por `VaultMember`.
+  userId String @map("user_id") @db.Char(36)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  /// Geração da `VaultKey` que este envelope entrega.
+  keyVersion Int @map("key_version") @db.UnsignedInt
+
+  cryptoVersion Int @map("crypto_version") @db.UnsignedSmallInt
+
+  algorithm String @db.VarChar(64)
+
+  /// Chave pública X25519 efêmera em base64url. 32 bytes viram 43 caracteres.
+  ephemeralPublicKey String @map("ephemeral_public_key") @db.VarChar(43)
+
+  /// `VaultKey` cifrada com a tag, em base64url. 48 bytes viram 64 caracteres.
+  encryptedVaultKey String @map("encrypted_vault_key") @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  /// Um envelope por membro por geração de chave. O rekey da R0.5 grava a
+  /// geração seguinte e apaga a anterior.
+  @@unique([vaultId, userId, keyVersion])
+  @@index([userId])
+  @@map("vault_key_envelopes")
+}
+
+/// Trilha de auditoria.
+///
+/// **Sem chave estrangeira**, de propósito (ADR 0020): o registro precisa
+/// sobreviver à exclusão da entidade que descreve. Como a exclusão é física, é
+/// esta tabela que guarda a prova de que algo existiu e foi apagado.
+///
+/// Nada de conteúdo aqui. Nome de cofre, senha, observação e ciphertext estão
+/// proibidos (ARCHITECTURE.md secao 33.3); só entram identificadores, ação e
+/// metadados técnicos.
+model AuditLog {
+  id String @id @default(uuid(7)) @db.Char(36)
+
+  /// Quem executou. Guardado como valor, não como FK.
+  actorId String? @map("actor_id") @db.Char(36)
+
+  /// Verbo estável, em UPPER_SNAKE_CASE. Ex.: `VAULT_CREATED`.
+  action String @db.VarChar(64)
+
+  entityType String  @map("entity_type") @db.VarChar(32)
+  entityId   String? @map("entity_id") @db.Char(36)
+  vaultId    String? @map("vault_id") @db.Char(36)
+
+  /// Correlaciona com o log estruturado da requisição.
+  requestId String? @map("request_id") @db.VarChar(64)
+
+  ipAddress String? @map("ip_address") @db.VarChar(45)
+  userAgent String? @map("user_agent") @db.VarChar(255)
+
+  /// `SUCCESS` ou `FAILURE`.
+  result String @db.VarChar(16)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@index([actorId])
+  @@index([vaultId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

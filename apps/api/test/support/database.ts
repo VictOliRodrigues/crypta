@@ -13,7 +13,16 @@ import { type PrismaService } from '@/database/prisma/prisma.service';
  * readiness reportar que nenhuma migration rodou, o que é verdade sobre a
  * tabela e mentira sobre o schema.
  */
-const TABLES = ['sessions', 'user_key_bundles', 'idempotency_records', 'users'] as const;
+const TABLES = [
+  'audit_logs',
+  'vault_key_envelopes',
+  'vault_members',
+  'vaults',
+  'sessions',
+  'user_key_bundles',
+  'idempotency_records',
+  'users',
+] as const;
 
 export async function resetDatabase(prisma: PrismaService): Promise<void> {
   await prisma.$executeRawUnsafe('SET FOREIGN_KEY_CHECKS = 0');
