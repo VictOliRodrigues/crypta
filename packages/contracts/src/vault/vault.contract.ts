@@ -57,6 +57,17 @@ export type KeyEnvelopeView = {
 export type VaultSummary = {
   id: string;
   encryptedMetadata: EncryptedPayload;
+  /**
+   * Envelope do chamador para a geração corrente da chave.
+   *
+   * Sem ele a listagem seria ilegível: a metadata é cifrada com a `VaultKey`, e
+   * a `VaultKey` só sai deste envelope. A alternativa era o dashboard pedir um
+   * snapshot por cofre só para descobrir os nomes.
+   *
+   * Não é vazamento: é o envelope **do próprio chamador**, selado para a chave
+   * pública dele, e o snapshot já o devolvia. O de outro membro continua fora.
+   */
+  currentUserEnvelope: KeyEnvelopeView;
   role: VaultRole;
   memberCount: number;
   siteCount: number;

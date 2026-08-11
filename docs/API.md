@@ -1283,6 +1283,13 @@ order=asc|desc
         "nonce": "base64url",
         "ciphertext": "base64url"
       },
+      "currentUserEnvelope": {
+        "keyVersion": 1,
+        "cryptoVersion": 1,
+        "algorithm": "X25519-HKDF-SHA256-XCHACHA20-POLY1305",
+        "ephemeralPublicKey": "base64url",
+        "encryptedVaultKey": "base64url"
+      },
       "role": "OWNER",
       "memberCount": 1,
       "siteCount": 3,
@@ -1301,6 +1308,12 @@ order=asc|desc
 ### Observação
 
 A API conhece contagens, mas não nomes.
+
+### Por que o envelope vem na listagem
+
+Sem ele o dashboard não teria como exibir nome nenhum: a metadata é cifrada com a `VaultKey`, e a `VaultKey` só sai do envelope. A alternativa seria a Web pedir um snapshot por cofre só para descobrir os nomes — uma requisição por linha da lista.
+
+Vem apenas o envelope **do próprio chamador**, na geração corrente da chave, e o filtro é do banco. O de outro membro continua fora daqui e do snapshot: ele não daria acesso a nada, por ser selado para outra chave pública, mas entregaria o mapa de quem acessa o quê.
 
 ---
 

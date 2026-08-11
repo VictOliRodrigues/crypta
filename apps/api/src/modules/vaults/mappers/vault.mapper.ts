@@ -5,6 +5,7 @@ import {
   type VaultSummary,
 } from '@crypta/contracts';
 
+import { InvalidEnvelopeException } from '../errors/vault.errors';
 import {
   type OwnerEnvelopeInput,
   type VaultRecord,
@@ -39,9 +40,18 @@ function toEncryptedPayload(vault: VaultRecord): EncryptedPayload {
 }
 
 export function toVaultSummary(vault: VaultWithRole): VaultSummary {
+  if (vault.currentUserEnvelope === null) {
+    // Membro sem envelope na geração corrente é estado inválido: a associação e
+    // o envelope nascem na mesma transação. Devolver a listagem sem ele
+    // entregaria metadata que o cliente não tem como abrir, e o sintoma seria
+    // "falha ao descriptografar" — que não aponta para a causa.
+    throw new InvalidEnvelopeException('MISSING_FOR_CURRENT_KEY_VERSION');
+  }
+
   return {
     id: vault.id,
     encryptedMetadata: toEncryptedPayload(vault),
+    currentUserEnvelope: toKeyEnvelopeView(vault.currentUserEnvelope),
     role: vault.role,
     memberCount: vault.memberCount,
     siteCount: SITE_COUNT_UNTIL_R04,
