@@ -1,3 +1,5 @@
+import { CryptoFormatError } from '../errors';
+
 /**
  * Codificação UTF-8 implementada sem depender de `TextEncoder`.
  *
@@ -65,4 +67,91 @@ export function encodeUtf8(value: string): Uint8Array {
 /** Comprimento em bytes UTF-8, usado nos prefixos de tamanho da AAD. */
 export function utf8ByteLength(value: string): number {
   return encodeUtf8(value).length;
+}
+
+/** Tamanho do lote de `String.fromCodePoint`, para não estourar a pilha. */
+const CHUNK_CODE_POINTS = 4096;
+
+function invalid(): never {
+  throw new CryptoFormatError('Sequência UTF-8 inválida.');
+}
+
+/**
+ * Converte bytes UTF-8 em string.
+ *
+ * **Recusa entrada malformada**, e essa é a diferença deliberada em relação ao
+ * `TextDecoder`, que substitui bytes inválidos por U+FFFD e segue adiante. Aqui
+ * a entrada é sempre texto claro recém-saído de uma AEAD: os bytes já foram
+ * autenticados, então malformação não significa dado corrompido em trânsito —
+ * significa que quem escreveu não escreveu texto. Substituir em silêncio
+ * transformaria isso num nome de cofre com caracteres estranhos.
+ *
+ * Sequência overlong, surrogate codificado e ponto acima de U+10FFFF são
+ * recusados pelo mesmo motivo: são as três formas clássicas de fazer dois bytes
+ * diferentes decodificarem para o mesmo texto, e nada aqui precisa disso.
+ */
+export function decodeUtf8(bytes: Uint8Array): string {
+  const codePoints: number[] = [];
+  let index = 0;
+
+  while (index < bytes.length) {
+    const first = bytes[index] ?? invalid();
+
+    let codePoint: number;
+    let continuationCount: number;
+    let smallest: number;
+
+    if (first < 0x80) {
+      codePoint = first;
+      continuationCount = 0;
+      smallest = 0;
+    } else if ((first & 0xe0) === 0xc0) {
+      codePoint = first & 0x1f;
+      continuationCount = 1;
+      smallest = 0x80;
+    } else if ((first & 0xf0) === 0xe0) {
+      codePoint = first & 0x0f;
+      continuationCount = 2;
+      smallest = 0x800;
+    } else if ((first & 0xf8) === 0xf0) {
+      codePoint = first & 0x07;
+      continuationCount = 3;
+      smallest = 0x10000;
+    } else {
+      invalid();
+    }
+
+    if (index + continuationCount >= bytes.length) {
+      invalid();
+    }
+
+    for (let offset = 1; offset <= continuationCount; offset += 1) {
+      const continuation = bytes[index + offset] ?? invalid();
+
+      if ((continuation & 0xc0) !== 0x80) {
+        invalid();
+      }
+
+      codePoint = (codePoint << 6) | (continuation & 0x3f);
+    }
+
+    if (codePoint < smallest || codePoint > 0x10ffff) {
+      invalid();
+    }
+
+    if (codePoint >= SURROGATE_START && codePoint <= SURROGATE_END) {
+      invalid();
+    }
+
+    codePoints.push(codePoint);
+    index += continuationCount + 1;
+  }
+
+  let decoded = '';
+
+  for (let start = 0; start < codePoints.length; start += CHUNK_CODE_POINTS) {
+    decoded += String.fromCodePoint(...codePoints.slice(start, start + CHUNK_CODE_POINTS));
+  }
+
+  return decoded;
 }

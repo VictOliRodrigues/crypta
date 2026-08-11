@@ -38,6 +38,7 @@ Um ADR publicado não é reescrito. Quando uma decisão muda, cria-se um novo AD
 | [0022](0022-server-side-credentials.md)       | Credenciais e tokens no servidor              | ACCEPTED |
 | [0023](0023-identity-aad-and-key-envelope.md) | AAD de identidade e envelope de chave         | ACCEPTED |
 | [0024](0024-rotation-grace-window.md)         | Janela de tolerância na rotação               | ACCEPTED |
+| [0025](0025-client-generated-identifiers.md)  | Identificador gerado no cliente               | ACCEPTED |
 
 ## Decisões ainda em aberto
 

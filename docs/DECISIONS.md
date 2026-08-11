@@ -2178,6 +2178,49 @@ Guardar em claro por 10 segundos reduz a janela mas não o modo de falha, e cria
 
 ---
 
+## DEC-052 — Identificador gerado no cliente para entidades cifradas
+
+### Status
+
+ACCEPTED
+
+### Decisão
+
+O cliente gera o UUIDv7 das entidades cujo conteúdo ele cifra e o envia no `POST`. Vale para o cofre na R0.3 e para site e credencial na R0.4. O formato continua UUIDv7 em `CHAR(36)`; muda a origem, e só para essas tabelas.
+
+A API valida e não corrige: id ausente, malformado ou de outra versão é `400`, id repetido é `409`, e a coluna não tem `@default` — um `INSERT` sem id falha alto em vez de gravar conteúdo ilegível. As demais tabelas continuam com id gerado pelo Prisma.
+
+### Motivos
+
+A AAD do escopo `vault` exige `entityId` e `vaultId`, que para a metadata do cofre são o id dele. O cliente cifra antes do `POST`, e o id do ADR 0019 só existia depois — o fluxo da `ARCHITECTURE.md` secao 19 não fechava.
+
+Amarrar a outra coisa não resolve. A AAD existe para impedir que a metadata de um cofre seja aceita no lugar da de outro; se o vínculo for uma coluna que o servidor controla, ele troca as duas juntas e a AAD confere. O vínculo precisa ser conhecido pelo cliente por fora da resposta, e só o identificador que ele usou para pedir aquele cofre satisfaz isso.
+
+### Rejeitado
+
+```text
+criar o cofre e cifrar a metadata num segundo passo
+reservar o id num endpoint próprio antes de criar
+mudar o formato da AAD do escopo vault
+manter o id do servidor e amarrar a AAD a uma coluna opaca
+```
+
+Criar e depois cifrar preserva o ADR 0019, mas custa duas idas, cria um intervalo com cofre sem nome e torna "cofre sem metadata" um estado representável para sempre. A coluna opaca é a saída intuitiva que não funciona, e está registrada porque alguém vai propô-la de novo.
+
+### Consequências
+
+- a criação do cofre volta a caber em uma requisição, com a AAD funcionando como projetada;
+- o mesmo caminho serve site e credencial na R0.4, sem decisão nova;
+- o ADR 0019 passa a ter exceção declarada, e a `DATABASE.md` diz por tabela quem gera o id;
+- `@crypta/crypto-core` ganha `createEntityId`, compartilhado com o Android;
+- `POST /vaults` ganha `409 IDENTIFIER_CONFLICT`, que é um oráculo de existência assumido: com 2¹²² de espaço e autorização por membership, saber que um id existe não dá acesso a nada.
+
+### ADR
+
+[`docs/decisions/0025-client-generated-identifiers.md`](decisions/0025-client-generated-identifiers.md)
+
+---
+
 # DECISÕES REJEITADAS
 
 ---

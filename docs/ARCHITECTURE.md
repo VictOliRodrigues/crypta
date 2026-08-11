@@ -1100,13 +1100,15 @@ sequenceDiagram
     participant A as API
     participant D as MySQL
 
+    C->>C: Gera o id do cofre (UUIDv7)
     C->>C: Gera VaultKey
     C->>C: Criptografa nome e descrição
     C->>C: Cria envelope para sua chave pública
 
     C->>A: POST /vaults
-    Note over C,A: Metadata criptografada + envelope
+    Note over C,A: Id + metadata criptografada + envelope
 
+    A->>A: Valida o id e o formato dos campos
     A->>D: Cria vault
     A->>D: Cria membro OWNER
     A->>D: Salva envelope
@@ -1115,6 +1117,12 @@ sequenceDiagram
 ```
 
 A API deverá usar uma única transação.
+
+### O id nasce no cliente
+
+A ordem acima só fecha porque o id vem do cliente ([ADR 0025](decisions/0025-client-generated-identifiers.md)). A AAD da metadata amarra ao id do cofre (secao 14.9), e a metadata é cifrada antes da requisição — com um id gerado pelo servidor, o cliente teria que cifrar amarrando a um valor que ainda não conhece.
+
+É a mesma lacuna que o escopo `user` resolveu amarrando à chave pública. O escopo `vault` não tem candidato equivalente: o vínculo precisa ser algo que o servidor não possa reescrever junto com o ciphertext, e só o identificador que o cliente usou para pedir aquele cofre satisfaz isso.
 
 ---
 

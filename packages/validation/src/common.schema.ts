@@ -44,6 +44,17 @@ export const displayNameSchema = z
 export const uuidSchema = z.uuid({ message: 'Identificador inválido.' });
 
 /**
+ * Identificador gerado pelo cliente, nas entidades cujo conteúdo ele cifra
+ * ([ADR 0025](../../../docs/decisions/0025-client-generated-identifiers.md)).
+ *
+ * Exige a **versão 7**, e não um UUID qualquer. O formato precisa ser o mesmo
+ * que o Prisma produz nas demais tabelas para que uma coluna `CHAR(36)` sirva
+ * às duas origens; aceitar outra versão aqui deixaria entrar id que o resto do
+ * sistema não sabe de onde veio.
+ */
+export const uuidV7Schema = z.uuidv7({ message: 'Identificador inválido.' });
+
+/**
  * Link de site.
  *
  * Somente `http` e `https` são aceitos: esquemas como `javascript:` ou `data:`

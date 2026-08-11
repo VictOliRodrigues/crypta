@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { displayNameSchema, emailSchema, httpUrlSchema, uuidSchema } from './common.schema';
+import {
+  displayNameSchema,
+  emailSchema,
+  httpUrlSchema,
+  uuidSchema,
+  uuidV7Schema,
+} from './common.schema';
 
 describe('emailSchema', () => {
   it('normalizes case and surrounding whitespace', () => {
@@ -53,5 +59,26 @@ describe('uuidSchema', () => {
 
   it('rejects a sequential identifier', () => {
     expect(uuidSchema.safeParse('1').success).toBe(false);
+  });
+});
+
+describe('uuidV7Schema', () => {
+  it('aceita um UUIDv7', () => {
+    expect(uuidV7Schema.safeParse('0198e4c1-7f3a-7bcd-8f01-2c4a6b8d0e12').success).toBe(true);
+  });
+
+  /**
+   * O formato precisa ser o mesmo que o Prisma produz nas demais tabelas. Um
+   * v4 passaria por `uuidSchema` e entraria como id de origem desconhecida.
+   */
+  it('recusa outras versões de UUID', () => {
+    expect(uuidV7Schema.safeParse('9f1b2c3d-4e5f-4a6b-8c9d-0e1f2a3b4c5d').success).toBe(false);
+    expect(uuidSchema.safeParse('9f1b2c3d-4e5f-4a6b-8c9d-0e1f2a3b4c5d').success).toBe(true);
+  });
+
+  it('recusa texto que não é UUID', () => {
+    for (const value of ['', 'cofre-1', '0198e4c17f3a7bcd8f012c4a6b8d0e12']) {
+      expect(uuidV7Schema.safeParse(value).success).toBe(false);
+    }
   });
 });

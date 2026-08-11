@@ -340,6 +340,7 @@ SESSION_EXPIRED
 ACCESS_DENIED
 RESOURCE_NOT_FOUND
 VERSION_CONFLICT
+IDENTIFIER_CONFLICT
 IDEMPOTENCY_CONFLICT
 RATE_LIMIT_EXCEEDED
 PAYLOAD_TOO_LARGE
@@ -1319,6 +1320,7 @@ Idempotency-Key: <uuid>
 
 ```json
 {
+  "id": "uuid-v7",
   "encryptedMetadata": {
     "cryptoVersion": 1,
     "schemaVersion": 1,
@@ -1350,6 +1352,12 @@ Idempotency-Key: <uuid>
 }
 ```
 
+### O `id` vem do cliente
+
+É a exceção do [ADR 0025](decisions/0025-client-generated-identifiers.md), e não uma conveniência: a AAD de `encryptedMetadata` amarra ao id do cofre, e o cliente cifra antes desta requisição. Um id gerado aqui produziria metadata que ninguém consegue abrir.
+
+A API valida e não corrige. Precisa ser UUIDv7 — id ausente, malformado ou de outra versão é `400 VALIDATION_ERROR`; id já usado é `409 IDENTIFIER_CONFLICT`, e o cliente refaz com outro.
+
 ### Validação estrutural
 
 `encryptedMetadata` segue a secao 14 e é validado por `parseCipherPayload`; `ownerEnvelope` segue a secao 15 e é validado por `parseKeyEnvelope`. As duas funções vêm de `@crypta/crypto-core`, as mesmas que o cliente usa para produzir os campos.
@@ -1361,6 +1369,8 @@ A API valida a estrutura e nunca o conteúdo. Ela não recebe, não deriva e nã
 ### Erros
 
 ```text
+VALIDATION_ERROR
+IDENTIFIER_CONFLICT
 VAULT_LIMIT_REACHED
 INVALID_ENVELOPE
 IDEMPOTENCY_CONFLICT
