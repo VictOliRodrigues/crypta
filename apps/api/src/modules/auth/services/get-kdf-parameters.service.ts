@@ -49,18 +49,9 @@ export class GetKdfParametersService {
   async execute(email: string): Promise<AuthParametersData> {
     const stored = await this.repository.findKdfParametersByEmail(email);
 
-    if (stored === null) {
-      return this.syntheticParameters(email);
-    }
-
-    return {
-      kdfAlgorithm: 'ARGON2ID',
-      kdfVersion: stored.kdfVersion,
-      kdfSalt: stored.kdfSalt,
-      kdfMemory: stored.kdfMemory,
-      kdfIterations: stored.kdfIterations,
-      kdfParallelism: stored.kdfParallelism,
-    };
+    return stored === null
+      ? buildParameters({ ...DECOY_PARAMETERS, kdfSalt: this.syntheticSalt(email) })
+      : buildParameters({ ...stored, kdfSalt: stored.kdfSalt });
   }
 
   /**
@@ -69,12 +60,47 @@ export class GetKdfParametersService {
    * Truncar `HMAC-SHA-256` é seguro aqui: o valor não é chave nem segredo, só
    * precisa ser estável e não adivinhável sem o segredo do servidor.
    */
-  private syntheticParameters(email: string): AuthParametersData {
-    const salt = createHmac('sha256', this.serverSecret.kdfDecoySecret)
+  private syntheticSalt(email: string): string {
+    return createHmac('sha256', this.serverSecret.kdfDecoySecret)
       .update(email)
       .digest()
-      .subarray(0, SALT_BYTES);
-
-    return { ...DECOY_PARAMETERS, kdfSalt: salt.toString('base64url') };
+      .subarray(0, SALT_BYTES)
+      .toString('base64url');
   }
+}
+
+/**
+ * Única montagem da resposta, para os dois caminhos.
+ *
+ * ## Por que uma função em vez de dois literais
+ *
+ * `JSON.stringify` preserva a ordem de inserção das chaves, então "resposta
+ * estruturalmente idêntica" (`SECURITY.md` secao 25) inclui a **ordem**, não só
+ * o conjunto de campos e os valores.
+ *
+ * Enquanto existiam dois literais, eles divergiram: o caminho real emitia
+ * `kdfSalt` em terceiro e o decoy em último, porque o decoy era um espalhamento
+ * de `DECOY_PARAMETERS` seguido do salt. Os valores eram indistinguíveis e a
+ * posição do `kdfSalt` entregava a existência da conta com 100% de precisão, em
+ * uma única requisição — o oráculo que esta rota inteira existe para fechar.
+ *
+ * Passar os dois caminhos por aqui não é estilo: é o que remove a possibilidade
+ * de divergirem de novo. Um campo novo acrescentado a um só dos literais
+ * recriaria o vazamento sem que nenhum valor mudasse.
+ */
+function buildParameters(input: {
+  kdfVersion: number;
+  kdfSalt: string;
+  kdfMemory: number;
+  kdfIterations: number;
+  kdfParallelism: number;
+}): AuthParametersData {
+  return {
+    kdfAlgorithm: 'ARGON2ID',
+    kdfVersion: input.kdfVersion,
+    kdfSalt: input.kdfSalt,
+    kdfMemory: input.kdfMemory,
+    kdfIterations: input.kdfIterations,
+    kdfParallelism: input.kdfParallelism,
+  };
 }

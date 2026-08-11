@@ -274,16 +274,17 @@ O que a última linha mediu, e que nenhuma outra podia medir: o `SameSite=Strict
 
 Cada eixo do `BLG-0707`, o que foi conferido e o que se encontrou. Um eixo sem achado é registrado assim mesmo: "não encontrei nada" só vale se estiver dito qual foi a busca.
 
-| Eixo                 | O que foi conferido                                                                                                                 | Resultado                                                                                                                                                                                            |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Fluxos               | Setup, login, refresh, abertura do bundle e troca de senha. Onde cada segredo nasce, vive e morre.                                  | Sem achado. A senha entra em `identity.ts` e não sai: a varredura por `password` na Web só encontra formulários e hooks que a repassam para lá, e a API não tem o campo em rota nenhuma              |
-| Nonce                | Toda origem de bytes aleatórios do repositório.                                                                                     | Sem achado. Um único ponto gera nonce de AEAD (`sealKeyPair`), sempre do CSPRNG e no tamanho da primitiva; o refresh token usa `randomBytes` do Node; `Math.random()` não aparece fora de comentário |
-| Nonce do envelope    | O nonce derivado do ADR 0023, que não trafega.                                                                                      | Sem achado. Par efêmero novo por envelope faz a chave da AEAD nunca se repetir, e o nonce derivado junto dela tampouco                                                                               |
-| AAD                  | Todo `buildAad` de produção e o par encrypt/decrypt correspondente.                                                                 | **Achado 1** — o escopo `vault` só tinha teste de serialização. Corrigido nesta branch                                                                                                               |
-| Separação de domínio | Os dois HKDF da `RootKey` e os dois do segredo do servidor.                                                                         | Sem achado. `auth` e `user-encryption` divergem e estão congelados em vetor; `auth-secret-pepper` e `kdf-parameters-decoy` seguem o mesmo padrão                                                     |
-| Logs                 | `LogFields`, todo `logger.*` do repositório e o filtro global de exceções.                                                          | Sem achado. O tipo não tem campo livre, nenhuma chamada passa material sensível, e nenhuma resposta de erro carrega stack, query ou path interno                                                     |
-| Storage              | `localStorage`, `sessionStorage`, IndexedDB, Cache Storage e `document.cookie` no código da Web; o que o `clear` do store desmonta. | **Achado 2** — o lint cobria dois dos cinco meios que a `SECURITY.md` secao 52 proíbe. Corrigido nesta branch                                                                                        |
-| Cache HTTP           | `Cache-Control: no-store` nas rotas que devolvem material sensível.                                                                 | Sem achado. Toda rota com corpo tem o header; as que não têm devolvem `204`                                                                                                                          |
+| Eixo                 | O que foi conferido                                                                                                                           | Resultado                                                                                                                                                                                            |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fluxos               | Setup, login, refresh, abertura do bundle e troca de senha. Onde cada segredo nasce, vive e morre.                                            | Sem achado. A senha entra em `identity.ts` e não sai: a varredura por `password` na Web só encontra formulários e hooks que a repassam para lá, e a API não tem o campo em rota nenhuma              |
+| Nonce                | Toda origem de bytes aleatórios do repositório.                                                                                               | Sem achado. Um único ponto gera nonce de AEAD (`sealKeyPair`), sempre do CSPRNG e no tamanho da primitiva; o refresh token usa `randomBytes` do Node; `Math.random()` não aparece fora de comentário |
+| Nonce do envelope    | O nonce derivado do ADR 0023, que não trafega.                                                                                                | Sem achado. Par efêmero novo por envelope faz a chave da AEAD nunca se repetir, e o nonce derivado junto dela tampouco                                                                               |
+| AAD                  | Todo `buildAad` de produção e o par encrypt/decrypt correspondente.                                                                           | **Achado 1** — o escopo `vault` só tinha teste de serialização. Corrigido nesta branch                                                                                                               |
+| Separação de domínio | Os dois HKDF da `RootKey` e os dois do segredo do servidor.                                                                                   | Sem achado. `auth` e `user-encryption` divergem e estão congelados em vetor; `auth-secret-pepper` e `kdf-parameters-decoy` seguem o mesmo padrão                                                     |
+| Logs                 | `LogFields`, todo `logger.*` do repositório e o filtro global de exceções.                                                                    | Sem achado. O tipo não tem campo livre, nenhuma chamada passa material sensível, e nenhuma resposta de erro carrega stack, query ou path interno                                                     |
+| Storage              | `localStorage`, `sessionStorage`, IndexedDB, Cache Storage e `document.cookie` no código da Web; o que o `clear` do store desmonta.           | **Achado 2** — o lint cobria dois dos cinco meios que a `SECURITY.md` secao 52 proíbe. Corrigido nesta branch                                                                                        |
+| Cache HTTP           | `Cache-Control: no-store` nas rotas que devolvem material sensível.                                                                           | Sem achado. Toda rota com corpo tem o header; as que não têm devolvem `204`                                                                                                                          |
+| Serialização         | **Eixo acrescentado depois do achado 3.** Rotas com caminho de decoy precisam devolver corpos indistinguíveis também na **ordem das chaves**. | **Achado 3** — `GET /auth/parameters` vazava a existência da conta pela posição do `kdfSalt`. Corrigido; é a única rota com decoy hoje                                                               |
 
 #### Achado 1 — o escopo `vault` da AAD nunca passou por um decrypt
 
@@ -306,6 +307,33 @@ Nada usava IndexedDB — o comentário do `query-provider` até o cita como cois
 O `clear` do store soltava a referência do material de chave sem sobrescrever os bytes. Passou a zerar a `UserEncryptionKey` e a chave privada antes de soltar.
 
 O comentário no código diz o que isso **não** garante, e vale repetir aqui: não prova que o segredo sumiu da memória. O motor pode ter copiado o buffer ao movê-lo entre gerações, e a senha é uma `string` imutável, que não há como sobrescrever em JavaScript. É defesa em profundidade; a garantia real continua sendo não persistir nada.
+
+#### Achado 3 — oráculo de enumeração pela ordem das chaves (encontrado depois)
+
+> Registrado em 9 de agosto de 2026, durante o primeiro uso real do ambiente de development.
+
+`GET /auth/parameters` devolvia as chaves do JSON em ordem diferente conforme a conta existisse ou não:
+
+```text
+conta real   → kdfAlgorithm, kdfVersion, kdfSalt, kdfMemory, kdfIterations, kdfParallelism
+inexistente  → kdfAlgorithm, kdfVersion, kdfMemory, kdfIterations, kdfParallelism, kdfSalt
+```
+
+Determinístico, verificado três vezes de cada lado contra o ambiente implantado. Nenhum valor diferia — a **posição** do `kdfSalt` entregava a existência da conta com 100% de precisão, em uma requisição, sem medir tempo. É exatamente o oráculo que a rota inteira existe para fechar (`SECURITY.md` secao 25, ADR 0022).
+
+A causa: dois literais em vez de um. O caminho real montava o objeto campo a campo; o decoy espalhava `DECOY_PARAMETERS` e acrescentava o salt no fim. `JSON.stringify` preserva ordem de inserção.
+
+**Por que a revisão não pegou.** Os sete eixos do `BLG-0707` — fluxos, nonce, AAD, separação, logs, storage, cache — olham o que é calculado e o que é guardado. Nenhum olha **como a resposta é serializada**. A revisão examinou o conteúdo dos corpos e não a forma deles, e este vazamento vive só na forma.
+
+**Por que o teste não pegou.** Existia um caso chamado "responde com a mesma forma nos dois casos", e ele fazia:
+
+```ts
+expect(Object.keys(readData(existing)).sort()).toEqual(Object.keys(readData(missing)).sort());
+```
+
+O `.sort()` destrói precisamente a informação que vaza. O teste estava correto no que afirmava — o conjunto de campos é o mesmo — e vazio contra este ataque. É o pior formato de falso negativo: um teste com o nome certo cobrindo a propriedade errada.
+
+Corrigido: os dois caminhos passam por uma única função de montagem, e o teste ganhou duas asserções — chaves sem ordenar, e corpo serializado comparado byte a byte com o salt normalizado. Verificado que ambas reprovam com a correção revertida.
 
 #### Liberação para uso real
 
@@ -347,7 +375,7 @@ Por isso o formato criptográfico é fechado **antes** da primeira migration, e 
 | BLG-0704 | DONE    | `createUserKeyBundle` e `openUserKeyBundle`, com AAD amarrada à chave pública e adulteração testada byte a byte.                                                                         |
 | BLG-0705 | PARCIAL | Formato do envelope fechado e testado. Geração da `VaultKey` e envelopes OWNER/EDITOR entram na R0.3, com o cofre.                                                                       |
 | BLG-0706 | BACKLOG | Depende do formato fechado. Vault, site e credential só ganham payload real a partir da R0.3.                                                                                            |
-| BLG-0707 | DONE    | Revisão executada e registrada acima. Dois achados, os dois corrigidos. Uso real liberado, com o limite de que os vetores só foram medidos na Web.                                       |
+| BLG-0707 | DONE    | Revisão executada e registrada acima. **Três** achados, os três corrigidos — o terceiro encontrado em development, depois do fechamento. Uso real liberado.                              |
 | BLG-0801 | DONE    | `GET /setup/status`, devolvendo só o booleano.                                                                                                                                           |
 | BLG-0802 | DONE    | Tela W01 e `POST /setup`, em transação e com idempotência.                                                                                                                               |
 | BLG-0803 | DONE    | `GET /auth/parameters`, com parâmetros sintéticos derivados do e-mail e estáveis entre chamadas.                                                                                         |

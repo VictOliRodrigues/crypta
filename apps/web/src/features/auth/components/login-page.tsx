@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { CryptoAuthenticationError } from '@crypta/crypto-core';
+import { CryptoInitializationError } from '@crypta/crypto-web';
 import { emailSchema } from '@crypta/validation';
 
 import { ApiRequestError } from '@/services/api-client';
@@ -46,6 +47,17 @@ function messageFor(error: unknown): string {
    */
   if (error instanceof CryptoAuthenticationError) {
     return 'Seu material criptográfico não confere com o que o servidor devolveu. Não continue e procure o responsável pela instalação.';
+  }
+
+  /**
+   * O navegador recusou carregar o WebAssembly.
+   *
+   * Merece mensagem própria porque não há nada de errado com a credencial nem
+   * com o servidor, e a ação de contorno é específica. Sem isto o usuário lê
+   * "tente novamente" e tenta a mesma coisa indefinidamente.
+   */
+  if (error instanceof CryptoInitializationError) {
+    return error.message;
   }
 
   if (!(error instanceof ApiRequestError)) {

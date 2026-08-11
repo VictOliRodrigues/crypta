@@ -1000,6 +1000,18 @@ Mitigações:
 - rate limit;
 - não retornar status de cadastro publicamente.
 
+### "Estruturalmente equivalente" inclui a serialização
+
+Não basta que os campos e os valores sejam indistinguíveis: `JSON.stringify` preserva a ordem de inserção das chaves, e **a ordem viaja no corpo**. Duas respostas com os mesmos campos e a mesma aparência podem diferir na ordem e entregar o que o resto da mitigação esconde.
+
+Isto não é hipotético. Em `GET /auth/parameters`, o caminho da conta real emitia `kdfSalt` em terceiro e o caminho sintético em último, porque um era um literal e o outro um espalhamento seguido do salt. Nenhum valor diferia. A posição do campo revelava a existência da conta com 100% de precisão, em **uma** requisição, sem medir tempo e sem repetir a consulta — encontrado em development durante a R0.2 e corrigido no `BLG-0707`.
+
+Consequências para quem for escrever uma rota com caminho de decoy:
+
+- os dois caminhos devem passar pela **mesma** função de montagem, e não por dois literais que alguém precisa lembrar de manter sincronizados;
+- o teste precisa comparar as chaves **sem ordenar**. Um `Object.keys(a).sort()` compara o conjunto e é cego para exatamente este vazamento;
+- vale comparar o corpo serializado, normalizando só o campo que legitimamente difere.
+
 ---
 
 ## 26. Bloqueio
