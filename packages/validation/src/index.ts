@@ -17,3 +17,12 @@ export {
   uuidSchema,
   uuidV7Schema,
 } from './common.schema';
+export {
+  type EncryptedPayloadInput,
+  encryptedPayloadSchema,
+  expectedVersionSchema,
+  type KeyEnvelopeInput,
+  keyEnvelopeSchema,
+  VAULT_LIMITS,
+  vaultIdSchema,
+} from './vault.schema';
