@@ -620,4 +620,66 @@ describe('cofres', () => {
         .expect(401);
     });
   });
+
+  describe('gate da R0.3', () => {
+    /**
+     * A linha "logs sanitizados". `LogFields` não tem campo livre, então não
+     * existe caminho para registrar ciphertext no log estruturado; o que resta
+     * conferir é a auditoria, que é onde os eventos de cofre são gravados.
+     */
+    it('não grava ciphertext nem nonce na auditoria', async () => {
+      await createAccount(ALICE);
+      const token = await createVaultFor(ALICE);
+
+      await request(context.httpServer)
+        .delete(`/${API_PREFIX}/vaults/${VAULT_ID}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ expectedVersion: 1, confirmation: true })
+        .expect(204);
+
+      const serialized = JSON.stringify(await context.prisma.auditLog.findMany());
+
+      expect(serialized).not.toContain(ENCRYPTED_METADATA.ciphertext);
+      expect(serialized).not.toContain(ENCRYPTED_METADATA.nonce);
+      expect(serialized).not.toContain(OWNER_ENVELOPE.encryptedVaultKey);
+      expect(serialized).toContain(VAULT_ID);
+    });
+
+    /**
+     * A linha "version conflict testado", na metade que a escrita sequencial
+     * não cobre: duas requisições partindo da mesma versão, ao mesmo tempo. Uma
+     * vence, a outra recebe `409` — é a condição no `WHERE` decidindo, e não uma
+     * checagem em memória que já estaria vencida no instante seguinte.
+     */
+    it('deixa apenas uma de duas escritas concorrentes vencer', async () => {
+      await createAccount(ALICE);
+      const token = await createVaultFor(ALICE);
+
+      function patchWith(ciphertext: string) {
+        return request(context.httpServer)
+          .patch(`/${API_PREFIX}/vaults/${VAULT_ID}`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({
+            expectedVersion: 1,
+            encryptedMetadata: { ...ENCRYPTED_METADATA, ciphertext },
+          });
+      }
+
+      const results = await Promise.all([
+        patchWith('BQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU'),
+        patchWith('BgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgY'),
+      ]);
+
+      const statuses = results
+        .map((result) => result.status)
+        .sort((first, second) => first - second);
+
+      expect(statuses).toEqual([200, 409]);
+
+      const vault = await context.prisma.vault.findUniqueOrThrow({ where: { id: VAULT_ID } });
+
+      // Uma escrita, um incremento. Duas vencendo levariam a versão a 3.
+      expect(vault.version).toBe(2);
+    });
+  });
 });

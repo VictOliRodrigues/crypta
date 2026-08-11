@@ -407,25 +407,42 @@ Nenhum escopo da fase precisou ser reduzido.
 
 ## 8. Estado da R0.3
 
-> Aberta em 11 de agosto de 2026.
+> Aberta e fechada em 11 de agosto de 2026.
 
 A R0.3 entrega o primeiro conteúdo que o usuário cria: um cofre privado, cujo nome o servidor não pode conhecer. É onde o material criptográfico fechado na R0.2 passa a proteger dado real.
 
-Esta secao é o **gate único** da fase, no mesmo regime da secao 7: cada linha nasce `PENDENTE` e só vira `OK` acompanhada da evidência que a comprova, no pull request que a produziu. A tabela é escrita **antes** do código, não no fechamento — foi ter o critério verificável definido desde o começo que fez a R0.2 fechar sem discussão.
+Esta secao é o **gate único** da fase, no mesmo regime da secao 7: cada linha nasce `PENDENTE` e só vira `OK` acompanhada da evidência que a comprova, no pull request que a produziu. A tabela foi escrita **antes** do código — e duas linhas cobraram teste que ninguém teria escrito por conta própria: a escrita concorrente e a auditoria sem ciphertext só existem porque o critério as exigia por escrito.
 
 ### Gate de saída da R0.3
 
 Conforme `ROADMAP.md` secao 21. Os seis primeiros itens vêm de lá. O sétimo vem do [ADR 0020](decisions/0020-deletion-policy.md), cuja decisão de exclusão física só se sustenta se a auditoria sobreviver à entidade — é a razão de o `AuditLog` ter sido puxado para o `BLG-0503`.
 
-| Item do gate                   | Critério verificável                                                                                                                                                                                                                                       | Estado   |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| API não conhece nome do cofre  | Nenhuma coluna de `vaults` guarda texto claro. O DTO de `POST /vaults` e de `PATCH /vaults/:vaultId` aceita apenas `encryptedMetadata`, e `forbidNonWhitelisted` responde `400` a um campo `name`. e2e confere que nenhuma resposta de cofre carrega nome. | PENDENTE |
-| OWNER único                    | Constraint no banco recusa um segundo `OWNER` no mesmo cofre — teste de integração tenta inserir e recebe erro do MySQL, não da aplicação. A criação sempre grava o criador como `OWNER`.                                                                  | PENDENTE |
-| Acesso cruzado negado          | As cinco rotas de cofre exercitadas com cofre de outro usuário devolvem `404`, nunca `403`: a existência do recurso não vaza. Inclui membership ausente e ID cruzado entre dois cofres do mesmo chamador.                                                  | PENDENTE |
-| Version conflict testado       | `PATCH` e `DELETE` com `expectedVersion` defasado devolvem `409 VERSION_CONFLICT` **sem gravar**. Duas escritas concorrentes partindo da mesma versão: uma vence, a outra recebe o conflito.                                                               | PENDENTE |
-| Snapshot protegido             | `GET /vaults/:vaultId/snapshot` exige membro ativo; não-membro recebe `404`. O envelope devolvido é o do chamador e de nenhum outro membro.                                                                                                                | PENDENTE |
-| Logs sanitizados               | `LogFields` continua sem campo livre. Nenhuma chamada de log recebe `encryptedMetadata`, envelope ou ciphertext, e o e2e confere que o log de criação de cofre carrega apenas identificadores.                                                             | PENDENTE |
-| Auditoria sobrevive à exclusão | Excluir um cofre remove a linha de `vaults` e mantém o registro em `audit_logs`, que não tem chave estrangeira para ela. Teste de integração confere as duas metades: a entidade some, o registro fica.                                                    | PENDENTE |
+| Item do gate                   | Critério verificável                                                                                                                                                                                                                                       | Estado                                                                                                                                                                                                                 |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| API não conhece nome do cofre  | Nenhuma coluna de `vaults` guarda texto claro. O DTO de `POST /vaults` e de `PATCH /vaults/:vaultId` aceita apenas `encryptedMetadata`, e `forbidNonWhitelisted` responde `400` a um campo `name`. e2e confere que nenhuma resposta de cofre carrega nome. | OK — `vaults` guarda apenas nonce, ciphertext, algoritmo e versões (`DATABASE.md` secao 6.1); `vaults.e2e-spec.ts` recusa `name` no corpo com `400` e confere que a listagem não devolve nenhum campo com esse nome    |
+| OWNER único                    | Constraint no banco recusa um segundo `OWNER` no mesmo cofre — teste de integração tenta inserir e recebe erro do MySQL, não da aplicação. A criação sempre grava o criador como `OWNER`.                                                                  | OK — `vault-schema.e2e-spec.ts` recebe erro `1062` do MySQL ao inserir o segundo `OWNER` e ao promover um `EDITOR`; a recusa é do índice único sobre `owner_vault_id`, preenchida por gatilho                          |
+| Acesso cruzado negado          | As cinco rotas de cofre exercitadas com cofre de outro usuário devolvem `404`, nunca `403`: a existência do recurso não vaza. Inclui membership ausente e ID cruzado entre dois cofres do mesmo chamador.                                                  | OK — `GET`, `PATCH`, `DELETE` e o snapshot devolvem `404` para cofre de outro usuário, e um teste compara a resposta com a de cofre inexistente **campo a campo**, incluindo a mensagem                                |
+| Version conflict testado       | `PATCH` e `DELETE` com `expectedVersion` defasado devolvem `409 VERSION_CONFLICT` **sem gravar**. Duas escritas concorrentes partindo da mesma versão: uma vence, a outra recebe o conflito.                                                               | OK — sequencial: `PATCH` e `DELETE` com versão defasada devolvem `409` e o conteúdo anterior permanece. Concorrente: dois `PATCH` simultâneos da mesma versão terminam em `[200, 409]` e a versão final é 2, não 3     |
+| Snapshot protegido             | `GET /vaults/:vaultId/snapshot` exige membro ativo; não-membro recebe `404`. O envelope devolvido é o do chamador e de nenhum outro membro.                                                                                                                | OK — não-membro recebe `404`; com um segundo membro no cofre, o envelope dele não aparece em lugar nenhum da resposta                                                                                                  |
+| Logs sanitizados               | `LogFields` continua sem campo livre. Nenhuma chamada de log recebe `encryptedMetadata`, envelope ou ciphertext, e o e2e confere que o log de criação de cofre carrega apenas identificadores.                                                             | OK — `LogFields` continua sem campo livre, então não existe caminho para registrar ciphertext; e o e2e confere que a auditoria de criação e exclusão não contém ciphertext, nonce nem envelope, apenas identificadores |
+| Auditoria sobrevive à exclusão | Excluir um cofre remove a linha de `vaults` e mantém o registro em `audit_logs`, que não tem chave estrangeira para ela. Teste de integração confere as duas metades: a entidade some, o registro fica.                                                    | OK — `vault-schema.e2e-spec.ts` e `vaults.e2e-spec.ts` conferem as duas metades: `vaults` fica vazia e `audit_logs` mantém `VAULT_CREATED` e `VAULT_DELETED`                                                           |
+
+**As sete linhas do gate de saída da R0.3 estão cumpridas.**
+
+Duas delas cobraram teste que ninguém teria escrito sozinho. "Version conflict testado" pedia escrita **concorrente**, e a sequencial — que é a que se escreve por hábito — não prova que a condição está no `WHERE`: ela passaria igual com uma checagem em memória. "Logs sanitizados" pedia conferir o registro gravado, e não o tipo do logger; o tipo já impedia o caminho, mas é a auditoria que guarda os eventos de cofre, e ninguém tinha olhado o conteúdo dela.
+
+**O que o gate não mediu, e precisa ficar dito:** nada disto foi exercitado em navegador real contra development. A R0.2 fechou com nove linhas verdes e o primeiro uso real encontrou quatro defeitos em seguida — entre eles um oráculo de enumeração e um login que não saía da tela. Não há motivo para supor que aqui será diferente.
+
+### Lacunas de contrato encontradas durante a fase
+
+Duas, as duas na `API.md`, e as duas encontradas por alguém tentando **usar** o que estava escrito:
+
+| Lacuna                                                                                                             | Onde apareceu                              |
+| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
+| Secoes 34, 38, 48 e 68 exibiam o envelope na forma antiga, com `nonce` e o algoritmo que `parseKeyEnvelope` recusa | Ao abrir a fase, antes de escrever o DTO   |
+| Secao 33 devolvia metadata cifrada e **nenhum envelope** — o dashboard não teria como exibir nome nenhum           | Ao começar a W05, primeiro consumidor real |
+
+As duas seguem o mesmo padrão: a definição do formato estava certa, e o que se lê para implementar não é a definição — é o exemplo da rota. Corrigir a secao 15 não corrigiu as quatro secoes que a copiavam, e descrever a listagem não é o mesmo que tentar consumi-la.
 
 ### Decisões fechadas antes do código
 
@@ -454,6 +471,8 @@ Conforme `ROADMAP.md` secao 21. Os seis primeiros itens vêm de lá. O sétimo v
 - **O snapshot nasce parcial.** `BLG-1006` prevê sites e credenciais, que só existem na R0.4. Na R0.3 o endpoint responde com as listas vazias — e isso é entrega, não pendência: o cursor e os limites precisam existir antes de haver conteúdo para paginar.
 - **`EDITOR` fica declarado e não exercitado.** O papel existe no schema desde o `BLG-0503`, mas convite, membership e envelope por membro são da R0.5. A linha "acesso cruzado negado" do gate cobre não-membro, não o `EDITOR`.
 - **`MAX_VAULTS_PER_USER=100`** é o valor sugerido em `API.md` secao 74 e sustenta o `VAULT_LIMIT_REACHED`. Continua sugerido até a configuração por ambiente.
+- **A suíte e2e é instável na primeira execução.** Três vezes durante a fase, a primeira rodada completa reprovou **um** caso — em `identity-schema` e em `session-lifecycle`, nunca nos testes de cofre — e a segunda rodada, e o caso isolado, passaram. A suspeita é o teto de 30 s com o banco frio, somada ao Argon2id de 64 MiB de cada login. **Não foi investigada**, e fica registrada como instabilidade conhecida, não como coisa resolvida: um teste que falha uma vez em três execuções é o tipo de sinal que se aprende a ignorar, e aí ele passa a esconder defeito de verdade.
+- **Nada foi exercitado em navegador real.** Todo o veredito do gate vem de teste automatizado. A R0.2 fechou assim e o primeiro uso real encontrou quatro defeitos em seguida.
 
 ---
 
