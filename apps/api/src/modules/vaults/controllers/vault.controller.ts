@@ -28,6 +28,7 @@ import {
   type VaultCreatedData,
   type VaultDetail,
   type VaultListResponse,
+  type VaultSnapshotData,
   type VaultUpdatedData,
 } from '@crypta/contracts';
 import { vaultIdSchema } from '@crypta/validation';
@@ -51,6 +52,7 @@ import { CreateVaultService } from '../services/create-vault.service';
 import { DeleteVaultService } from '../services/delete-vault.service';
 import { ListVaultsService } from '../services/list-vaults.service';
 import { UpdateVaultService } from '../services/update-vault.service';
+import { VaultSnapshotService } from '../services/vault-snapshot.service';
 
 /**
  * Cofres (docs/API.md secoes 33 a 37).
@@ -72,6 +74,7 @@ export class VaultController {
     private readonly listVaults: ListVaultsService,
     private readonly updateVault: UpdateVaultService,
     private readonly deleteVault: DeleteVaultService,
+    private readonly snapshot: VaultSnapshotService,
   ) {}
 
   @Get()
@@ -128,6 +131,23 @@ export class VaultController {
     const auth = requireAuth(request);
 
     return { data: await this.listVaults.findOne(vaultId, auth.userId) };
+  }
+
+  @Get(':vaultId/snapshot')
+  @Header('Cache-Control', 'no-store')
+  @ApiOperation({
+    summary: 'Retorna o snapshot criptografado do cofre.',
+    description:
+      'Exige membership. Devolve apenas o envelope do chamador — nunca o de outro membro.',
+  })
+  @ApiOkResponse({ description: 'Snapshot do cofre.' })
+  async findSnapshot(
+    @Param('vaultId', new ZodValidationPipe(vaultIdSchema)) vaultId: string,
+    @Req() request: Request,
+  ): Promise<ApiSuccessResponse<VaultSnapshotData>> {
+    const auth = requireAuth(request);
+
+    return { data: await this.snapshot.execute(vaultId, auth.userId) };
   }
 
   @Patch(':vaultId')

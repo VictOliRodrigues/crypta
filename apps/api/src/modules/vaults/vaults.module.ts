@@ -8,6 +8,7 @@ import { CreateVaultService } from './services/create-vault.service';
 import { DeleteVaultService } from './services/delete-vault.service';
 import { ListVaultsService } from './services/list-vaults.service';
 import { UpdateVaultService } from './services/update-vault.service';
+import { VaultSnapshotService } from './services/vault-snapshot.service';
 
 /**
  * Módulo de cofres (`BLG-1001` a `BLG-1005`).
@@ -30,6 +31,7 @@ import { UpdateVaultService } from './services/update-vault.service';
     ListVaultsService,
     UpdateVaultService,
     DeleteVaultService,
+    VaultSnapshotService,
   ],
 })
 export class VaultsModule {}
