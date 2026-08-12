@@ -366,27 +366,27 @@ Por isso o formato criptográfico é fechado **antes** da primeira migration, e 
 
 ### Tarefas da R0.2
 
-| Item     | Status  | Observação                                                                                                                                                                               |
-| -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BLG-0502 | DONE    | `users`, `user_key_bundles`, `sessions` e `idempotency_records` na migration `20260808181037_identity`, testada em banco vazio e em banco com dados. Abriu o harness e2e com MySQL real. |
-| BLG-0701 | PARCIAL | ADRs 0016, 0017 e 0018 fecharam a Web. Faltam a biblioteca do Android (`PEND-003`) e o Keystore, ambos na R0.7.                                                                          |
-| BLG-0702 | DONE    | Payload versionado, AAD de dois escopos, envelope enquadrado, `buildCipherPayload` e erros. ADR 0023.                                                                                    |
-| BLG-0703 | DONE    | `deriveIdentitySecrets` orquestra Argon2id e os dois HKDF, com vetor congelado em `crypto-core`. Benchmark Android fica na R0.7.                                                         |
-| BLG-0704 | DONE    | `createUserKeyBundle` e `openUserKeyBundle`, com AAD amarrada à chave pública e adulteração testada byte a byte.                                                                         |
-| BLG-0705 | PARCIAL | Formato do envelope fechado e testado. Geração da `VaultKey` e envelopes OWNER/EDITOR entram na R0.3, com o cofre.                                                                       |
-| BLG-0706 | BACKLOG | Depende do formato fechado. Vault, site e credential só ganham payload real a partir da R0.3.                                                                                            |
-| BLG-0707 | DONE    | Revisão executada e registrada acima. **Três** achados, os três corrigidos — o terceiro encontrado em development, depois do fechamento. Uso real liberado.                              |
-| BLG-0801 | DONE    | `GET /setup/status`, devolvendo só o booleano.                                                                                                                                           |
-| BLG-0802 | DONE    | Tela W01 e `POST /setup`, em transação e com idempotência.                                                                                                                               |
-| BLG-0803 | DONE    | `GET /auth/parameters`, com parâmetros sintéticos derivados do e-mail e estáveis entre chamadas.                                                                                         |
-| BLG-0804 | DONE    | Tela W02 e `POST /auth/login`, com bloqueio progressivo, cookie de refresh e fila de refresh no cliente. Faltava sair da tela após o sucesso; corrigido em `bugfix/post-login-redirect`. |
-| BLG-0805 | DONE    | Rotação, família e detecção de reuso, com a janela de 10 s lida conforme o ADR 0024.                                                                                                     |
-| BLG-0806 | DONE    | `POST /auth/logout` e `POST /auth/logout-all`, com limpeza do cookie.                                                                                                                    |
-| BLG-0807 | DONE    | `POST /users/me/change-password` e a aba Segurança do W24. `resealUserKeyBundle` reprotege o mesmo par; a API recusa troca de chave pública e salt reaproveitado.                        |
-| BLG-0901 | DONE    | `GET /sessions`, escopado ao dono e marcando a sessão atual.                                                                                                                             |
-| BLG-0902 | DONE    | `DELETE /sessions/:sessionId`, com `404` para sessão de outro usuário e teste de IDOR.                                                                                                   |
-| BLG-0903 | DONE    | `DELETE /sessions`, preservando a sessão que fez a chamada.                                                                                                                              |
-| BLG-0904 | DONE    | Casca do W24 e aba Sessões, com o W25 em `<dialog>` nativo. `SessionView` passou para `@crypta/contracts`.                                                                               |
+| Item     | Status  | Observação                                                                                                                                                                                                 |
+| -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BLG-0502 | DONE    | `users`, `user_key_bundles`, `sessions` e `idempotency_records` na migration `20260808181037_identity`, testada em banco vazio e em banco com dados. Abriu o harness e2e com MySQL real.                   |
+| BLG-0701 | PARCIAL | ADRs 0016, 0017 e 0018 fecharam a Web. Faltam a biblioteca do Android (`PEND-003`) e o Keystore, ambos na R0.7.                                                                                            |
+| BLG-0702 | DONE    | Payload versionado, AAD de dois escopos, envelope enquadrado, `buildCipherPayload` e erros. ADR 0023.                                                                                                      |
+| BLG-0703 | DONE    | `deriveIdentitySecrets` orquestra Argon2id e os dois HKDF, com vetor congelado em `crypto-core`. Benchmark Android fica na R0.7.                                                                           |
+| BLG-0704 | DONE    | `createUserKeyBundle` e `openUserKeyBundle`, com AAD amarrada à chave pública e adulteração testada byte a byte.                                                                                           |
+| BLG-0705 | PARCIAL | Formato do envelope fechado e testado. Geração da `VaultKey` e envelopes OWNER/EDITOR entram na R0.3, com o cofre.                                                                                         |
+| BLG-0706 | BACKLOG | Depende do formato fechado. Vault, site e credential só ganham payload real a partir da R0.3.                                                                                                              |
+| BLG-0707 | DONE    | Revisão executada e registrada acima. **Três** achados, os três corrigidos — o terceiro encontrado em development, depois do fechamento. Uso real liberado.                                                |
+| BLG-0801 | DONE    | `GET /setup/status`, devolvendo só o booleano.                                                                                                                                                             |
+| BLG-0802 | DONE    | Tela W01 e `POST /setup`, em transação e com idempotência.                                                                                                                                                 |
+| BLG-0803 | DONE    | `GET /auth/parameters`, com parâmetros sintéticos derivados do e-mail e estáveis entre chamadas.                                                                                                           |
+| BLG-0804 | DONE    | Tela W02 e `POST /auth/login`, com bloqueio progressivo, cookie de refresh e fila de refresh no cliente. Faltava sair da tela após o sucesso; corrigido em `bugfix/post-login-redirect`.                   |
+| BLG-0805 | DONE    | Rotação, família e detecção de reuso, com a janela de 10 s lida conforme o ADR 0024.                                                                                                                       |
+| BLG-0806 | DONE    | `POST /auth/logout` e `POST /auth/logout-all`, com limpeza do cookie. A metade de cliente ficou para trás: o `signOut` existia sem nenhum componente que o chamasse, e só ganhou o menu de perfil na R0.3. |
+| BLG-0807 | DONE    | `POST /users/me/change-password` e a aba Segurança do W24. `resealUserKeyBundle` reprotege o mesmo par; a API recusa troca de chave pública e salt reaproveitado.                                          |
+| BLG-0901 | DONE    | `GET /sessions`, escopado ao dono e marcando a sessão atual.                                                                                                                                               |
+| BLG-0902 | DONE    | `DELETE /sessions/:sessionId`, com `404` para sessão de outro usuário e teste de IDOR.                                                                                                                     |
+| BLG-0903 | DONE    | `DELETE /sessions`, preservando a sessão que fez a chamada.                                                                                                                                                |
+| BLG-0904 | DONE    | Casca do W24 e aba Sessões, com o W25 em `<dialog>` nativo. `SessionView` passou para `@crypta/contracts`.                                                                                                 |
 
 ### Trabalho da fase fora das branches planejadas
 
@@ -466,13 +466,32 @@ As duas seguem o mesmo padrão: a definição do formato estava certa, e o que s
 | BLG-1005 | DONE   | W08 e `DELETE /vaults/:vaultId`, exclusão física com auditoria preservada.                                                  |
 | BLG-1006 | DONE   | `GET /vaults/:vaultId/snapshot`, só com o envelope do chamador. `sites` e `credentials` vazios até a R0.4.                  |
 
+### Defeitos encontrados no primeiro uso real
+
+O roteiro do `ROADMAP.md` secao 20 foi executado em navegador contra development em 12 de agosto de 2026, assim que o ambiente voltou. **Sete dos oito passos passaram.** O terceiro — sair — não tinha como passar: não havia por onde sair.
+
+O primeiro contato da fase com ambiente real produziu defeito em duas camadas, e nenhuma delas era o cofre.
+
+| Defeito                                                                                                                                                                  | Correção                         | Estado       |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------- | ------------ |
+| **O menu de perfil da topbar não existia** (`TELAS.md` secao 31). Sem ele não havia `Sair`, e W24, W25, alteração de senha e sessões só eram alcançáveis digitando a URL | `bugfix/profile-menu-and-logout` | Em `develop` |
+| Recarregar a página perde as chaves, mas **não encerra a sessão no servidor**: nada chamava `POST /auth/logout`, e a sessão seguia viva e listada em W24                 | `bugfix/profile-menu-and-logout` | Em `develop` |
+| `CREATE TRIGGER` da migration `20260811203308_vaults` falhou em development com **MySQL 1419**, derrubando a API em laço e travando todo deploy seguinte com `P3009`     | `config_user.md` secao 18        | Em `develop` |
+
+**O menu ausente é o mesmo defeito da R0.2 com outra roupa.** Cada peça funcionava isolada e tinha teste: o W24 tem os seus, o W25 tem os seus, o `signOut` estava escrito e correto — limpa o estado local mesmo se a chamada à API falhar. O que faltava era o **trajeto** entre elas, e trajeto não aparece em teste de componente. Apareceu assim que o teste do grafo de rotas, criado na R0.2 justamente por isso, foi estendido para percorrer o caminho do dashboard até as configurações.
+
+O `BLG-0806` estava marcado `DONE` com observação que citava apenas `POST /auth/logout` e `POST /auth/logout-all`, enquanto a checklist do próprio item mantinha `Limpar cliente` desmarcada. A lição é específica e vale para os itens que ainda virão: **um item com metade de API e metade de cliente não pode ser fechado com evidência de uma das metades.**
+
+O terceiro defeito não veio do navegador, veio do deploy, e é o tipo de coisa que só ambiente real informa. A migration passou contra MySQL 8 na CI e falhou contra MySQL 8 no Coolify: o usuário da CI é efetivamente root, o do ambiente não é, e `CREATE TRIGGER` foi a primeira construção do projeto a exigir mais do que DDL sobre o próprio banco. Como DDL no MySQL não é transacional, as quatro tabelas ficaram criadas e a migration ficou registrada como falha — a partir daí todo `prisma migrate deploy` abortava antes de tentar. **O ambiente de development funcionou como o teste de migration que a `CLAUDE.md` secao 68.4 exige, e reprovou.** Staging e produção teriam falhado igual.
+
 ### Limites conhecidos da fase
 
 - **O snapshot nasce parcial.** `BLG-1006` prevê sites e credenciais, que só existem na R0.4. Na R0.3 o endpoint responde com as listas vazias — e isso é entrega, não pendência: o cursor e os limites precisam existir antes de haver conteúdo para paginar.
 - **`EDITOR` fica declarado e não exercitado.** O papel existe no schema desde o `BLG-0503`, mas convite, membership e envelope por membro são da R0.5. A linha "acesso cruzado negado" do gate cobre não-membro, não o `EDITOR`.
 - **`MAX_VAULTS_PER_USER=100`** é o valor sugerido em `API.md` secao 74 e sustenta o `VAULT_LIMIT_REACHED`. Continua sugerido até a configuração por ambiente.
 - **A suíte e2e é instável na primeira execução.** Três vezes durante a fase, a primeira rodada completa reprovou **um** caso — em `identity-schema` e em `session-lifecycle`, nunca nos testes de cofre — e a segunda rodada, e o caso isolado, passaram. A suspeita é o teto de 30 s com o banco frio, somada ao Argon2id de 64 MiB de cada login. **Não foi investigada**, e fica registrada como instabilidade conhecida, não como coisa resolvida: um teste que falha uma vez em três execuções é o tipo de sinal que se aprende a ignorar, e aí ele passa a esconder defeito de verdade.
-- **Nada foi exercitado em navegador real.** Todo o veredito do gate vem de teste automatizado. A R0.2 fechou assim e o primeiro uso real encontrou quatro defeitos em seguida.
+- **Recarregar a página continua deixando a sessão viva no servidor.** Perder as chaves no reload é desenho (ADR 0021): a `UserEncryptionKey` deriva da senha e nenhum token a recupera. O que não dá para consertar é avisar a API no fechamento da aba — o navegador não garante a requisição. O remédio é o `Sair` do menu de perfil e o W24 → Sessões, agora alcançáveis; sessão abandonada por reload expira pelo prazo do ADR 0021 ou é revogada à mão.
+- **O gate foi decidido só por teste automatizado, e o uso real veio depois.** O roteiro do `ROADMAP.md` secao 20 rodou em navegador com a fase já fechada, e encontrou dois defeitos de interface e um de deploy, registrados acima. O padrão da R0.2 se repetiu inteiro.
 
 ---
 

@@ -20,7 +20,7 @@ export function StatusPage() {
   const isLoading = version.isPending || readiness.isPending;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-4 py-10">
+    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-4 py-10">
       <section
         aria-labelledby="status-title"
         className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900"

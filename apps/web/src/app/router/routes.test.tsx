@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useRoutes } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { logout } from '@/features/auth/services/auth-api';
 import { useSessionStore } from '@/features/auth/stores/session-store';
 
 import { routes } from './routes';
@@ -141,5 +143,53 @@ describe('rotas da aplicação', () => {
     expect(
       await screen.findByRole('heading', { name: 'Configurações da conta' }),
     ).toBeInTheDocument();
+  });
+
+  /**
+   * O segundo defeito encontrado no primeiro uso real da R0.3.
+   *
+   * O W24 existia, funcionava e tinha testes — e não havia como chegar nele
+   * pela interface. Cada peça passava isolada; o que faltava era o trajeto, e
+   * trajeto só aparece com o grafo montado.
+   */
+  it('leva do dashboard às configurações pelo menu de perfil', async () => {
+    useSessionStore.setState(SESSION);
+    const user = userEvent.setup();
+
+    renderAt('/');
+
+    await screen.findByRole('heading', { name: 'Meus cofres' });
+    await user.click(screen.getByRole('button', { name: 'Alice' }));
+    await user.click(screen.getByRole('link', { name: 'Configurações' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Configurações da conta' }),
+    ).toBeInTheDocument();
+  });
+
+  /**
+   * Sem isto, a única saída era recarregar a página — que perde as chaves sem
+   * encerrar a sessão no servidor, deixando-a viva e listada em W24.
+   */
+  it('encerra a sessão pelo menu de perfil e volta ao login', async () => {
+    useSessionStore.setState(SESSION);
+    const user = userEvent.setup();
+
+    renderAt('/');
+
+    await screen.findByRole('heading', { name: 'Meus cofres' });
+    await user.click(screen.getByRole('button', { name: 'Alice' }));
+    await user.click(screen.getByRole('button', { name: 'Sair' }));
+
+    expect(logout).toHaveBeenCalledTimes(1);
+    expect(await screen.findByRole('heading', { name: 'Entrar' })).toBeInTheDocument();
+  });
+
+  it('não mostra a topbar no login', async () => {
+    renderAt('/login');
+
+    await screen.findByRole('heading', { name: 'Entrar' });
+
+    expect(screen.queryByRole('button', { name: 'Alice' })).not.toBeInTheDocument();
   });
 });

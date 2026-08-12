@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from 'react-router';
 
+import { AppShell } from '@/app/layout/app-shell';
 import { AuthGate } from '@/features/auth/components/auth-gate';
 import { LoginPage } from '@/features/auth/components/login-page';
 import { RedirectAuthenticated } from '@/features/auth/components/redirect-authenticated';
@@ -20,6 +21,10 @@ import { VaultsPage } from '@/features/vaults/components/vaults-page';
  * secao 7 registra `Login → Dashboard de cofres`. O diagnóstico continua em
  * `/diagnostico`, onde estava.
  *
+ * As rotas autenticadas ficam sob a `AppShell`, que traz a topbar e o menu de
+ * perfil. É o que dá saída da aplicação e acesso ao W24: enquanto a casca não
+ * existia, ambos dependiam de digitar a URL.
+ *
  * Sites e credenciais entram na R0.4, sob a mesma guarda.
  */
 /**
@@ -29,6 +34,9 @@ import { VaultsPage } from '@/features/vaults/components/vaults-page';
  * que tira de `/login` quem já tem sessão — e nenhum teste montava as rotas de
  * verdade, então nada reprovou. Testar as guardas isoladamente não bastaria: o
  * que faltava era a guarda **no grafo**, e só montando o grafo isso aparece.
+ *
+ * O menu de perfil chegou pelo mesmo caminho: cada peça funcionava sozinha e
+ * ninguém verificava se havia trajeto entre elas.
  */
 export const routes = [
   {
@@ -55,7 +63,7 @@ export const routes = [
       {
         element: (
           <RequireSession>
-            <Outlet />
+            <AppShell />
           </RequireSession>
         ),
         children: [

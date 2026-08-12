@@ -91,7 +91,7 @@ export function VaultsPage(): React.JSX.Element {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 p-6">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold text-slate-100">Meus cofres</h1>
 
