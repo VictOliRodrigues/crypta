@@ -7,6 +7,7 @@ import { RequireSession } from '@/features/auth/components/require-session';
 import { SetupPage } from '@/features/auth/components/setup-page';
 import { StatusPage } from '@/features/diagnostics/components/status-page';
 import { SettingsPage } from '@/features/settings/components/settings-page';
+import { VaultsPage } from '@/features/vaults/components/vaults-page';
 
 /**
  * Rotas da aplicação.
@@ -15,7 +16,11 @@ import { SettingsPage } from '@/features/settings/components/settings-page';
  * configuração inicial. Sem isso, uma instalação nova cairia no login e
  * mostraria "e-mail ou senha inválidos" para alguém que não tem conta a criar.
  *
- * Cofres, sites e credenciais entram a partir da R0.3, sob `RequireSession`.
+ * O dashboard de cofres (W05) é a rota inicial de quem tem sessão: `TELAS.md`
+ * secao 7 registra `Login → Dashboard de cofres`. O diagnóstico continua em
+ * `/diagnostico`, onde estava.
+ *
+ * Sites e credenciais entram na R0.4, sob a mesma guarda.
  */
 /**
  * Exportado para que o roteamento seja testável.
@@ -54,7 +59,8 @@ export const routes = [
           </RequireSession>
         ),
         children: [
-          { path: '/', element: <StatusPage /> },
+          { path: '/', element: <VaultsPage /> },
+          { path: '/cofres', element: <VaultsPage /> },
           { path: '/diagnostico', element: <StatusPage /> },
           { path: '/configuracoes', element: <SettingsPage /> },
         ],

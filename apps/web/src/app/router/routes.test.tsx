@@ -40,6 +40,13 @@ vi.mock('@/features/sessions/services/sessions-api', () => ({
   revokeAllSessions: vi.fn(),
 }));
 
+vi.mock('@/features/vaults/services/vaults-api', () => ({
+  fetchVaults: vi.fn(() => Promise.resolve([])),
+  createVault: vi.fn(),
+  updateVault: vi.fn(),
+  deleteVault: vi.fn(),
+}));
+
 vi.mock('@/features/diagnostics/services/diagnostics-api', () => ({
   fetchApiVersion: vi.fn().mockResolvedValue({
     service: 'crypta-api',
@@ -93,7 +100,7 @@ describe('rotas da aplicação', () => {
 
     renderAt('/login');
 
-    expect(await screen.findByRole('heading', { name: 'Crypta' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Meus cofres' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Entrar' })).not.toBeInTheDocument();
   });
 
@@ -102,7 +109,7 @@ describe('rotas da aplicação', () => {
 
     renderAt('/setup');
 
-    expect(await screen.findByRole('heading', { name: 'Crypta' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Meus cofres' })).toBeInTheDocument();
   });
 
   it('manda para o login quem tenta uma rota protegida sem sessão', async () => {
