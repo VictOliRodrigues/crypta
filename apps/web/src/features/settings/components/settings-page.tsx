@@ -32,7 +32,7 @@ export function SettingsPage(): React.JSX.Element {
   const activeTab = TABS.find((tab) => tab.id === activeTabId) ?? TABS[0];
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 p-6">
+    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6">
       <header>
         <h1 className="text-2xl font-semibold text-slate-100">Configurações da conta</h1>
       </header>
