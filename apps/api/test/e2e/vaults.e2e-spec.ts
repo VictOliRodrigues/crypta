@@ -284,6 +284,7 @@ describe('cofres', () => {
 
       expect(response.body.data[0]).toMatchObject({
         encryptedMetadata: ENCRYPTED_METADATA,
+        currentUserEnvelope: OWNER_ENVELOPE,
         role: 'OWNER',
         memberCount: 1,
         siteCount: 0,

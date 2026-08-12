@@ -51,7 +51,17 @@ export type VaultRecord = {
 export type VaultWithRole = VaultRecord & {
   role: VaultRole;
   memberCount: number;
+  /** Envelope do chamador na geração corrente. `null` é estado inválido. */
+  currentUserEnvelope: OwnerEnvelopeInput | null;
 };
+
+const ENVELOPE_FIELDS = {
+  keyVersion: true,
+  cryptoVersion: true,
+  algorithm: true,
+  ephemeralPublicKey: true,
+  encryptedVaultKey: true,
+} as const;
 
 const VAULT_FIELDS = {
   id: true,
@@ -95,14 +105,28 @@ export class VaultRepository {
       take: input.limit + 1,
       select: {
         role: true,
-        vault: { select: { ...VAULT_FIELDS, _count: { select: { members: true } } } },
+        vault: {
+          select: {
+            ...VAULT_FIELDS,
+            _count: { select: { members: true } },
+            // Apenas o envelope de quem pediu. O `where` filtra no banco: o de
+            // outro membro não é trazido e descartado, ele não é trazido.
+            envelopes: { where: { userId: input.userId }, select: ENVELOPE_FIELDS },
+          },
+        },
       },
     });
 
     return memberships.map(({ role, vault }) => {
-      const { _count, ...record } = vault;
+      const { _count, envelopes, ...record } = vault;
 
-      return { ...record, role, memberCount: _count.members };
+      return {
+        ...record,
+        role,
+        memberCount: _count.members,
+        currentUserEnvelope:
+          envelopes.find((envelope) => envelope.keyVersion === record.keyVersion) ?? null,
+      };
     });
   }
 
@@ -112,7 +136,13 @@ export class VaultRepository {
       where: { vaultId_userId: { vaultId, userId } },
       select: {
         role: true,
-        vault: { select: { ...VAULT_FIELDS, _count: { select: { members: true } } } },
+        vault: {
+          select: {
+            ...VAULT_FIELDS,
+            _count: { select: { members: true } },
+            envelopes: { where: { userId }, select: ENVELOPE_FIELDS },
+          },
+        },
       },
     });
 
@@ -120,9 +150,15 @@ export class VaultRepository {
       return null;
     }
 
-    const { _count, ...record } = membership.vault;
+    const { _count, envelopes, ...record } = membership.vault;
 
-    return { ...record, role: membership.role, memberCount: _count.members };
+    return {
+      ...record,
+      role: membership.role,
+      memberCount: _count.members,
+      currentUserEnvelope:
+        envelopes.find((envelope) => envelope.keyVersion === record.keyVersion) ?? null,
+    };
   }
 
   async countForUser(userId: string): Promise<number> {

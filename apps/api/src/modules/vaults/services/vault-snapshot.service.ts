@@ -34,11 +34,7 @@ export class VaultSnapshotService {
   async execute(vaultId: string, userId: string): Promise<VaultSnapshotData> {
     const vault = await this.policy.requireMember(vaultId, userId);
 
-    const envelope = await this.repository.findEnvelopeFor({
-      vaultId,
-      userId,
-      keyVersion: vault.keyVersion,
-    });
+    const envelope = vault.currentUserEnvelope;
 
     // Membro sem envelope na geração corrente é estado inválido, não caso de
     // borda: a associação e o envelope nascem na mesma transação, e o rekey da
