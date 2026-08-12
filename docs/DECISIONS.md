@@ -2081,6 +2081,8 @@ No escopo `user` a AAD amarra a **chave pública do próprio par**, não um `use
 
 O envelope de chave é documentado como implementado: o campo `nonce` sai da `API.md` secao 15, porque ele é derivado por HKDF e não trafega, e o algoritmo passa a se chamar `X25519-HKDF-SHA256-XCHACHA20-POLY1305`, que é a composição real. `crypto-core` ganha `key-envelope.ts` com `buildKeyEnvelope`, `parseKeyEnvelope` e `sealedBytesFromEnvelope`, único lugar que conhece o enquadramento `ephemeralPublicKey || ciphertext`.
 
+> **Correção de 11 de agosto de 2026.** A troca acima alcançou a secao 15, que **define** o envelope, e deixou intactas as quatro secoes que o **transportam**: 34, 38, 48 e 68 seguiram exibindo `X25519-XCHACHA20-POLY1305` e um campo `nonce`. Encontrado ao abrir a R0.3, antes de o DTO de `POST /vaults` ser escrito a partir de um exemplo que `parseKeyEnvelope` recusaria. Corrigir a definição de um formato não corrige seus exemplos: quem escreve o endpoint lê a rota, não a secao de referência.
+
 `cryptoVersion` continua 1: o conjunto de algoritmos não mudou, e nenhum payload com outra combinação chegou a existir.
 
 `crypto-core` passa a orquestrar a identidade — `deriveIdentitySecrets`, `createUserKeyBundle` e `openUserKeyBundle` — recebendo os adapters por injeção, sem primitivas e sem dependências. Os vetores de identidade ficam em `crypto-core`, onde `@crypta/crypto-mobile` poderá importá-los.

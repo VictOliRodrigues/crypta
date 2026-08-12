@@ -1329,9 +1329,8 @@ Idempotency-Key: <uuid>
   "ownerEnvelope": {
     "keyVersion": 1,
     "cryptoVersion": 1,
-    "algorithm": "X25519-XCHACHA20-POLY1305",
+    "algorithm": "X25519-HKDF-SHA256-XCHACHA20-POLY1305",
     "ephemeralPublicKey": "base64url",
-    "nonce": "base64url",
     "encryptedVaultKey": "base64url"
   }
 }
@@ -1350,6 +1349,14 @@ Idempotency-Key: <uuid>
   }
 }
 ```
+
+### Validação estrutural
+
+`encryptedMetadata` segue a secao 14 e é validado por `parseCipherPayload`; `ownerEnvelope` segue a secao 15 e é validado por `parseKeyEnvelope`. As duas funções vêm de `@crypta/crypto-core`, as mesmas que o cliente usa para produzir os campos.
+
+Um envelope com campo `nonce` é **recusado**, e a recusa é a decisão do [ADR 0023](decisions/0023-identity-aad-and-key-envelope.md): o nonce é derivado do segredo compartilhado junto com a chave da AEAD e não trafega. Aceitar um nonce escolhido por quem envia seria aceitar uma segunda fonte de verdade.
+
+A API valida a estrutura e nunca o conteúdo. Ela não recebe, não deriva e não guarda a `VaultKey` — o envelope chega pronto do cliente, cifrado para a chave pública do proprietário.
 
 ### Erros
 
@@ -1494,9 +1501,8 @@ Retornar snapshot criptografado do cofre.
     "currentUserEnvelope": {
       "keyVersion": 1,
       "cryptoVersion": 1,
-      "algorithm": "X25519-XCHACHA20-POLY1305",
+      "algorithm": "X25519-HKDF-SHA256-XCHACHA20-POLY1305",
       "ephemeralPublicKey": "base64url",
-      "nonce": "base64url",
       "encryptedVaultKey": "base64url"
     },
     "sites": [],
@@ -1895,9 +1901,8 @@ Idempotency-Key: <uuid>
   "memberEnvelope": {
     "keyVersion": 1,
     "cryptoVersion": 1,
-    "algorithm": "X25519-XCHACHA20-POLY1305",
+    "algorithm": "X25519-HKDF-SHA256-XCHACHA20-POLY1305",
     "ephemeralPublicKey": "base64url",
-    "nonce": "base64url",
     "encryptedVaultKey": "base64url"
   }
 }
@@ -2669,9 +2674,8 @@ Idempotency-Key: <uuid>
       "userId": "uuid",
       "keyVersion": 2,
       "cryptoVersion": 1,
-      "algorithm": "X25519-XCHACHA20-POLY1305",
+      "algorithm": "X25519-HKDF-SHA256-XCHACHA20-POLY1305",
       "ephemeralPublicKey": "base64url",
-      "nonce": "base64url",
       "encryptedVaultKey": "base64url"
     }
   ]
