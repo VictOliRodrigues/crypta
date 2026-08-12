@@ -350,7 +350,18 @@ describe('schema de identidade', () => {
         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME NOT LIKE '\\_%'
       `;
 
-      expect(tables).toHaveLength(4);
+      // Conferir o conjunto, e não a quantidade: uma tabela que suma do schema
+      // reprova aqui, o que uma contagem atualizada a cada migration não faria.
+      expect(tables.map((table) => table.TABLE_NAME).sort()).toEqual([
+        'audit_logs',
+        'idempotency_records',
+        'sessions',
+        'user_key_bundles',
+        'users',
+        'vault_key_envelopes',
+        'vault_members',
+        'vaults',
+      ]);
 
       for (const table of tables) {
         expect(table.ENGINE).toBe('InnoDB');

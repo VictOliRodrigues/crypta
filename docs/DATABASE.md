@@ -2,9 +2,9 @@
 
 # Crypta — Banco de Dados
 
-> **Status:** Estado da R0.2 — identidade implementada; cofres entram na R0.3
+> **Status:** Estado da R0.3 — identidade e cofres implementados
 > **Versão:** 0.2.0
-> **Última atualização:** 8 de agosto de 2026
+> **Última atualização:** 11 de agosto de 2026
 
 ---
 
@@ -18,9 +18,9 @@ Ele é a fonte de verdade do schema. Toda alteração em `apps/api/prisma/schema
 
 ## 2. Estado atual
 
-**O schema tem as três entidades de identidade e a tabela de idempotência.**
+**O schema tem as três entidades de identidade, a tabela de idempotência e as quatro entidades da R0.3.**
 
-`apps/api/prisma/schema.prisma` define `User`, `UserKeyBundle`, `Session` e `IdempotencyRecord`. A primeira migration do projeto, `20260808181037_identity`, foi aplicada e testada em banco vazio e em banco com dados.
+`apps/api/prisma/schema.prisma` define `User`, `UserKeyBundle`, `Session`, `IdempotencyRecord`, `Vault`, `VaultMember`, `VaultKeyEnvelope` e `AuditLog`. As duas migrations do projeto, `20260808181037_identity` e `20260811203308_vaults`, foram aplicadas e testadas em banco vazio e em banco com dados.
 
 Ficou parado até aqui de propósito: as chaves primárias dependiam de três decisões abertas, e criá-las antes significaria uma migration destrutiva logo em seguida — em um banco que, a partir da R1.0, guarda material criptográfico insubstituível.
 
@@ -33,7 +33,7 @@ Ficou parado até aqui de propósito: as chaves primárias dependiam de três de
 | PEND-014  | Política de hard delete/soft delete | Exclusão física ([ADR 0020](decisions/0020-deletion-policy.md)) |
 | PEND-026  | Credenciais e tokens no servidor    | [ADR 0022](decisions/0022-server-side-credentials.md)           |
 
-As entidades de cofre entram na **R0.3**.
+As entidades de cofre entraram na migration `20260811203308_vaults`, aplicada e testada em banco vazio e em banco com dados: `vaults`, `vault_members`, `vault_key_envelopes` e `audit_logs`. A última veio do `BLG-0506` por decisão registrada no `BLG-0503`.
 
 O readiness probe (`GET /api/v1/health/ready`) verifica a conexão com `SELECT 1` **e** o estado das migrations em `_prisma_migrations`. A segunda checagem passou a existir junto com esta migration: banco alcançável com schema errado é pior do que banco fora do ar, porque a instância aceitaria tráfego e falharia por dentro.
 
@@ -285,6 +285,101 @@ Sem chave estrangeira, pelo mesmo motivo do `AuditLog` no ADR 0020: o registro p
 Mesma chave com `request_hash` diferente é `409 IDEMPOTENCY_CONFLICT`, não um replay silencioso (`CLAUDE.md` secao 38).
 
 A tabela cresce sem limite e ninguém a limpa hoje. A retenção entra junto com a de auditoria, em `PEND-015`.
+
+---
+
+### `vaults`
+
+O servidor não sabe como o cofre se chama. Nome e descrição vivem cifrados com a `VaultKey`, que ele nunca recebe.
+
+| Coluna                | Tipo                | Notas                                                             |
+| --------------------- | ------------------- | ----------------------------------------------------------------- |
+| `id`                  | `CHAR(36)` PK       | UUIDv7 **gerado pelo cliente**, sem `DEFAULT` (ADR 0025)          |
+| `metadata_nonce`      | `VARCHAR(32)`       | nonce da XChaCha20-Poly1305 em base64url                          |
+| `metadata_ciphertext` | `TEXT`              | nome e descrição cifrados, em base64url                           |
+| `metadata_algorithm`  | `VARCHAR(32)`       | algoritmo declarado do payload                                    |
+| `crypto_version`      | `SMALLINT UNSIGNED` |                                                                   |
+| `schema_version`      | `SMALLINT UNSIGNED` |                                                                   |
+| `version`             | `INT UNSIGNED`      | concorrência otimista; toda mutação incrementa exatamente uma vez |
+| `key_version`         | `INT UNSIGNED`      | geração da `VaultKey`; incrementa a cada rekey na R0.5            |
+| `created_at`          | `DATETIME(3)`       |                                                                   |
+| `updated_at`          | `DATETIME(3)`       |                                                                   |
+
+`metadata_ciphertext` é `TEXT` e não `VARCHAR`: o limite do formato — 200 caracteres de nome e 2000 de descrição — chega a cerca de 12 mil caracteres depois de UTF-8, tag e base64url, e uma `VARCHAR` desse tamanho competiria com o limite de linha do InnoDB.
+
+### `vault_members`
+
+| Coluna           | Tipo                      | Notas                                                  |
+| ---------------- | ------------------------- | ------------------------------------------------------ |
+| `id`             | `CHAR(36)` PK             | UUIDv7                                                 |
+| `vault_id`       | `CHAR(36)` FK → `vaults`  | `ON DELETE CASCADE`                                    |
+| `user_id`        | `CHAR(36)` FK → `users`   | `ON DELETE RESTRICT` (ADR 0020)                        |
+| `role`           | `ENUM('OWNER', 'EDITOR')` | papéis da V1                                           |
+| `owner_vault_id` | `CHAR(36)` NULL `UNIQUE`  | espelha `vault_id` apenas na linha do dono; ver abaixo |
+| `created_at`     | `DATETIME(3)`             |                                                        |
+| `updated_at`     | `DATETIME(3)`             |                                                        |
+
+`UNIQUE (vault_id, user_id)` impede associação duplicada.
+
+#### Um dono por cofre é restrição de banco
+
+`owner_vault_id` vale `vault_id` na linha do `OWNER` e é nulo nas demais. O índice único sobre ela recusa o segundo dono do mesmo cofre e ignora os nulos dos EDITORes.
+
+**Quem preenche a coluna são dois gatilhos**, `vault_members_owner_before_insert` e `..._before_update`, e não a aplicação — assim o valor não depende de nenhum caminho de escrita lembrar de calculá-lo.
+
+Os dois jeitos mais diretos não são possíveis nesta tabela, e falham com erro, não com aviso:
+
+| Tentativa                 | Erro do MySQL                                                                      |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| Coluna gerada `STORED`    | `1215` — FK com `ON DELETE CASCADE` não pode incidir sobre a coluna base           |
+| `CHECK` usando `vault_id` | `3823` — coluna necessária à ação referencial de uma FK não pode entrar em `CHECK` |
+
+`vault_id` é justamente a coluna com o `CASCADE` que o ADR 0020 exige. Sobra o gatilho, que reproduz a mesma semântica onde o MySQL permite.
+
+**Prisma não modela gatilho.** Os dois existem apenas na migration e aqui; um drift reportado por `prisma migrate dev` deve ser resolvido preservando-os.
+
+### `vault_key_envelopes`
+
+`VaultKey` cifrada para a chave pública de um membro. O servidor guarda e não abre.
+
+| Coluna                 | Tipo                     | Notas                                           |
+| ---------------------- | ------------------------ | ----------------------------------------------- |
+| `id`                   | `CHAR(36)` PK            | UUIDv7                                          |
+| `vault_id`             | `CHAR(36)` FK → `vaults` | `ON DELETE CASCADE`                             |
+| `user_id`              | `CHAR(36)` FK → `users`  | `ON DELETE RESTRICT`                            |
+| `key_version`          | `INT UNSIGNED`           | geração da `VaultKey` que este envelope entrega |
+| `crypto_version`       | `SMALLINT UNSIGNED`      |                                                 |
+| `algorithm`            | `VARCHAR(64)`            | `X25519-HKDF-SHA256-XCHACHA20-POLY1305`         |
+| `ephemeral_public_key` | `VARCHAR(43)`            | chave pública X25519 efêmera em base64url       |
+| `encrypted_vault_key`  | `VARCHAR(255)`           | `VaultKey` cifrada com a tag, em base64url      |
+| `created_at`           | `DATETIME(3)`            |                                                 |
+| `updated_at`           | `DATETIME(3)`            |                                                 |
+
+`UNIQUE (vault_id, user_id, key_version)`: um envelope por membro por geração.
+
+**Não existe coluna `nonce`**, e a ausência é decisão do ADR 0023: ele é derivado junto com a chave da AEAD e não trafega. Guardá-lo criaria uma segunda fonte de verdade capaz de discordar da primeira.
+
+### `audit_logs`
+
+**Sem chave estrangeira**, de propósito (ADR 0020): como a exclusão é física, é esta tabela que guarda a prova de que algo existiu e foi apagado. Uma FK a apagaria junto com a entidade, e `ON DELETE SET NULL` destruiria justamente o `actor_id` que a auditoria existe para guardar.
+
+| Coluna        | Tipo            | Notas                                   |
+| ------------- | --------------- | --------------------------------------- |
+| `id`          | `CHAR(36)` PK   | UUIDv7                                  |
+| `actor_id`    | `CHAR(36)` NULL | quem executou, como valor e não como FK |
+| `action`      | `VARCHAR(64)`   | verbo estável, ex.: `VAULT_CREATED`     |
+| `entity_type` | `VARCHAR(32)`   |                                         |
+| `entity_id`   | `CHAR(36)` NULL |                                         |
+| `vault_id`    | `CHAR(36)` NULL |                                         |
+| `request_id`  | `VARCHAR(64)`   | correlaciona com o log estruturado      |
+| `ip_address`  | `VARCHAR(45)`   |                                         |
+| `user_agent`  | `VARCHAR(255)`  |                                         |
+| `result`      | `VARCHAR(16)`   | `SUCCESS` ou `FAILURE`                  |
+| `created_at`  | `DATETIME(3)`   |                                         |
+
+Nada de conteúdo entra aqui: nome de cofre, senha, observação e ciphertext estão proibidos (`ARCHITECTURE.md` secao 33.3).
+
+A tabela veio do `BLG-0506` para o `BLG-0503` porque a R0.3 já exclui cofres, e a exclusão física do ADR 0020 só se sustenta com uma auditoria que sobreviva à entidade. A retenção continua em `PEND-015`.
 
 ---
 
