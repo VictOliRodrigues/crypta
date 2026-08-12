@@ -10,7 +10,7 @@ export {
   type RandomSource,
 } from './adapters/crypto-adapters';
 export { fromBase64Url, toBase64Url } from './encoding/base64url';
-export { encodeUtf8, utf8ByteLength } from './encoding/utf8';
+export { decodeUtf8, encodeUtf8, utf8ByteLength } from './encoding/utf8';
 export {
   CryptoAlgorithmError,
   CryptoAuthenticationError,
@@ -49,6 +49,7 @@ export {
   parseKeyEnvelope,
   sealedBytesFromEnvelope,
 } from './format/key-envelope';
+export { createEntityId } from './identifier/entity-id';
 export {
   AUTH_SECRET_BYTES,
   deriveIdentitySecrets,
@@ -68,6 +69,20 @@ export {
   USER_KEY_BUNDLE_SCHEMA_VERSION,
   type UserKeyBundle,
 } from './identity/user-key-bundle';
+export {
+  createVaultKey,
+  createVaultKeyEnvelope,
+  INITIAL_KEY_VERSION,
+  openVaultKeyEnvelope,
+  VAULT_KEY_BYTES,
+} from './vault/vault-key';
+export {
+  decryptVaultMetadata,
+  encryptVaultMetadata,
+  VAULT_METADATA_LIMITS,
+  VAULT_METADATA_SCHEMA_VERSION,
+  type VaultMetadata,
+} from './vault/vault-metadata';
 export {
   IDENTITY_PRODUCTION_VECTOR,
   type IdentityVector,

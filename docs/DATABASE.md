@@ -133,6 +133,26 @@ id String @id @default(uuid(7)) @db.Char(36)
 
 Chaves estrangeiras usam o mesmo tipo. A v7 embute o instante de criação em milissegundos — é metadado que a v4 não entregaria, avaliado e aceito no ADR.
 
+#### Quem gera o id
+
+O formato é o mesmo em toda tabela. A **origem** não é, e o [ADR 0025](decisions/0025-client-generated-identifiers.md) fixa a exceção:
+
+| Tabela                            | Origem do id | Por quê                                                           |
+| --------------------------------- | ------------ | ----------------------------------------------------------------- |
+| `users`, `user_key_bundles`       | Prisma       | Nada aqui é cifrado com AAD amarrada ao id                        |
+| `sessions`, `idempotency_records` | Prisma       | Idem                                                              |
+| `audit_logs`                      | Prisma       | Idem                                                              |
+| `vaults`                          | **Cliente**  | A AAD da metadata amarra ao id, e o cliente cifra antes do `POST` |
+| `sites`, `credentials` — R0.4     | **Cliente**  | Mesmo motivo                                                      |
+
+Nas tabelas de origem cliente a coluna **não tem `@default`**:
+
+```prisma
+id String @id @db.Char(36)
+```
+
+A ausência é deliberada. Com `@default`, um `INSERT` sem id gravaria uma linha cujo conteúdo cifrado ninguém consegue abrir — o cliente montou a AAD com um id que o banco descartou. Sem ele, a falha é imediata e alta.
+
 ### Nomes
 
 - tabelas no plural, em `snake_case`;
