@@ -84,7 +84,14 @@ export function ProfileMenu(): React.JSX.Element | null {
    */
   function handleSignOut(): void {
     setIsSigningOut(true);
-    void signOut();
+
+    // A rejeição é tratada aqui porque `signOut` limpa o estado local no
+    // `finally`: quando a chamada falha, o usuário sai deste dispositivo de
+    // qualquer forma e não há o que exibir numa tela que já vai desmontar.
+    // O custo é a sessão sobreviver no servidor, que é o mesmo limite do
+    // recarregamento e está registrado no `BACKLOG.md`. Sem o `catch`, isso
+    // viraria uma unhandled rejection e nada mais.
+    void signOut().catch(() => undefined);
   }
 
   return (
