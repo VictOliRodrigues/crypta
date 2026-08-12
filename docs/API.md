@@ -2005,6 +2005,10 @@ OWNER.
 
 Listar sites criptografados do cofre.
 
+### Permissão
+
+Membro ativo do cofre — OWNER ou EDITOR. Cofre de que o chamador não participa responde `404`, nunca `403`, pela regra da secao 35.
+
 ### Query
 
 ```text
@@ -2012,6 +2016,8 @@ cursor
 limit
 updatedAfter
 ```
+
+Paginação por cursor, conforme a secao 11: `limit` tem padrão `50` e máximo `100`, e o cursor é opaco. `updatedAfter` aceita um timestamp ISO-8601 em UTC e restringe o resultado às linhas alteradas depois dele.
 
 ### Response
 
@@ -2042,6 +2048,10 @@ updatedAfter
 }
 ```
 
+### Observação
+
+`credentialCount` é contagem, não conteúdo: vale a mesma regra da secao 33 — a API conhece quantidades e não conhece nomes.
+
 ---
 
 ## 52. POST `/vaults/:vaultId/sites`
@@ -2064,7 +2074,7 @@ Idempotency-Key: <uuid>
 
 ```json
 {
-  "id": "client-generated-uuid",
+  "id": "uuid-v7",
   "encryptedPayload": {
     "cryptoVersion": 1,
     "schemaVersion": 1,
@@ -2076,6 +2086,26 @@ Idempotency-Key: <uuid>
 }
 ```
 
+### O `id` vem do cliente
+
+Pela mesma razão da secao 34, e sob o mesmo [ADR 0025](decisions/0025-client-generated-identifiers.md): a AAD de `encryptedPayload` amarra ao id do site, e o cliente cifra antes desta requisição. Um id gerado aqui produziria payload que ninguém consegue abrir.
+
+A API valida e não corrige. Precisa ser UUIDv7 — id ausente, malformado ou de outra versão é `400 VALIDATION_ERROR`; id já usado é `409 IDENTIFIER_CONFLICT`, e o cliente refaz com outro.
+
+### Validação estrutural
+
+`encryptedPayload` segue a secao 14 e é validado por `parseCipherPayload`, de `@crypta/crypto-core` — a mesma função que o cliente usa para produzir o campo. A API valida a forma e nunca o conteúdo: ela não recebe, não deriva e não guarda a `VaultKey`.
+
+`keyVersion` declara a geração da `VaultKey` usada para cifrar. Precisa ser igual à `key_version` corrente do cofre; divergência é `409 KEY_VERSION_MISMATCH`, e o cliente recarrega o envelope antes de tentar de novo. É o que impede gravar conteúdo cifrado com uma chave que um rekey já aposentou.
+
+#### A mesma condição hoje tem duas formas
+
+Na criação de cofre a checagem já existe e responde diferente: `create-vault.service.ts` lança `InvalidEnvelopeException('KEY_VERSION_MISMATCH')`, que é `400 INVALID_ENVELOPE` com `KEY_VERSION_MISMATCH` em `details[].code`. Ali o campo conferido é o envelope, e o código descreve o envelope.
+
+Nas rotas de conteúdo não existe envelope — `keyVersion` é campo do próprio payload — então `INVALID_ENVELOPE` não serve, e o código sobe para o topo como `409`. `409` e não `400` porque o cliente não enviou nada malformado: ele enviou algo que era válido até um rekey mudar a geração, e a saída é recarregar e repetir, igual ao `VERSION_CONFLICT`.
+
+As duas formas convivem porque descrevem coisas diferentes. O que **não** pode acontecer é a rota de conteúdo herdar `INVALID_ENVELOPE` por cópia.
+
 ### Response `201`
 
 ```json
@@ -2083,6 +2113,7 @@ Idempotency-Key: <uuid>
   "data": {
     "id": "uuid",
     "vaultId": "uuid",
+    "keyVersion": 1,
     "version": 1,
     "createdAt": "2026-07-30T22:00:00.000Z"
   }
@@ -2092,9 +2123,12 @@ Idempotency-Key: <uuid>
 ### Erros
 
 ```text
+VALIDATION_ERROR
+IDENTIFIER_CONFLICT
 VAULT_LOCKED_FOR_REKEY
 SITE_LIMIT_REACHED
 KEY_VERSION_MISMATCH
+IDEMPOTENCY_CONFLICT
 ```
 
 ---
@@ -2104,6 +2138,10 @@ KEY_VERSION_MISMATCH
 ### Objetivo
 
 Retornar site criptografado.
+
+### Permissão
+
+Membro ativo do cofre. Site de outro cofre — inclusive de outro cofre do próprio chamador — responde `404`: o par `vaultId`/`siteId` é validado em conjunto, e não apenas o `siteId`.
 
 ### Response
 
@@ -2122,11 +2160,21 @@ Retornar site criptografado.
     "credentialCount": 2,
     "keyVersion": 1,
     "version": 1,
+    "createdBy": {
+      "id": "uuid",
+      "name": "Nome de Perfil"
+    },
+    "updatedBy": {
+      "id": "uuid",
+      "name": "Nome de Perfil"
+    },
     "createdAt": "2026-07-30T22:00:00.000Z",
     "updatedAt": "2026-07-30T22:00:00.000Z"
   }
 }
 ```
+
+`createdBy` e `updatedBy` carregam o nome de perfil do usuário, que o banco guarda em texto aberto por decisão explícita (`DATABASE.md` secao 4). Eles não aparecem na listagem da secao 51: a lista existe para desenhar a tela do cofre e não precisa de autoria por linha. Em cofre privado os dois são sempre o próprio chamador; o campo passa a informar algo a partir da R0.5.
 
 ---
 
@@ -2135,6 +2183,10 @@ Retornar site criptografado.
 ### Objetivo
 
 Atualizar site.
+
+### Permissão
+
+OWNER ou EDITOR.
 
 ### Request
 
@@ -2152,6 +2204,8 @@ Atualizar site.
 }
 ```
 
+`expectedVersion` segue a secao 13: a condição entra no `WHERE` da atualização, e não em uma checagem prévia em memória. Versão defasada é `409 VERSION_CONFLICT` **sem gravar**.
+
 ### Response
 
 ```json
@@ -2164,6 +2218,15 @@ Atualizar site.
 }
 ```
 
+### Erros
+
+```text
+VALIDATION_ERROR
+VERSION_CONFLICT
+KEY_VERSION_MISMATCH
+VAULT_LOCKED_FOR_REKEY
+```
+
 ---
 
 ## 55. DELETE `/vaults/:vaultId/sites/:siteId`
@@ -2171,6 +2234,10 @@ Atualizar site.
 ### Objetivo
 
 Excluir site e credenciais relacionadas.
+
+### Permissão
+
+OWNER ou EDITOR.
 
 ### Request
 
@@ -2181,10 +2248,26 @@ Excluir site e credenciais relacionadas.
 }
 ```
 
+`expectedVersion` é a do **site**. As credenciais são removidas junto sem que suas versões sejam conferidas uma a uma: a confirmação é sobre o site, e o aviso do W12 (`TELAS.md` secao 17) diz exatamente isso ao usuário.
+
+### Exclusão em cascata
+
+A remoção é física, sem `deleted_at`, e vale para o site e para todas as suas credenciais ([ADR 0020](decisions/0020-deletion-policy.md)). O `ON DELETE CASCADE` de `credentials` → `sites` está declarado em `DATABASE.md`.
+
+A operação é transacional, e os registros de auditoria sobrevivem às linhas apagadas — `audit_logs` não tem chave estrangeira para elas, que é a razão de a exclusão física se sustentar.
+
 ### Response
 
 ```http
 204 No Content
+```
+
+### Erros
+
+```text
+VERSION_CONFLICT
+VAULT_LOCKED_FOR_REKEY
+VAULT_ACCESS_DENIED
 ```
 
 ---
@@ -2198,6 +2281,20 @@ Excluir site e credenciais relacionadas.
 ### Objetivo
 
 Listar credenciais criptografadas de um site.
+
+### Permissão
+
+Membro ativo do cofre.
+
+### Query
+
+```text
+cursor
+limit
+updatedAfter
+```
+
+Mesma paginação da secao 51 e da secao 11: `limit` com padrão `50` e máximo `100`, cursor opaco. Um site pode chegar a `MAX_CREDENTIALS_PER_SITE` credenciais (secao 74), então a lista pagina de verdade — não é um caso em que a coleção sempre cabe em uma resposta.
 
 ### Response
 
@@ -2220,7 +2317,11 @@ Listar credenciais criptografadas de um site.
       "createdAt": "2026-07-30T22:00:00.000Z",
       "updatedAt": "2026-07-30T22:00:00.000Z"
     }
-  ]
+  ],
+  "meta": {
+    "cursor": null,
+    "hasMore": false
+  }
 }
 ```
 
@@ -2232,6 +2333,10 @@ Listar credenciais criptografadas de um site.
 
 Criar credencial.
 
+### Permissão
+
+OWNER ou EDITOR.
+
 ### Headers
 
 ```http
@@ -2242,7 +2347,7 @@ Idempotency-Key: <uuid>
 
 ```json
 {
-  "id": "client-generated-uuid",
+  "id": "uuid-v7",
   "encryptedPayload": {
     "cryptoVersion": 1,
     "schemaVersion": 1,
@@ -2254,6 +2359,18 @@ Idempotency-Key: <uuid>
 }
 ```
 
+### O `id` vem do cliente
+
+Como na secao 52, e pelo [ADR 0025](decisions/0025-client-generated-identifiers.md): a AAD amarra ao id da credencial, cunhado antes de cifrar. Mesmas regras de validação — `400 VALIDATION_ERROR` para id ausente ou fora do UUIDv7, `409 IDENTIFIER_CONFLICT` para id já usado.
+
+### A AAD não amarra ao site
+
+O escopo `vault` da AAD tem seis segmentos e o `siteId` não é um deles ([ADR 0023](decisions/0023-identity-aad-and-key-envelope.md)): a credencial é amarrada ao próprio id e ao cofre, não ao site que a contém.
+
+A consequência é estreita e precisa estar escrita: repor o ciphertext de uma credencial em **outra** credencial falha, e movê-lo para **outro cofre** falha, mas mudar a coluna `site_id` de uma credencial dentro do mesmo cofre não é detectado pela decifragem. Quem pode fazer isso é quem já escreve no banco.
+
+Fechar essa aresta significaria acrescentar um segmento à AAD, e o momento de decidir é **antes** da primeira migration de conteúdo — depois dela, é migração de dado cifrado (`SECURITY.md` secao 18). A decisão está registrada como pendência em `DECISIONS.md` secao 7 e trava o `BLG-0504`.
+
 ### Response `201`
 
 ```json
@@ -2262,10 +2379,22 @@ Idempotency-Key: <uuid>
     "id": "uuid",
     "siteId": "uuid",
     "vaultId": "uuid",
+    "keyVersion": 1,
     "version": 1,
     "createdAt": "2026-07-30T22:00:00.000Z"
   }
 }
+```
+
+### Erros
+
+```text
+VALIDATION_ERROR
+IDENTIFIER_CONFLICT
+VAULT_LOCKED_FOR_REKEY
+CREDENTIAL_LIMIT_REACHED
+KEY_VERSION_MISMATCH
+IDEMPOTENCY_CONFLICT
 ```
 
 ---
@@ -2275,6 +2404,10 @@ Idempotency-Key: <uuid>
 ### Objetivo
 
 Retornar credencial criptografada.
+
+### Permissão
+
+Membro ativo do cofre. O trio `vaultId`/`siteId`/`credentialId` é validado em conjunto: uma credencial que exista mas pertença a outro site responde `404`.
 
 ### Response
 
@@ -2295,17 +2428,19 @@ Retornar credencial criptografada.
     "version": 1,
     "createdBy": {
       "id": "uuid",
-      "name": "Usuário"
+      "name": "Nome de Perfil"
     },
     "updatedBy": {
       "id": "uuid",
-      "name": "Usuário"
+      "name": "Nome de Perfil"
     },
     "createdAt": "2026-07-30T22:00:00.000Z",
     "updatedAt": "2026-07-30T22:00:00.000Z"
   }
 }
 ```
+
+O W17 (`TELAS.md` secao 22) exibe "responsável pela última alteração, quando disponível", e é este `updatedBy` que o alimenta.
 
 ---
 
@@ -2314,6 +2449,10 @@ Retornar credencial criptografada.
 ### Objetivo
 
 Atualizar credencial.
+
+### Permissão
+
+OWNER ou EDITOR.
 
 ### Request
 
@@ -2331,6 +2470,8 @@ Atualizar credencial.
 }
 ```
 
+O `encryptedPayload` é sempre **inteiro**: usuário, senha e observação viajam no mesmo blob, então não existe atualizar só a senha. O cliente decifra, altera o campo e recifra o payload completo.
+
 ### Response
 
 ```json
@@ -2343,6 +2484,15 @@ Atualizar credencial.
 }
 ```
 
+### Erros
+
+```text
+VALIDATION_ERROR
+VERSION_CONFLICT
+KEY_VERSION_MISMATCH
+VAULT_LOCKED_FOR_REKEY
+```
+
 ---
 
 ## 60. DELETE `/vaults/:vaultId/sites/:siteId/credentials/:credentialId`
@@ -2350,6 +2500,10 @@ Atualizar credencial.
 ### Objetivo
 
 Excluir credencial.
+
+### Permissão
+
+OWNER ou EDITOR.
 
 ### Request
 
@@ -2364,6 +2518,14 @@ Excluir credencial.
 
 ```http
 204 No Content
+```
+
+### Erros
+
+```text
+VERSION_CONFLICT
+VAULT_LOCKED_FOR_REKEY
+VAULT_ACCESS_DENIED
 ```
 
 ---
@@ -2903,26 +3065,57 @@ A API não valida conteúdo cifrado.
 
 ---
 
-## 74. Limites iniciais sugeridos
+## 74. Limites
+
+Os limites existem em duas camadas, e a distinção importa porque elas falham em momentos diferentes.
+
+### Limites de conteúdo, em caracteres do texto claro
+
+Fixados em `@crypta/validation` e aplicados **no cliente**, antes de cifrar. A API não os vê: quando o payload chega, o conteúdo já é ciphertext opaco.
+
+| Campo                    | Máximo | Origem                              |
+| ------------------------ | ------ | ----------------------------------- |
+| Nome do cofre            | 200    | `VAULT_LIMITS.name`                 |
+| Descrição do cofre       | 2000   | `VAULT_LIMITS.description`          |
+| Nome do site             | 200    | `SITE_LIMITS.name` — R0.4           |
+| Link do site             | 2048   | `SITE_LIMITS.link` — R0.4           |
+| Usuário da credencial    | 320    | `CREDENTIAL_LIMITS.username` — R0.4 |
+| Senha da credencial      | 1024   | `CREDENTIAL_LIMITS.password` — R0.4 |
+| Observação da credencial | 2000   | `CREDENTIAL_LIMITS.notes` — R0.4    |
+
+O link usa 2048 porque é o teto prático de URL nos navegadores. O usuário usa 320 porque é o comprimento máximo de um endereço de e-mail, que é a forma mais comum de nome de usuário — e é maior que o `FIELD_LIMITS.email` de 254, que vale para o e-mail **da conta** e é validado como endereço de verdade.
+
+### Tetos de ciphertext, em bytes decodificados
+
+Aplicados **na API**, por schema, e é o que a validação estrutural consegue medir. Cada teto é calculado a partir do pior caso do formato correspondente — todos os caracteres com quatro bytes em UTF-8, mais o enquadramento JSON e a tag Poly1305 — e arredondado para o dobro, como já fazia `VAULT_LIMITS.encryptedPayloadBytes`.
 
 ```text
-MAX_REQUEST_BYTES=1048576
-MAX_ENCRYPTED_PAYLOAD_BYTES=65536
-MAX_VAULTS_PER_USER=100
-MAX_MEMBERS_PER_VAULT=20
-MAX_SITES_PER_VAULT=10000
-MAX_CREDENTIALS_PER_SITE=1000
-MAX_IMPORT_ROWS=10000
-MAX_IMPORT_BYTES=10485760
-MAX_ACTIVE_SESSIONS=20
-MAX_PENDING_INVITATIONS=50
+VAULT_ENCRYPTED_PAYLOAD_BYTES=18000
+SITE_ENCRYPTED_PAYLOAD_BYTES=20000
+CREDENTIAL_ENCRYPTED_PAYLOAD_BYTES=28000
 ```
 
-Valores finais serão definidos em configuração e documentação.
+Um teto por entidade, e não o genérico de 64 KiB: o limite genérico existe para o maior payload do sistema, e usá-lo em toda rota aceitaria uma credencial com dez vezes o conteúdo que o formato permite. Payload acima do teto é `400 VALIDATION_ERROR`, não `413` — quem estoura o campo estoura a validação de forma, e o `413` fica para o corpo inteiro da requisição.
 
----
+### Limites de quantidade, por ambiente
 
-# PARTE XV — CORS E CSRF
+**Configuráveis por variável de ambiente**, com o valor abaixo como padrão. Deixam de ser sugestão: cada um sustenta um código de erro que a API já devolve, e um limite sem configuração é um número escondido no código.
+
+| Variável                   | Padrão   | Erro ao estourar           |
+| -------------------------- | -------- | -------------------------- |
+| `MAX_REQUEST_BYTES`        | 1048576  | `PAYLOAD_TOO_LARGE`        |
+| `MAX_VAULTS_PER_USER`      | 100      | `VAULT_LIMIT_REACHED`      |
+| `MAX_SITES_PER_VAULT`      | 10000    | `SITE_LIMIT_REACHED`       |
+| `MAX_CREDENTIALS_PER_SITE` | 1000     | `CREDENTIAL_LIMIT_REACHED` |
+| `MAX_MEMBERS_PER_VAULT`    | 20       | R0.5                       |
+| `MAX_PENDING_INVITATIONS`  | 50       | R0.5                       |
+| `MAX_ACTIVE_SESSIONS`      | 20       | R0.6                       |
+| `MAX_IMPORT_ROWS`          | 10000    | R0.6                       |
+| `MAX_IMPORT_BYTES`         | 10485760 | R0.6                       |
+
+As três primeiras linhas de conteúdo — cofres, sites e credenciais — são lidas da configuração a partir da R0.4. As demais entram com a fase que as usa, e até lá o padrão é o valor documentado aqui.
+
+Os tetos de ciphertext e os limites de conteúdo **não** são configuráveis por ambiente: mudá-los muda o que cabe em um payload já gravado, e isso é versão de formato, não configuração.
 
 ---
 

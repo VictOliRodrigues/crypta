@@ -2429,6 +2429,18 @@ Aumenta o risco de vazamento, perda de dados e execução acidental em produçã
 | PEND-024     | Retenção de manifests e artefatos de RC       | REVIEW_REQUIRED      | Operação         |
 | PEND-025     | Política final de proteção e retenção de tags | REVIEW_REQUIRED      | Release          |
 | ~~PEND-026~~ | ~~Credenciais e tokens no servidor~~          | RESOLVIDA em DEC-049 | —                |
+| PEND-027     | Segmento `siteId` na AAD de credencial        | REVIEW_REQUIRED      | R0.4 — BLG-0504  |
+| PEND-028     | Destravar no reload em vez de re-autenticar   | REVIEW_REQUIRED      | R0.7 — Mobile    |
+
+### As duas pendências abertas na R0.4
+
+**`PEND-027` — segmento `siteId` na AAD de credencial.** O escopo `vault` da AAD amarra ao id da entidade e ao id do cofre, e não ao site (ADR 0023). A consequência é que mudar a coluna `site_id` de uma credencial dentro do mesmo cofre não é detectado na decifragem — o ciphertext continua válido e a credencial passa a aparecer sob outro site.
+
+Fechar a aresta é acrescentar um segmento à AAD, o que muda o formato. `SECURITY.md` secao 18 fixa a janela: barato antes do primeiro conteúdo gravado, migração de dado cifrado depois. A R0.4 é a fase que grava o primeiro conteúdo, então esta é a última janela barata. **Bloqueia o `BLG-0504`** e precisa virar ADR antes da migration.
+
+**`PEND-028` — destravar no reload em vez de re-autenticar.** Hoje o F5 perde as chaves em memória, que é desenho (ADR 0021), e o login seguinte cunha sessão nova — as abandonadas se acumulam até expirarem. Como o cookie de refresh sobrevive ao reload, existiria a opção de renovar o token e pedir só a senha para destravar, mantendo a mesma sessão.
+
+A análise preliminar é favorável e está registrada em `BACKLOG.md` secao 9: a barreira criptográfica não muda, e a objeção de contornar o bloqueio progressivo do login não se sustenta, porque `GET /users/me/key-bundle` já entrega o bundle a qualquer chamador autenticado. O que impede fechar é o escopo — `CLAUDE.md` secao 82 exige revisão de threat model, sessões, cookies e storage do Android, e nada do contrato da R0.4 depende da resposta. **Precisa estar fechada antes do código de sessão do Android**, na R0.7, porque um segundo cliente com ciclo próprio dobra o custo da mudança.
 
 ---
 

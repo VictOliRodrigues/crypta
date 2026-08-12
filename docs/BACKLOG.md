@@ -495,6 +495,196 @@ O terceiro defeito não veio do navegador, veio do deploy, e é o tipo de coisa 
 
 ---
 
+## 9. Estado da R0.4
+
+> Aberta em 12 de agosto de 2026.
+
+A R0.4 entrega o núcleo funcional do produto: os sites e as credenciais que o cofre existe para guardar. É a primeira fase em que o dado protegido é uma senha de verdade — até aqui o conteúdo cifrado era o nome de um cofre.
+
+Esta secao é o **gate único** da fase, no mesmo regime das secoes 7 e 8: cada linha nasce `PENDENTE` e só vira `OK` acompanhada da evidência que a comprova, no pull request que a produziu. Não existe segundo lugar para conferir.
+
+A tabela foi escrita **antes** do código. Na R0.3 esse formato cobrou dois testes que ninguém teria escrito por conta própria — a escrita concorrente e a auditoria sem ciphertext existem porque o critério as exigia por escrito. As três últimas linhas desta tabela são as candidatas equivalentes desta fase.
+
+### Gate de saída da R0.4
+
+Conforme `ROADMAP.md` secao 26. Os oito primeiros itens vêm de lá.
+
+Os três últimos não. O nono vem da secao 39 da `CLAUDE.md`, que exige `expectedVersion` em toda mutation relevante e que na R0.3 só foi verificado de verdade porque a linha existia. O décimo vem do defeito de limpeza entre specs descrito abaixo, em "Decisões fechadas antes do código". O décimo primeiro vem da secao 74 da `API.md`, que nesta fase deixa de sugerir limites e passa a fixá-los.
+
+| Item do gate                             | Critério verificável                                                                                                                                                                                                                                                                                                                                       | Estado     |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| Banco sem conteúdo aberto                | Nenhuma coluna de `sites` ou `credentials` guarda texto claro. Os DTOs de `POST` e `PATCH` das quatro rotas de escrita aceitam apenas `id`/`expectedVersion`, `encryptedPayload` e `keyVersion`; `forbidNonWhitelisted` responde `400` a `name`, `link`, `username`, `password` e `notes`. e2e confere que nenhuma resposta carrega campo com esses nomes. | `PENDENTE` |
+| Senha nunca em logs                      | `LogFields` continua sem campo livre. A auditoria de criação, alteração e exclusão de credencial carrega apenas identificadores — sem ciphertext, nonce ou payload. **E o `400` de campo recusado não devolve o valor recebido**: um corpo com `"password": "..."` é rejeitado por uma mensagem que não contém a senha.                                    | `PENDENTE` |
+| Senha mascarada por padrão               | Em W13 e W17 a senha em texto claro **não está no DOM** antes de revelar — o teste procura o valor no container, não a presença de um `type="password"`. Revelar insere; fechar o modal remove de novo. A máscara tem comprimento fixo e igual para toda credencial, então não vaza o tamanho da senha.                                                    | `PENDENTE` |
+| Exclusão testada                         | Excluir site remove o site **e todas as suas credenciais**, fisicamente: as duas tabelas ficam sem as linhas e `audit_logs` mantém `SITE_DELETED` e `CREDENTIAL_DELETED`. Nenhuma credencial órfã sobra. `DELETE` com `expectedVersion` defasado devolve `409` **sem apagar nada**.                                                                        | `PENDENTE` |
+| Autorização OWNER/EDITOR preparada       | As dez rotas exercitadas com cofre de outro usuário devolvem `404`, nunca `403`. O par `vaultId`/`siteId` e o trio com `credentialId` são validados **em conjunto**: credencial real pedida sob outro site devolve `404`, e o mesmo vale para IDs cruzados entre dois cofres do próprio chamador.                                                          | `PENDENTE` |
+| Busca não persiste índice                | Depois de uma busca com resultado, `localStorage`, `sessionStorage` e IndexedDB não contêm nome de site nem usuário de credencial, e o termo buscado não está na URL. O teste inspeciona os três armazenamentos, e não apenas o código que deixou de gravá-los.                                                                                            | `PENDENTE` |
+| Clipboard revisado                       | `Copiar senha` funciona com a senha **oculta**, sem passar por revelar. O texto do toast de sucesso e o do toast de erro não contêm o valor copiado. O teste compara a string do toast com a senha usada.                                                                                                                                                  | `PENDENTE` |
+| E2E do cofre privado completo            | Os dezesseis passos do `ROADMAP.md` secao 25.1 executados em navegador contra development, com o resultado de cada um registrado — inclusive os que reprovarem.                                                                                                                                                                                            | `PENDENTE` |
+| Escrita concorrente em site e credencial | Dois `PATCH` **simultâneos** de site partindo da mesma versão terminam em `[200, 409]` e a versão final é 2, não 3. O mesmo para credencial. Sequencial não serve: passaria igual com a checagem em memória que a `CLAUDE.md` secao 39 proíbe.                                                                                                             | `PENDENTE` |
+| Limpeza entre specs cobre o schema       | Um teste compara a lista `TABLES` de `apps/api/test/support/database.ts` com `information_schema.tables` do banco de teste e falha nomeando a tabela ausente. Rodar esse teste **antes** da migration da fase é o que prova que ele reprova quando deve.                                                                                                   | `PENDENTE` |
+| Limites de conteúdo aplicados            | Payload de site ou credencial acima do teto da `API.md` secao 74 é `400`, e o cliente recusa antes de cifrar com mensagem de campo. Estourar `MAX_SITES_PER_VAULT` é `SITE_LIMIT_REACHED` e `MAX_CREDENTIALS_PER_SITE` é `CREDENTIAL_LIMIT_REACHED`, os dois lidos de configuração, não de constante.                                                      | `PENDENTE` |
+
+**Nenhuma das onze linhas está cumprida. A fase está abrindo.**
+
+Três linhas merecem nota, porque são as que o formato existe para cobrar:
+
+- **"Senha nunca em logs" foi ampliada para o caminho de erro.** A metade fácil é o log de sucesso, e `LogFields` já a impede por tipo. A metade que ninguém testa é a resposta `400`: validadores costumam ecoar o valor rejeitado, e um corpo recusado por conter `password` em texto aberto ecoaria uma senha real dentro de uma mensagem de erro — que segue para o log de erro, para o relatório de exceção e para a tela.
+- **"Senha mascarada" cobra o DOM, e não o `type` do input.** Conferir que existe um `input type="password"` prova que o navegador desenha bolinhas, e não que a senha saiu da página. Um card da lista que renderize a senha em um atributo `title` ou `data-` passa no primeiro teste e reprova no segundo.
+- **"Limpeza entre specs" precisa reprovar antes de passar.** Um guard escrito depois da migration nasce verde e nunca demonstrou detectar nada. Escrito antes, ele fica verde enquanto o schema tem oito tabelas e falha no instante em que a migration cria a nona — que é o comportamento que se quer.
+
+**O que o gate não mede, e precisa ficar dito:** onze linhas verdes não substituem uso real. A R0.2 fechou com nove e o primeiro uso encontrou quatro defeitos; a R0.3 fechou com sete e o primeiro uso encontrou três, nenhum deles no cofre. O padrão se repetiu duas vezes e não há motivo para supor que aqui será diferente.
+
+### Lacunas de contrato encontradas na abertura da fase
+
+Seis, todas encontradas lendo a `API.md`, a `TELAS.md` e a `ARCHITECTURE.md` como quem vai implementar a partir delas. Cinco seguem o mesmo padrão das duas da R0.3: a definição está certa em um lugar, e o exemplo da rota — que é o que se lê para escrever o DTO — não acompanhou.
+
+| Lacuna                                                                                                                                                                                  | Definição que já estava certa          |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| Secoes 52 e 57 traziam `"id": "client-generated-uuid"`, sem dizer que é UUIDv7 validado, nem citar `IDENTIFIER_CONFLICT`                                                                | ADR 0025 e `DATABASE.md` secao 5       |
+| Secao 56 listava credenciais **sem `meta` e sem `Query`** — quem implementasse por ela não paginaria, e um site vai até `MAX_CREDENTIALS_PER_SITE`                                      | `API.md` secao 11                      |
+| **Nove das dez** rotas de conteúdo não declaravam permissão nenhuma; só a secao 52 dizia "OWNER ou EDITOR"                                                                              | `ROADMAP.md` secao 26 e `CLAUDE.md` 32 |
+| Secoes 54, 55, 57, 59 e 60 não tinham bloco `Erros`, e `VAULT_LOCKED_FOR_REKEY` aparecia só na criação de site — como se as demais mutações pudessem rodar durante um rekey             | `API.md` secao 66 e ADR 0005           |
+| `ARCHITECTURE.md` secao 21.3 descrevia a persistência de site e credencial **sem `keyVersion`**, que toda rota da `API.md` transporta e sem a qual não se sabe qual geração abre o blob | `API.md` secoes 51 a 60                |
+| `TELAS.md` pedia "contador de caracteres" e "limite de caracteres" sem número em lugar nenhum — nem para nome de site, nem para link, usuário, senha ou observação                      | Nenhuma; o número não existia          |
+
+A última é de outra natureza, e é a que mais custaria: não é exemplo desatualizado, é valor que nunca foi fixado. Sem ele não dá para dimensionar coluna na migration, nem escrever o contador do W14, nem calcular o teto de ciphertext — e é o tipo de lacuna que se resolve na hora, escolhendo um número no meio da implementação, e depois vira um limite que ninguém decidiu. Os valores foram fixados na `API.md` secao 74, junto do cálculo que os sustenta.
+
+Uma sétima divergência não é lacuna de documento e sim de implementação, e fica registrada aqui para não ser resolvida por cópia: **a mesma condição de `keyVersion` divergente tem duas formas**. Em `create-vault.service.ts` ela é `400 INVALID_ENVELOPE` com `KEY_VERSION_MISMATCH` em `details[].code`, porque ali o campo conferido é o envelope. Nas rotas de conteúdo não há envelope, então o código sobe para o topo como `409`. As duas convivem; o que não pode é a rota de site herdar `INVALID_ENVELOPE` porque foi copiada da de cofre.
+
+### Decisões em aberto
+
+Quatro. Duas fechadas aqui, uma fechada aqui com efeito adiado, e uma adiada com prazo.
+
+#### 1. A AAD não amarra a credencial ao site — decidir antes do `BLG-0504`
+
+**Bloqueia a migration da fase.** O escopo `vault` da AAD tem seis segmentos e `siteId` não é um deles ([ADR 0023](decisions/0023-identity-aad-and-key-envelope.md)): uma credencial é amarrada ao próprio id e ao cofre. Reusar o ciphertext em outra credencial falha e movê-lo para outro cofre falha, mas **mudar a coluna `site_id` dentro do mesmo cofre não é detectado na decifragem**.
+
+O ator capaz disso é quem escreve no banco — exatamente o ator contra o qual o resto do modelo foi construído. O dano é o que o ADR 0025 já descreve para o cofre: exibir a credencial do banco sob o site errado induz o usuário a entregá-la no lugar errado.
+
+Fechar a aresta é acrescentar um segmento à AAD. `SECURITY.md` secao 18 registra que mudar o formato da AAD "hoje ainda é barato, porque nenhum cofre existe; depois do primeiro conteúdo gravado, não é" — e a janela é literalmente esta fase, porque é ela que grava o primeiro conteúdo. A mesma janela já foi usada uma vez, na R0.2, quando a `v1` virou `v2` antes da primeira migration.
+
+Registrada como `PEND-027`. **Trava o `BLG-0504`**, e por isso é a primeira coisa a resolver depois desta branch.
+
+#### 2. A instabilidade da suíte e2e — investigar antes de multiplicar os testes
+
+Fechada: **investigar, e antes de escrever qualquer e2e novo da fase.**
+
+Os limites da R0.3 registram três reprovações de **um** caso na primeira execução completa, em `identity-schema` e `session-lifecycle`, com a segunda rodada passando. Nunca foi investigada. A R0.4 multiplica a quantidade de e2e, e um teste que falha uma vez em três é o tipo de sinal que se aprende a ignorar — e aí passa a esconder defeito de verdade.
+
+Investigar depois de triplicar a suíte é investigar com mais ruído e mais superfície. Por isso entra na primeira branch da fase e não na última. As hipóteses a medir, todas já visíveis na configuração:
+
+- `testTimeout: 30000` com o banco frio na primeira consulta;
+- Argon2id a 64 MiB por login, várias vezes por spec;
+- `maxWorkers: 1`, que serializa tudo e faz o custo somar em vez de diluir;
+- ordem de execução entre specs, que o Jest não fixa por padrão.
+
+O critério de encerramento não é "passou dez vezes". É ter uma causa nomeada e uma mudança que a enderece, ou a constatação explícita de que a causa é o teto de tempo — caso em que o teto sobe, com o número justificado.
+
+#### 3. O guard de `TABLES` — fechada, e é a primeira branch
+
+Fechada: **sim, e antes da migration.**
+
+`apps/api/test/support/database.ts` limpa oito tabelas nomeadas à mão, em ordem topológica. A migration da fase acrescenta `sites` e `credentials`; esquecê-las ali não quebra nada de imediato — só deixa estado vazar entre specs, que é o defeito mais caro de diagnosticar que uma suíte pode ter, porque a falha aparece em um teste que não mudou.
+
+O guard compara `TABLES` com `information_schema.tables` do banco de teste, ignorando `_prisma_migrations`, e falha nomeando a diferença nos dois sentidos: tabela no schema e fora da lista, e tabela na lista e fora do schema.
+
+Escrito **antes** da migration ele nasce verde sobre oito tabelas e falha no instante em que a nona aparece. Escrito depois, nasce verde e nunca demonstrou detectar coisa alguma. É por isso que a ordem importa, e é uma linha do gate.
+
+#### 4. Destravar no reload em vez de re-autenticar — adiada, com prazo
+
+**Adiada até a R0.6, e obrigatoriamente antes do código de sessão do Android na R0.7.** Registrada como `PEND-028`.
+
+Hoje o F5 perde as chaves em memória, o que é desenho e não defeito: a `UserEncryptionKey` deriva da senha e nenhum token a recupera ([ADR 0021](decisions/0021-session-token-lifetimes.md)). O que vem depois é que incomoda — o login seguinte cunha **sessão nova**, e as sessões abandonadas se acumulam em W24 até expirarem.
+
+O cookie de refresh sobrevive ao reload. Existiria a opção de renovar o access token com ele e pedir só a senha para destravar, mantendo a mesma sessão.
+
+A análise que sustenta o adiamento, e não o descarte:
+
+- **Não enfraquece a barreira criptográfica.** Destravar continua exigindo a senha; não há caminho que devolva as chaves sem ela.
+- **Não cria exposição nova.** A objeção natural é que a tela de destravar contorna o bloqueio progressivo do login, permitindo tentativas contra o key bundle sem o servidor contar. Só que `GET /users/me/key-bundle` já entrega o bundle a qualquer chamador autenticado: quem tem o cookie já pode montar esse ataque hoje, e a defesa real é o Argon2id a 64 MiB, não o contador de tentativas.
+- **Reduz sessões órfãs**, que é a superfície que hoje cresce sozinha.
+
+Ou seja, a direção é favorável. O que impede fechar agora é que `CLAUDE.md` secao 82 exige, para mudança de autenticação, revisão de threat model, de sessões, de cookies e do storage do Android, mais testes de reuse e de revogação — trabalho que não cabe em uma branch de documentação e que não é conteúdo da R0.4. Nada no contrato desta fase depende da resposta.
+
+O prazo não é arbitrário: o custo sobe quando existir um segundo cliente com ciclo de sessão próprio, e esse cliente é da R0.7.
+
+O passo 16 do roteiro da secao 25.1 foi escrito para valer nos dois casos — ele cobra que a tela **diga alguma coisa** depois do reload, e não um destino específico.
+
+### Decisões fechadas antes do código
+
+| Decisão                                                          | Onde                         |
+| ---------------------------------------------------------------- | ---------------------------- |
+| Limites de conteúdo e tetos de ciphertext, com o cálculo         | `API.md` secao 74            |
+| Limites de quantidade passam a ser configuração de ambiente      | `API.md` secao 74            |
+| `keyVersion` entra na persistência de site e credencial          | `ARCHITECTURE.md` secao 21.3 |
+| O que a AAD amarra e o que não amarra, escrito por extenso       | `ARCHITECTURE.md` secao 21.4 |
+| Permissão e erros declarados nas dez rotas de conteúdo           | `API.md` secoes 51 a 60      |
+| Guard de `TABLES` antes da migration                             | Acima, e uma linha do gate   |
+| Busca não indexa observação, e o campo diz o que ainda não cobre | `TELAS.md` secao 14          |
+
+### Por que a ordem das branches é essa
+
+Duas restrições fixam quase tudo, e as duas já foram aprendidas em fase anterior.
+
+A primeira é a da R0.2, registrada na secao 7: **o formato criptográfico fecha antes da primeira migration, e a migration vem antes de qualquer endpoint que grave.** `SECURITY.md` secao 18 é explícita sobre a janela, e a `PEND-027` — a AAD que não amarra ao site — é exatamente uma decisão de formato dentro dela. Inverter transformaria uma decisão de projeto em migração de dado cifrado.
+
+A segunda é nova e vem do harness: **o guard de `TABLES` só demonstra alguma coisa se existir antes da tabela que ele deveria cobrar.** Depois da migration ele nasce verde e não prova nada. Junto dele vai a investigação da instabilidade e2e, pelo mesmo motivo temporal invertido: investigar ruído é mais barato antes de triplicar a suíte que o produz.
+
+Daí a ordem:
+
+| #   | Branch                            | Entrega                                                                                      | Por que aqui                                                             |
+| --- | --------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 1   | `chore/e2e-harness-guard`         | Guard de `TABLES` e investigação da instabilidade                                            | Precisa anteceder a migration para reprovar quando deve                  |
+| 2   | `security/content-aad`            | Fecha a `PEND-027` com ADR; se mudar o formato, muda antes de existir ciphertext             | Última janela barata para mexer na AAD                                   |
+| 3   | `feature/crypto-content-payloads` | `SITE_LIMITS`, `CREDENTIAL_LIMITS`, payload de site e credencial, vetores — `BLG-0706`       | Formato fechado antes do schema que o grava                              |
+| 4   | `feature/api-content-schema`      | Migration de `sites` e `credentials` — `BLG-0504`                                            | Depois do formato, antes de qualquer rota de escrita                     |
+| 5   | `feature/api-sites`               | As cinco rotas de site — `BLG-1101` a `BLG-1105`, metade de API                              | Site antes de credencial: credencial pende de site por chave estrangeira |
+| 6   | `feature/api-credentials`         | As cinco rotas de credencial — `BLG-1201` a `BLG-1207`, metade de API                        | Idem                                                                     |
+| 7   | `feature/web-sites`               | W09, W10, W11, W12 e W13 — metade de cliente dos mesmos itens                                | Primeiro consumidor real do contrato de site                             |
+| 8   | `feature/web-credentials`         | W14, W15, W16, W17, revelar, copiar sem revelar — `BLG-1203` a `BLG-1207`, metade de cliente | Onde vivem as linhas de máscara e clipboard do gate                      |
+| 9   | `feature/web-vault-search`        | Busca local no cofre — `BLG-1301`                                                            | Depende de site e credencial carregados para filtrar por usuário         |
+
+As branches 5 e 7 entregam os **mesmos** itens de backlog, e é deliberado. A R0.3 fechou o `BLG-0806` como `DONE` com evidência só da API, enquanto a checklist do próprio item mantinha `Limpar cliente` desmarcada — e o defeito apareceu no primeiro uso real. Nesta fase **nenhum item de `BLG-11xx` ou `BLG-12xx` fecha antes das duas metades**, e a tabela de tarefas abaixo marca as metades separadamente.
+
+`BLG-1106`, o aviso de duplicidade, e `BLG-1208`, o gerador de senha, são `P2` e não entram na ordem. Se sobrar fase, entram; se não, seguem para a R1.1 sem que nenhuma linha do gate dependa deles.
+
+### Tarefas da R0.4
+
+Nenhum item fecha com evidência de uma metade só. `API` e `Web` são marcados em separado, e o `Status` do item é o menor dos dois.
+
+| Item     | API        | Web        | Status     | Observação                                                                                 |
+| -------- | ---------- | ---------- | ---------- | ------------------------------------------------------------------------------------------ |
+| BLG-0504 | `PENDENTE` | —          | `PENDENTE` | Migration de `sites` e `credentials`. Travada pela `PEND-027`. Testar banco vazio e cheio. |
+| BLG-0706 | —          | `PENDENTE` | `PENDENTE` | Payload de site e credencial. Fecha o item, que a R0.3 deixou só com o cofre.              |
+| BLG-1101 | `PENDENTE` | `PENDENTE` | `PENDENTE` | `POST` de site com idempotência e auditoria; W10.                                          |
+| BLG-1102 | `PENDENTE` | `PENDENTE` | `PENDENTE` | `GET` de sites paginado; lista do W09.                                                     |
+| BLG-1103 | `PENDENTE` | `PENDENTE` | `PENDENTE` | `GET` de site; W13.                                                                        |
+| BLG-1104 | `PENDENTE` | `PENDENTE` | `PENDENTE` | `PATCH` de site com `expectedVersion` no `WHERE`; W11.                                     |
+| BLG-1105 | `PENDENTE` | `PENDENTE` | `PENDENTE` | `DELETE` de site em cascata, com auditoria preservada; W12.                                |
+| BLG-1106 | —          | —          | `BACKLOG`  | `P2`. Aviso de duplicidade. Fora da ordem das branches.                                    |
+| BLG-1201 | `PENDENTE` | `PENDENTE` | `PENDENTE` | `POST` de credencial com idempotência; W14.                                                |
+| BLG-1202 | `PENDENTE` | `PENDENTE` | `PENDENTE` | `GET` de credenciais paginado; lista do W13.                                               |
+| BLG-1203 | `PENDENTE` | `PENDENTE` | `PENDENTE` | `GET` de credencial; W17, com máscara e revelação temporária.                              |
+| BLG-1204 | —          | `PENDENTE` | `PENDENTE` | Copiar usuário.                                                                            |
+| BLG-1205 | —          | `PENDENTE` | `PENDENTE` | Copiar senha sem revelar, toast sem valor. Duas linhas do gate.                            |
+| BLG-1206 | `PENDENTE` | `PENDENTE` | `PENDENTE` | `PATCH` de credencial, payload inteiro; W15.                                               |
+| BLG-1207 | `PENDENTE` | `PENDENTE` | `PENDENTE` | `DELETE` de credencial; W16.                                                               |
+| BLG-1208 | —          | —          | `BACKLOG`  | `P2`. Gerador de senha. Fora da ordem das branches.                                        |
+| BLG-1301 | —          | `PENDENTE` | `PENDENTE` | Busca local por nome de site e usuário, sem observação e sem índice persistido.            |
+
+### Limites conhecidos da fase
+
+Escritos na abertura, e não no fechamento, porque são coisas que já se sabe que a fase não vai resolver.
+
+- **`EDITOR` continua declarado e não exercitado.** O papel existe no schema desde o `BLG-0503` e as rotas de conteúdo já declaram "OWNER ou EDITOR", mas convite e membership são da R0.5. A linha do gate cobre não-membro; um `EDITOR` de verdade só aparece na fase seguinte.
+- **O clipboard não tem expiração garantida.** O navegador não a oferece, e uma limpeza por tempo só funciona com a aba aberta e em foco. `BLG-1205` pede limpeza "quando possível", e o gate cobra o que é verificável: copiar sem revelar, e toast sem valor.
+- **A busca depende do cofre carregado.** Buscar por usuário exige as credenciais em memória, e em cofre grande isso é o snapshot inteiro. `ARCHITECTURE.md` secao 22.3 já aceita a limitação; o que a fase acrescenta é o campo dizer o que ainda não cobre, em vez de devolver menos resultados em silêncio.
+- **A migration da fase não deve precisar de gatilho.** Se precisar, o MySQL dos ambientes recusa `CREATE TRIGGER` sem `log_bin_trust_function_creators` — o defeito que derrubou development na R0.3 e travou os deploys seguintes com `P3009`. Development já foi liberado; **staging e produção não**, e o passo está em `config_user.md` secao 18. A restrição de um dono por cofre precisou de gatilho; nada em `sites` ou `credentials` precisa, e manter assim é preferível a repetir o provisionamento.
+- **Os vetores criptográficos da fase nascem exercitados só na Web.** Mesma pendência que atravessa as fases anteriores: `PEND-003` e a medição em Android continuam na R0.7.
+
+---
+
 # ÉPICO 00 — GOVERNANÇA DO PROJETO
 
 ---
@@ -1284,7 +1474,19 @@ O `BLG-0506` permanece, com as duas entidades de importação.
 - [ ] Site.
 - [ ] Credential.
 - [ ] Versionamento.
+- [ ] `key_version` em ambas, para saber qual geração da `VaultKey` abre o payload após um rekey.
+- [ ] `id` sem `@default`, porque vem do cliente ([ADR 0025](decisions/0025-client-generated-identifiers.md)).
+- [ ] `ON DELETE CASCADE` de `credentials` → `sites` e de `sites` → `vaults`.
+- [ ] Acrescentar as duas tabelas a `TABLES`, em `apps/api/test/support/database.ts`.
 - [ ] Exclusão física, sem `deleted_at`. — Corrigido em 11 de agosto de 2026; dizia "soft delete técnico", contra o [ADR 0020](decisions/0020-deletion-policy.md).
+
+### Bloqueado pela `PEND-027`
+
+Não começar antes de a AAD de credencial estar decidida. Se ela ganhar um segmento `siteId`, o formato muda — e `SECURITY.md` secao 18 fixa que mexer na AAD é barato **antes** do primeiro conteúdo gravado e migração de dado cifrado depois. Esta migration é o que grava o primeiro conteúdo.
+
+### Sem gatilho
+
+A restrição de um dono por cofre precisou de gatilho no `BLG-0503`, e isso custou um ambiente derrubado com `MySQL 1419`. Nada em `sites` ou `credentials` precisa de gatilho. Se aparecer necessidade, ela vem com o provisionamento de `config_user.md` secao 18 em **staging e produção**, que ainda não foi feito.
 
 ---
 
