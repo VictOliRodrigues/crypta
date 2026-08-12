@@ -850,9 +850,34 @@ Para cada ambiente:
 - [ ] Não publicar porta externa.
 - [ ] Criar volume persistente.
 - [ ] Criar credenciais próprias.
+- [ ] **Liberar a criação de gatilhos** — ver abaixo.
 - [ ] Configurar `DATABASE_URL` somente na API daquele ambiente.
 - [ ] Configurar backup.
 - [ ] Não reutilizar banco de outro ambiente.
+
+### Liberar a criação de gatilhos
+
+A migration `20260811203308_vaults` cria dois gatilhos. São eles que garantem **um único `OWNER` por cofre no banco**, em vez de depender de todo caminho de escrita da aplicação lembrar de calcular a coluna.
+
+O MySQL recusa `CREATE TRIGGER` para usuário sem `SUPER` quando o log binário está ligado — que é o padrão do serviço provisionado pelo Coolify:
+
+```text
+Database error code: 1419
+You do not have the SUPER privilege and binary logging is enabled
+```
+
+O usuário da aplicação tem DDL sobre o próprio banco e mesmo assim esbarra nisto: a restrição não é sobre o banco, é sobre o servidor. É o caso que a exigência de DDL da secao 17 não cobre.
+
+Como root, uma vez por ambiente:
+
+```sql
+SET PERSIST log_bin_trust_function_creators = 1;
+SELECT @@global.log_bin_trust_function_creators;
+```
+
+`SET PERSIST`, e não `SET GLOBAL`: grava em `mysqld-auto.cnf`, dentro do volume de dados, e sobrevive ao restart do container. Com `SET GLOBAL` a liberação evapora no próximo restart e o deploy volta a falhar sem nada ter mudado.
+
+**Faça isto antes do primeiro deploy da API do ambiente.** O entrypoint aplica as migrations antes de aceitar tráfego e derruba o container quando elas falham — o que é deliberado, para não promover uma versão que não consegue migrar. Só que DDL no MySQL não é transacional: uma tentativa que falhe no gatilho deixa as tabelas já criadas e a migration registrada como falha, e a partir daí **todo deploy aborta com `P3009` sem sequer tentar**. Recuperar exige apagar as tabelas parciais e a linha correspondente de `_prisma_migrations` à mão.
 
 ---
 
