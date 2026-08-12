@@ -530,4 +530,93 @@ describe('cofres', () => {
       await expect(context.prisma.vault.count()).resolves.toBe(1);
     });
   });
+  describe('GET /vaults/:vaultId/snapshot', () => {
+    function getSnapshot(token: string, vaultId = VAULT_ID) {
+      return request(context.httpServer)
+        .get(`/${API_PREFIX}/vaults/${vaultId}/snapshot`)
+        .set('Authorization', `Bearer ${token}`);
+    }
+
+    it('devolve metadata, envelope do chamador e membros', async () => {
+      await createAccount(ALICE);
+      const token = await createVaultFor(ALICE);
+
+      const response = await getSnapshot(token).expect(200);
+      const data = readData(response);
+
+      expect(data.vault).toMatchObject({
+        id: VAULT_ID,
+        encryptedMetadata: ENCRYPTED_METADATA,
+        version: 1,
+        keyVersion: 1,
+      });
+
+      expect(data.currentUserEnvelope).toEqual(OWNER_ENVELOPE);
+
+      const members = data.members as { role: string }[];
+
+      expect(members).toHaveLength(1);
+      expect(members[0]).toMatchObject({ role: 'OWNER' });
+    });
+
+    /** Sites e credenciais entram na R0.4. A forma existe antes do conteúdo. */
+    it('devolve listas vazias e cursor nulo enquanto não há conteúdo', async () => {
+      await createAccount(ALICE);
+      const token = await createVaultFor(ALICE);
+
+      const data = readData(await getSnapshot(token).expect(200));
+
+      expect(data.sites).toEqual([]);
+      expect(data.credentials).toEqual([]);
+      expect(data.syncCursor).toBeNull();
+    });
+
+    it('não devolve envelope de outro membro', async () => {
+      await createAccount(ALICE);
+      await createAccount(BOB);
+      const token = await createVaultFor(ALICE);
+
+      const bob = await context.prisma.user.findUniqueOrThrow({ where: { email: BOB } });
+
+      await context.prisma.vaultMember.create({
+        data: { vaultId: VAULT_ID, userId: bob.id, role: 'EDITOR' },
+      });
+
+      await context.prisma.vaultKeyEnvelope.create({
+        data: {
+          vaultId: VAULT_ID,
+          userId: bob.id,
+          ...OWNER_ENVELOPE,
+          encryptedVaultKey: 'AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD',
+        },
+      });
+
+      const data = readData(await getSnapshot(token).expect(200));
+
+      expect(data.currentUserEnvelope).toEqual(OWNER_ENVELOPE);
+      expect(JSON.stringify(data)).not.toContain(
+        'AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD',
+      );
+      expect(data.members as unknown[]).toHaveLength(2);
+    });
+
+    it('responde 404 para quem não é membro', async () => {
+      await createAccount(ALICE);
+      await createAccount(BOB);
+      await createVaultFor(ALICE);
+
+      const bobToken = await authenticate(BOB);
+
+      await getSnapshot(bobToken).expect(404);
+    });
+
+    it('recusa sem autenticação', async () => {
+      await createAccount(ALICE);
+      await createVaultFor(ALICE);
+
+      await request(context.httpServer)
+        .get(`/${API_PREFIX}/vaults/${VAULT_ID}/snapshot`)
+        .expect(401);
+    });
+  });
 });
