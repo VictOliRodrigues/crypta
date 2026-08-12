@@ -6,9 +6,10 @@ import { PrismaModule } from '@/database/prisma/prisma.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { HealthModule } from '@/modules/health/health.module';
 import { SystemModule } from '@/modules/system/system.module';
+import { VaultsModule } from '@/modules/vaults/vaults.module';
 
 @Module({
-  imports: [AppConfigModule, PrismaModule, AuthModule, HealthModule, SystemModule],
+  imports: [AppConfigModule, PrismaModule, AuthModule, HealthModule, SystemModule, VaultsModule],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

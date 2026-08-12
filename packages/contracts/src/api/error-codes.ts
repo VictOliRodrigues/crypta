@@ -44,6 +44,21 @@ export const API_ERROR_CODES = [
   // aqui não há oráculo a evitar: quem chama já está autenticado, e a conta é
   // a dele. Reaproveitar o código do login faria o cliente exibir "e-mail ou
   // senha inválidos" numa tela que não tem campo de e-mail.
+  // Cofres (docs/API.md secoes 33 a 38).
+  //
+  // `IDENTIFIER_CONFLICT` existe porque o id do cofre vem do cliente
+  // (ADR 0025): é o `409` de identificador já usado, no mesmo padrão de
+  // `VERSION_CONFLICT` e `IDEMPOTENCY_CONFLICT`.
+  //
+  // Não existe `VAULT_NOT_FOUND`. Cofre de outro usuário responde
+  // `RESOURCE_NOT_FOUND`, igual a cofre inexistente: um código próprio
+  // diria que o recurso existe e não é seu.
+  'IDENTIFIER_CONFLICT',
+  'VAULT_ACCESS_DENIED',
+  'VAULT_LIMIT_REACHED',
+  'INVALID_ENVELOPE',
+  'VAULT_LOCKED_FOR_REKEY',
+
   'CURRENT_CREDENTIAL_INVALID',
   'PUBLIC_KEY_CHANGE_NOT_ALLOWED',
 ] as const;

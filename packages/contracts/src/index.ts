@@ -40,3 +40,20 @@ export {
 } from './health/health.contract';
 export { type SessionListResponse, type SessionView } from './session/session.contract';
 export { type VersionData, type VersionResponse } from './system/version.contract';
+export {
+  type EncryptedPayload,
+  type KeyEnvelopeView,
+  VAULT_ROLES,
+  type VaultCreatedData,
+  type VaultCreatedResponse,
+  type VaultDetail,
+  type VaultDetailResponse,
+  type VaultListResponse,
+  type VaultMemberView,
+  type VaultRole,
+  type VaultSnapshotData,
+  type VaultSnapshotResponse,
+  type VaultSummary,
+  type VaultUpdatedData,
+  type VaultUpdatedResponse,
+} from './vault/vault.contract';
