@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Baixar código
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # Este job não executa nenhuma operação git depois do checkout, mas
           # roda `pnpm install`, que executa scripts de instalação de terceiros
@@ -84,7 +84,7 @@ jobs:
 
     steps:
       - name: Baixar código
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # Este job não executa nenhuma operação git depois do checkout, mas
           # roda `pnpm install`, que executa scripts de instalação de terceiros
@@ -134,7 +134,7 @@ jobs:
 
     steps:
       - name: Baixar código
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # Mesmo motivo do job `validate`: `pnpm install` executa scripts de
           # terceiros, e sem isto o token do job fica legível no filesystem do
