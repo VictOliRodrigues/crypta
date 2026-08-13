@@ -99,7 +99,7 @@ jobs:
       # A Web recebe os metadados como VITE_*: são embutidos no bundle e
       # exibidos na tela de diagnóstico. Nenhum deles é segredo.
       - name: Construir Web
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: apps/web/Dockerfile
@@ -115,7 +115,7 @@ jobs:
             APP_BUILT_AT=${{ steps.meta.outputs.built_at }}
 
       - name: Construir API
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: apps/api/Dockerfile
