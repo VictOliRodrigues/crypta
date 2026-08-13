@@ -451,7 +451,7 @@ Retirado de `CLAUDE.md` secao 80:
 
 Os dois itens novos vêm de defeitos reais, e nenhum dos dois falha no lugar onde é causado.
 
-**`TABLES` esquecida** não quebra nada de imediato: a suíte continua verde e passa a vazar estado entre specs, e a falha aparece depois, em um teste que não mudou. A R0.4 acrescenta um guard que compara a lista com `information_schema` e falha nomeando a diferença — enquanto ele não existir, esta linha da checklist é a única proteção.
+**`TABLES` esquecida** não quebra nada de imediato: a suíte continua verde e passa a vazar estado entre specs, e a falha aparece depois, em um teste que não mudou. `harness-guard.e2e-spec.ts` compara a lista com `information_schema` e falha nomeando a diferença nos dois sentidos, então esta linha da checklist deixou de depender de alguém lembrar dela.
 
 **Gatilho sem provisionamento** derrubou development na R0.3 com `MySQL 1419`. Como DDL no MySQL não é transacional, a tentativa deixa as tabelas criadas e a migration registrada como falha, e todo deploy seguinte aborta com `P3009` antes de tentar. Development já foi liberado; **staging e produção não**.
 
