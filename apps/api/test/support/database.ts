@@ -33,8 +33,13 @@ import { type PrismaService } from '@/database/prisma/prisma.service';
  * Ordem topológica: toda tabela vem antes daquelas que ela referencia. Inverter
  * duas linhas quebra a limpeza com erro de FK, então acrescentar tabela aqui
  * exige olhar as `@relation` do schema.
+ *
+ * Exportada para que `harness-guard.e2e-spec.ts` a compare com o schema vivo.
+ * Esquecer uma tabela aqui não quebra nada de imediato: a suíte continua verde
+ * e passa a vazar estado entre specs, e a falha aparece depois, em um teste que
+ * não mudou. O guard existe para transformar esse silêncio em erro.
  */
-const TABLES = [
+export const TABLES = [
   'audit_logs',
   'vault_key_envelopes',
   'vault_members',
