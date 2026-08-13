@@ -36,7 +36,7 @@
     "@noble/curves": "2.2.0",
     "@noble/hashes": "2.2.0",
     "eslint": "^9.38.0",
-    "typescript": "^5.9.2",
+    "typescript": "^7.0.2",
     "vitest": "^3.2.4"
   }
 }
