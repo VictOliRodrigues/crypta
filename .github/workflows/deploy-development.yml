@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: Baixar código
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # Este job tem `packages: write` e roda `pnpm install` com scripts de
           # instalação de terceiros antes do login no GHCR. Não faz nenhuma
