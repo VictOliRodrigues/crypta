@@ -629,6 +629,16 @@ Campo:
 
 - `Buscar por site ou usuário`.
 
+A busca é local, sobre o conteúdo já descriptografado em memória (`ARCHITECTURE.md` secao 22). Regras:
+
+- filtra por nome do site e por usuário das credenciais;
+- **não** filtra por observação, nem na R0.4 nem depois de a observação estar carregada;
+- debounce antes de aplicar o filtro;
+- o termo digitado não vai para a URL, nem para `localStorage`, nem para nenhum log;
+- o índice vive apenas em memória e morre com a tela.
+
+Buscar por usuário significa que a lista de sites precisa das credenciais do cofre carregadas. Enquanto elas não estiverem, o campo filtra só por nome do site e informa isso — em vez de devolver silenciosamente menos resultados do que existem.
+
 ### Lista de sites
 
 Cada item deve exibir:
@@ -683,26 +693,41 @@ Cadastrar um site dentro do cofre.
 #### Nome
 
 - obrigatório;
+- máximo de 200 caracteres;
+- remover espaços excedentes antes de validar;
 - exemplo: `Google`.
 
 #### Link
 
 - opcional;
+- máximo de 2048 caracteres;
 - exemplo: `https://accounts.google.com`;
 - validar URL;
-- aceitar `http` e `https`;
+- aceitar `http` e `https`, e recusar qualquer outro esquema;
 - preferir `https`.
+
+Os limites são os de `SITE_LIMITS`, em `@crypta/validation`, e valem no cliente porque a API recebe o conteúdo já cifrado e não tem como conferi-los (`API.md` secao 74).
+
+Recusar esquema fora de `http` e `https` não é preferência de formato: o link vira um `href` clicável no W13, e um `javascript:` gravado no campo executaria no contexto da aplicação desbloqueada.
 
 ### Botões
 
 - `Cancelar`;
 - `Criar site`.
 
+### Estados
+
+- inativo;
+- salvando;
+- erro de validação;
+- erro da API.
+
 ### Regras
 
 - alertar sobre possível nome duplicado;
 - não impedir duplicidade automaticamente;
-- manter o cofre de destino visível.
+- manter o cofre de destino visível;
+- não limpar o formulário após erro do servidor.
 
 ---
 
@@ -717,10 +742,26 @@ Editar nome e link.
 - `Nome`;
 - `Link`.
 
+Mesmos limites e mesmas validações do W10.
+
 ### Botões
 
 - `Cancelar`;
 - `Salvar alterações`.
+
+### Estados
+
+- inativo;
+- salvando;
+- erro de validação;
+- erro da API;
+- conflito de versão.
+
+### Regras
+
+- carregar os valores atuais já descriptografados;
+- não limpar o formulário após erro do servidor;
+- em conflito de versão, informar que o site mudou em outra sessão e oferecer recarregar — nunca sobrescrever em silêncio.
 
 ---
 
@@ -742,6 +783,12 @@ Confirmar exclusão do site e de suas credenciais.
 
 `Todas as credenciais vinculadas a este site também serão removidas.`
 
+### Regras
+
+- botão de excluir destacado como perigo;
+- não fechar acidentalmente durante a exclusão;
+- **não exibir nenhum usuário nem nenhuma senha das credenciais que serão apagadas** — a quantidade basta para dimensionar a perda.
+
 ---
 
 ## 18. Tela W13 — Detalhes do site
@@ -759,6 +806,8 @@ Exibir os dados do site e sua lista de credenciais.
 - botão `Nova credencial`;
 - menu de ações.
 
+O botão `Abrir site` abre em nova aba com `rel="noopener noreferrer"`. Sem `noopener`, a página aberta recebe uma referência à janela do cofre e pode navegá-la para outro endereço.
+
 ### Lista de credenciais
 
 Cada card ou linha deve exibir:
@@ -771,6 +820,8 @@ Cada card ou linha deve exibir:
 - botão copiar senha;
 - botão abrir detalhes;
 - menu de ações.
+
+A senha mascarada é um marcador de comprimento fixo, igual para toda credencial. Mascarar preservando o comprimento real vazaria o tamanho da senha em uma tela que pode ficar aberta na frente de outras pessoas.
 
 ### Ações
 
@@ -790,6 +841,13 @@ Botão:
 
 - `Adicionar credencial`.
 
+### Estados
+
+- carregando;
+- erro;
+- vazio;
+- preenchido.
+
 ---
 
 ## 19. Modal W14 — Criar credencial
@@ -803,13 +861,15 @@ Cadastrar uma credencial em um site.
 #### Usuário
 
 - obrigatório;
-- texto livre;
+- máximo de 320 caracteres;
+- texto livre — não precisa ser um e-mail e não é validado como tal;
 - autocomplete desativado quando necessário;
 - não transformar automaticamente.
 
 #### Senha
 
 - obrigatória;
+- máximo de 1024 caracteres;
 - oculta por padrão;
 - botão revelar;
 - botão gerar senha, caso o gerador seja incluído nesta versão;
@@ -818,20 +878,34 @@ Cadastrar uma credencial em um site.
 #### Observação
 
 - opcional;
+- máximo de 2000 caracteres;
 - textarea;
 - contador de caracteres;
 - tratar como sensível.
+
+Os limites são os de `CREDENTIAL_LIMITS`, em `@crypta/validation` (`API.md` secao 74). O usuário aceita 320 caracteres porque é o comprimento máximo de um endereço de e-mail, que é a forma mais comum de nome de usuário — mas o campo não é validado como endereço, porque nome de usuário não é.
+
+Nenhum dos três campos aceita truncamento silencioso: passar do limite é erro de validação com mensagem, e não corte. Truncar uma senha grava uma senha que não é a do usuário.
 
 ### Botões
 
 - `Cancelar`;
 - `Salvar credencial`.
 
+### Estados
+
+- inativo;
+- salvando;
+- erro de validação;
+- erro da API.
+
 ### Regras
 
 - não limpar o formulário após erro do servidor;
 - não exibir senha em mensagens;
-- possível duplicidade poderá gerar aviso.
+- não exibir senha em toast de sucesso nem de erro;
+- possível duplicidade poderá gerar aviso;
+- a senha volta ao estado oculto ao fechar o modal, inclusive quando o fechamento vem de erro.
 
 ---
 
@@ -847,16 +921,29 @@ Alterar usuário, senha e observação.
 - `Senha`;
 - `Observação`.
 
+Mesmos limites e mesmas regras do W14.
+
 ### Botões
 
 - `Cancelar`;
 - `Salvar alterações`.
 
+### Estados
+
+- carregando;
+- inativo;
+- salvando;
+- erro de validação;
+- erro da API;
+- conflito de versão.
+
 ### Regras
 
-- senha deve permanecer oculta;
+- senha deve permanecer oculta ao abrir, mesmo já preenchida;
 - campos devem ser carregados apenas após autorização;
-- alterações não podem ser registradas com valores sensíveis em logs.
+- alterações não podem ser registradas com valores sensíveis em logs;
+- salvar reenvia o **payload inteiro** — usuário, senha e observação viajam no mesmo blob cifrado (`API.md` secao 59), então não existe alterar só um campo;
+- em conflito de versão, informar e oferecer recarregar; nunca sobrescrever em silêncio.
 
 ---
 
@@ -876,7 +963,7 @@ Confirmar exclusão de uma credencial.
 
 ### Regras
 
-- não exibir senha;
+- não exibir senha, nem mascarada nem revelável;
 - ação destacada como perigo.
 
 ---
@@ -896,6 +983,8 @@ Exibir uma credencial sem entrar em modo de edição.
 - última atualização;
 - responsável pela última alteração, quando disponível.
 
+O responsável vem do `updatedBy` da secao 58 da `API.md`. Em cofre privado é sempre o próprio usuário, e o campo só passa a informar algo a partir da R0.5 — até lá pode ser omitido em vez de exibir o nome de quem está olhando a tela.
+
 ### Botões
 
 - `Copiar usuário`;
@@ -907,9 +996,17 @@ Exibir uma credencial sem entrar em modo de edição.
 ### Comportamento
 
 - senha oculta por padrão;
-- revelação temporária;
+- revelação temporária, com retorno automático ao estado oculto;
 - ao fechar, a senha deve voltar ao estado oculto;
 - observação deve respeitar quebras de linha.
+
+### Copiar sem revelar
+
+`Copiar senha` funciona com a senha oculta: copiar e revelar são ações independentes, e a mais usada não deve exigir a mais perigosa.
+
+O toast de confirmação diz que a senha foi copiada e **não contém o valor**. Vale para o toast de erro também.
+
+O que acontece com o clipboard depois é conhecido e limitado: o navegador não oferece expiração, e uma limpeza por tempo só funciona se a aba continuar aberta e em foco. A tela deve fazer o que é possível e não prometer o que não é — o comportamento efetivo fica registrado nos limites da fase, não na interface.
 
 ---
 

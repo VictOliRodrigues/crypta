@@ -498,6 +498,37 @@ Entregar o núcleo funcional do cofre.
 
 ---
 
+## 25.1 Critérios funcionais
+
+Roteiro executado **em navegador, contra development**, por uma pessoa que não precisa saber como a aplicação foi construída.
+
+Cada passo é uma coisa que se vê na tela. O roteiro da R0.3 (secao 20) tinha dois passos escritos em termos de implementação — "recuperar envelope" e "descriptografar metadata" — e quem executou não teve como responder se passaram: não são coisas que aparecem em lugar nenhum da interface. O que se observa é o nome do cofre aparecendo depois de entrar de novo; o envelope e a decifragem são o mecanismo, e mecanismo é assunto do teste automatizado.
+
+O usuário deverá conseguir:
+
+1. entrar e abrir um cofre;
+2. criar um site com nome e link, e vê-lo na lista do cofre;
+3. criar um site sem link, e vê-lo na lista;
+4. abrir o site e criar uma credencial com usuário, senha e observação;
+5. ver a senha mascarada na lista, sem tê-la revelado;
+6. revelar a senha, conferir que é a que foi digitada, e ver que ela volta a ficar oculta ao fechar;
+7. copiar o usuário e colar em outro campo, obtendo o mesmo valor;
+8. copiar a senha **sem revelá-la** e colar em outro campo, obtendo o mesmo valor;
+9. editar a credencial, salvar, e ver o valor novo ao reabrir;
+10. buscar pelo nome do site e ver a lista filtrar;
+11. buscar pelo usuário de uma credencial e ver o site correspondente aparecer;
+12. buscar por um trecho que só existe na observação e **não** encontrar nada;
+13. sair, entrar de novo, abrir o mesmo cofre e ver site, credencial e observação preservados;
+14. excluir a credencial e ver a lista do site esvaziar;
+15. criar uma credencial nova, excluir o site inteiro, e ver o site sumir da lista do cofre;
+16. recarregar a página no meio do trabalho e chegar a uma tela que diga o que fazer.
+
+O passo 13 é o que prova o ciclo criptográfico inteiro sem mencionar nenhuma peça dele: se o conteúdo reaparece depois de sair e entrar, a chave foi selada, guardada, recuperada e aberta.
+
+O passo 16 não tem resultado esperado fixado, e é deliberado: hoje o F5 perde as chaves e leva ao login, que cunha sessão nova. Se a decisão em aberto sobre destravar no reload for fechada antes da fase terminar, o passo passa a esperar a tela de destravar. O que o roteiro cobra em qualquer um dos casos é que a tela **diga alguma coisa**, em vez de voltar a um formulário sem explicação — que foi o defeito da R0.2.
+
+---
+
 ## 26. Gate de saída
 
 - banco sem conteúdo aberto;
@@ -508,6 +539,10 @@ Entregar o núcleo funcional do cofre.
 - busca não persiste índice;
 - clipboard revisado;
 - E2E do cofre privado completo.
+
+Os oito itens acima são objetivos. O que os torna verificáveis está na secao "Estado da R0.4" do `BACKLOG.md`, que é o gate único da fase: cada linha nasce `PENDENTE` e só vira `OK` com a evidência que a comprova.
+
+A tabela é escrita **antes** do código, pela mesma razão da R0.3 — foi o critério por escrito que cobrou a escrita concorrente e a auditoria sem ciphertext, dois testes que ninguém teria escrito por conta própria.
 
 ---
 

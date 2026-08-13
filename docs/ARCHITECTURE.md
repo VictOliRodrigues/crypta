@@ -1190,18 +1190,39 @@ Exemplo descriptografado apenas no cliente:
 O banco armazenará:
 
 ```text
-id
+id                  UUIDv7 gerado pelo cliente (ADR 0025)
 vaultId
 siteId, quando aplicável
-encryptedPayload
+encryptedPayload    nonce, ciphertext e algoritmo, em colunas separadas
 cryptoVersion
 schemaVersion
-version
+version             concorrência otimista
+keyVersion          geração da VaultKey que cifrou este payload
 createdBy
 updatedBy
 createdAt
 updatedAt
 ```
+
+`keyVersion` não aparecia nesta lista e aparece em toda rota de site e credencial da `API.md`. Sem ela não há como saber qual geração da `VaultKey` abre o payload depois de um rekey (secao 24), que é justamente o que a coluna existe para responder — o mesmo papel que `vaults.key_version` já cumpre.
+
+O `encryptedPayload` é gravado em colunas separadas, e não como JSON, seguindo o que `vaults` já faz: nonce, ciphertext e algoritmo têm tipos e limites próprios, e uma coluna JSON os transformaria em texto não validado pelo banco.
+
+### 21.4 O que a AAD amarra, e o que não amarra
+
+A AAD do escopo `vault` (secao 14.9) tem seis segmentos, e `siteId` não é um deles. Para uma credencial, os segmentos que identificam contexto são o **id da própria credencial** e o **id do cofre**.
+
+O que isso impede:
+
+- reusar o ciphertext de uma credencial em outra credencial;
+- mover um ciphertext para outro cofre;
+- trocar um payload de site por um de credencial, porque `entityType` também entra.
+
+O que isso **não** impede: mudar a coluna `site_id` de uma credencial para outro site **do mesmo cofre**. O ciphertext continua o mesmo, a AAD continua conferindo, e a credencial passa a aparecer sob outro site. O ator capaz disso é quem escreve no banco, que é exatamente o ator contra o qual o resto do modelo foi construído.
+
+O dano é o mesmo que o [ADR 0025](decisions/0025-client-generated-identifiers.md) descreve para o cofre: em um produto onde o site indica ao usuário para onde aquela senha serve, exibir a credencial do banco sob o site errado induz o usuário a entregá-la no lugar errado.
+
+Fechar a aresta é acrescentar um segmento à AAD — barato **antes** da primeira migration de conteúdo e caro depois, pela mesma regra da `SECURITY.md` secao 18 que já valeu uma vez na R0.2. A decisão está aberta em `DECISIONS.md` secao 7 e trava o `BLG-0504`.
 
 ---
 

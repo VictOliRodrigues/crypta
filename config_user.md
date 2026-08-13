@@ -879,6 +879,20 @@ SELECT @@global.log_bin_trust_function_creators;
 
 **Faça isto antes do primeiro deploy da API do ambiente.** O entrypoint aplica as migrations antes de aceitar tráfego e derruba o container quando elas falham — o que é deliberado, para não promover uma versão que não consegue migrar. Só que DDL no MySQL não é transacional: uma tentativa que falhe no gatilho deixa as tabelas já criadas e a migration registrada como falha, e a partir daí **todo deploy aborta com `P3009` sem sequer tentar**. Recuperar exige apagar as tabelas parciais e a linha correspondente de `_prisma_migrations` à mão.
 
+#### Estado por ambiente
+
+A liberação é **por servidor MySQL**, e os três ambientes têm bancos isolados. Fazer em um não faz nos outros.
+
+| Ambiente      | Liberado                                  |
+| ------------- | ----------------------------------------- |
+| `development` | Sim, em 12 de agosto de 2026              |
+| `staging`     | **Não** — antes do primeiro deploy da API |
+| `production`  | **Não** — antes do primeiro deploy da API |
+
+A migration `20260811203308_vaults` já está no repositório e cria os dois gatilhos. Ela vai rodar no primeiro `prisma migrate deploy` de staging e de produção, e **vai falhar do mesmo jeito** se a liberação não tiver sido feita antes. Development reprovou primeiro porque foi o primeiro a receber a migration, não porque tem algo de diferente.
+
+Nenhuma migration posterior à `20260811203308_vaults` precisa de gatilho, e mantê-las assim é preferível a repetir este provisionamento. Se alguma vier a precisar, esta secao volta a valer inteira — inclusive para ambiente já liberado, porque a liberação sobrevive ao restart mas não à recriação do volume.
+
 ---
 
 ## 19. Configurar domínios e HTTPS
