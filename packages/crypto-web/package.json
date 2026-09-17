@@ -32,9 +32,9 @@
   "devDependencies": {
     "@crypta/eslint-config": "workspace:*",
     "@crypta/tsconfig": "workspace:*",
-    "@noble/ciphers": "2.2.0",
-    "@noble/curves": "2.2.0",
-    "@noble/hashes": "2.2.0",
+    "@noble/ciphers": "2.4.0",
+    "@noble/curves": "2.4.0",
+    "@noble/hashes": "2.4.0",
     "eslint": "^9.38.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
